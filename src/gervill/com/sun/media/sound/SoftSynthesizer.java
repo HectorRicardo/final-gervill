@@ -25,42 +25,17 @@
 
 package gervill.com.sun.media.sound;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import gervill.javax.sound.midi.*;
+import gervill.javax.sound.sampled.*;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
-import gervill.javax.sound.midi.Instrument;
-import gervill.javax.sound.midi.MidiChannel;
-import gervill.javax.sound.midi.MidiDevice;
-import gervill.javax.sound.midi.MidiSystem;
-import gervill.javax.sound.midi.MidiUnavailableException;
-import gervill.javax.sound.midi.Patch;
-import gervill.javax.sound.midi.Receiver;
-import gervill.javax.sound.midi.Soundbank;
-import gervill.javax.sound.midi.Transmitter;
-import gervill.javax.sound.midi.VoiceStatus;
-import gervill.javax.sound.sampled.AudioFormat;
-import gervill.javax.sound.sampled.AudioInputStream;
-import gervill.javax.sound.sampled.AudioSystem;
-import gervill.javax.sound.sampled.LineUnavailableException;
-import gervill.javax.sound.sampled.SourceDataLine;
 
 /**
  * The software synthesizer class.
@@ -628,169 +603,12 @@ public final class SoftSynthesizer implements AudioSynthesizer,
             if (defaultSoundBank != null)
                 return defaultSoundBank;
 
-            List<PrivilegedAction<InputStream>> actions =
-                new ArrayList<PrivilegedAction<InputStream>>();
-
-            actions.add(new PrivilegedAction<InputStream>() {
-                public InputStream run() {
-                    File javahome = new File(System.getProperties()
-                            .getProperty("java.home"));
-                    File libaudio = new File(new File(javahome, "lib"), "audio");
-                    if (libaudio.exists()) {
-                        File foundfile = null;
-                        File[] files = libaudio.listFiles();
-                        if (files != null) {
-                            for (int i = 0; i < files.length; i++) {
-                                File file = files[i];
-                                if (file.isFile()) {
-                                    String lname = file.getName().toLowerCase();
-                                    if (lname.endsWith(".sf2")
-                                            || lname.endsWith(".dls")) {
-                                        if (foundfile == null
-                                                || (file.length() > foundfile
-                                                        .length())) {
-                                            foundfile = file;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (foundfile != null) {
-                            try {
-                                return new FileInputStream(foundfile);
-                            } catch (IOException e) {
-                            }
-                        }
-                    }
-                    return null;
-                }
-            });
-
-            actions.add(new PrivilegedAction<InputStream>() {
-                public InputStream run() {
-                    if (System.getProperties().getProperty("os.name")
-                            .startsWith("Linux")) {
-
-                        File[] systemSoundFontsDir = new File[] {
-                            /* Arch, Fedora, Mageia */
-                            new File("/usr/share/soundfonts/"),
-                            new File("/usr/local/share/soundfonts/"),
-                            /* Debian, Gentoo, OpenSUSE, Ubuntu */
-                            new File("/usr/share/sounds/sf2/"),
-                            new File("/usr/local/share/sounds/sf2/"),
-                        };
-
-                        /*
-                         * Look for a default.sf2
-                         */
-                        for (File systemSoundFontDir : systemSoundFontsDir) {
-                            if (systemSoundFontDir.exists()) {
-                                File defaultSoundFont = new File(systemSoundFontDir, "default.sf2");
-                                if (defaultSoundFont.exists()) {
-                                    try {
-                                        return new FileInputStream(defaultSoundFont);
-                                    } catch (IOException e) {
-                                        // continue with lookup
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return null;
-                }
-            });
-
-            actions.add(new PrivilegedAction<InputStream>() {
-                public InputStream run() {
-                    if (System.getProperties().getProperty("os.name")
-                            .startsWith("Windows")) {
-                        File gm_dls = new File(System.getenv("SystemRoot")
-                                + "\\system32\\drivers\\gm.dls");
-                        if (gm_dls.exists()) {
-                            try {
-                                return new FileInputStream(gm_dls);
-                            } catch (IOException e) {
-                            }
-                        }
-                    }
-                    return null;
-                }
-            });
-
-            actions.add(new PrivilegedAction<InputStream>() {
-                public InputStream run() {
-                    /*
-                     * Try to load saved generated soundbank
-                     */
-                    File userhome = new File(System.getProperty("user.home"),
-                            ".gervill");
-                    File emg_soundbank_file = new File(userhome,
-                            "soundbank-emg.sf2");
-                    if (emg_soundbank_file.exists()) {
-                        try {
-                            return new FileInputStream(emg_soundbank_file);
-                        } catch (IOException e) {
-                        }
-                    }
-                    return null;
-                }
-            });
-
-            for (PrivilegedAction<InputStream> action : actions) {
-                try {
-                    InputStream is = AccessController.doPrivileged(action);
-                    if(is == null) continue;
-                    Soundbank sbk;
-                    try {
-                        sbk = MidiSystem.getSoundbank(new BufferedInputStream(is));
-                    } finally {
-                        is.close();
-                    }
-                    if (sbk != null) {
-                        defaultSoundBank = sbk;
-                        return defaultSoundBank;
-                    }
-                } catch (Exception e) {
-                }
-            }
-
             try {
                 /*
                  * Generate emergency soundbank
                  */
                 defaultSoundBank = EmergencySoundbank.createSoundbank();
             } catch (Exception e) {
-            }
-
-            if (defaultSoundBank != null) {
-                /*
-                 * Save generated soundbank to disk for faster future use.
-                 */
-                OutputStream out = AccessController
-                        .doPrivileged((PrivilegedAction<OutputStream>) () -> {
-                            try {
-                                File userhome = new File(System
-                                        .getProperty("user.home"), ".gervill");
-                                if (!userhome.exists()) {
-                                    userhome.mkdirs();
-                                }
-                                File emg_soundbank_file = new File(
-                                        userhome, "soundbank-emg.sf2");
-                                if (emg_soundbank_file.exists()) {
-                                    return null;
-                                }
-                                return new FileOutputStream(emg_soundbank_file);
-                            } catch (final FileNotFoundException ignored) {
-                            }
-                            return null;
-                        });
-                if (out != null) {
-                    try {
-                        ((SF2Soundbank) defaultSoundBank).save(out);
-                        out.close();
-                    } catch (final IOException ignored) {
-                    }
-                }
             }
         }
         return defaultSoundBank;
