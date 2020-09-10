@@ -27,6 +27,7 @@ package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.*;
 import gervill.javax.sound.sampled.*;
+import own.impl.SourceDataLineImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -910,7 +911,7 @@ public final class SoftSynthesizer implements AudioSynthesizer,
                     } else {
                         // can throw LineUnavailableException,
                         // IllegalArgumentException, SecurityException
-                        line = AudioSystem.getSourceDataLine(getFormat());
+                        line = new SourceDataLineImpl(getFormat());
                     }
                 }
 

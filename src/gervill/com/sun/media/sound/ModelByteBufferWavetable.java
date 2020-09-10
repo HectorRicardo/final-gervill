@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.sampled.AudioFormat;
+import gervill.javax.sound.sampled.AudioFormat.Encoding;
+import gervill.javax.sound.sampled.AudioInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
-import gervill.javax.sound.sampled.AudioFormat;
-import gervill.javax.sound.sampled.AudioInputStream;
-import gervill.javax.sound.sampled.AudioSystem;
-import gervill.javax.sound.sampled.AudioFormat.Encoding;
 
 /**
  * Wavetable oscillator for pre-loaded data.
@@ -169,40 +169,12 @@ public final class ModelByteBufferWavetable implements ModelWavetable {
     }
 
     public AudioFormat getFormat() {
-        if (format == null) {
-            if (buffer == null)
-                return null;
-            InputStream is = buffer.getInputStream();
-            AudioFormat format = null;
-            try {
-                format = AudioSystem.getAudioFileFormat(is).getFormat();
-            } catch (Exception e) {
-                //e.printStackTrace();
-            }
-            try {
-                is.close();
-            } catch (IOException e) {
-                //e.printStackTrace();
-            }
-            return format;
-        }
         return format;
     }
 
     public AudioFloatInputStream openStream() {
-        if (buffer == null)
+        if (buffer == null || format == null)
             return null;
-        if (format == null) {
-            InputStream is = buffer.getInputStream();
-            AudioInputStream ais = null;
-            try {
-                ais = AudioSystem.getAudioInputStream(is);
-            } catch (Exception e) {
-                //e.printStackTrace();
-                return null;
-            }
-            return AudioFloatInputStream.getInputStream(ais);
-        }
         if (buffer.array() == null) {
             return AudioFloatInputStream.getInputStream(new AudioInputStream(
                     buffer.getInputStream(), format,

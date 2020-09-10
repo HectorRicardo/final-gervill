@@ -24,16 +24,13 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
-import gervill.javax.sound.sampled.UnsupportedAudioFileException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class is used to create AudioFloatInputStream from AudioInputStream and
@@ -136,26 +133,16 @@ public abstract class AudioFloatInputStream {
                 AudioFormat format = stream.getFormat();
                 AudioFormat newformat;
 
-                AudioFormat[] formats = AudioSystem.getTargetFormats(
-                        AudioFormat.Encoding.PCM_SIGNED, format);
-                if (formats.length != 0) {
-                    newformat = formats[0];
-                } else {
-                    float samplerate = format.getSampleRate();
-                    int samplesizeinbits = format.getSampleSizeInBits();
-                    int framesize = format.getFrameSize();
-                    float framerate = format.getFrameRate();
-                    samplesizeinbits = 16;
-                    framesize = format.getChannels() * (samplesizeinbits / 8);
-                    framerate = samplerate;
+                float samplerate = format.getSampleRate();
+                int samplesizeinbits = 16;
+                int framesize = format.getChannels() * (samplesizeinbits / 8);
 
-                    newformat = new AudioFormat(
-                            AudioFormat.Encoding.PCM_SIGNED, samplerate,
-                            samplesizeinbits, format.getChannels(), framesize,
-                            framerate, false);
-                }
+                newformat = new AudioFormat(
+                        AudioFormat.Encoding.PCM_SIGNED, samplerate,
+                        samplesizeinbits, format.getChannels(), framesize,
+                        samplerate, false);
 
-                stream = AudioSystem.getAudioInputStream(newformat, stream);
+                AudioSystem.getAudioInputStream(newformat, stream);
                 converter = AudioFloatConverter.getConverter(stream.getFormat());
             }
             framesize_pc = stream.getFormat().getFrameSize()
@@ -209,24 +196,6 @@ public abstract class AudioFloatInputStream {
         public void reset() throws IOException {
             stream.reset();
         }
-    }
-
-    public static AudioFloatInputStream getInputStream(URL url)
-            throws UnsupportedAudioFileException, IOException {
-        return new DirectAudioFloatInputStream(AudioSystem
-                .getAudioInputStream(url));
-    }
-
-    public static AudioFloatInputStream getInputStream(File file)
-            throws UnsupportedAudioFileException, IOException {
-        return new DirectAudioFloatInputStream(AudioSystem
-                .getAudioInputStream(file));
-    }
-
-    public static AudioFloatInputStream getInputStream(InputStream stream)
-            throws UnsupportedAudioFileException, IOException {
-        return new DirectAudioFloatInputStream(AudioSystem
-                .getAudioInputStream(stream));
     }
 
     public static AudioFloatInputStream getInputStream(
