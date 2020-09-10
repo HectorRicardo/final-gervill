@@ -43,8 +43,7 @@ import java.util.prefs.Preferences;
  *
  * @author Karl Helgason
  */
-public final class SoftSynthesizer implements AudioSynthesizer,
-        ReferenceCountingDevice {
+public final class SoftSynthesizer implements AutoCloseable {
 
     protected static final class WeakAudioStream extends InputStream
     {
@@ -202,8 +201,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
             = new HashMap<String, SoftInstrument>();
     private Map<String, ModelInstrument> loadedlist
             = new HashMap<String, ModelInstrument>();
-
-    private ArrayList<Receiver> recvslist = new ArrayList<Receiver>();
 
     private void getBuffers(ModelInstrument instrument,
             List<ModelByteBuffer> buffers) {
@@ -1055,9 +1052,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
             inslist.clear();
             loadedlist.clear();
             tunings.clear();
-
-            while (recvslist.size() != 0)
-                recvslist.get(recvslist.size() - 1).close();
 
         }
     }
