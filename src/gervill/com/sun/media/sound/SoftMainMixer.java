@@ -75,10 +75,8 @@ public final class SoftMainMixer {
     private SoftReverb reverb;
     private SoftAudioProcessor chorus;
     private SoftAudioProcessor agc;
-    private long msec_buffer_len = 0;
     private int buffer_len = 0;
     TreeMap<Long, Object> midimessages = new TreeMap<Long, Object>();
-    private int max_delay_midievent = 0;
     double last_volume_left = 1.0;
     double last_volume_right = 1.0;
     private double[] co_master_balance = new double[1];
@@ -476,7 +474,6 @@ public final class SoftMainMixer {
         co_master_coarse_tuning[0] = 0.5;
         co_master_fine_tuning[0] = 0.5;
 
-        msec_buffer_len = (long) (1000000.0 / synth.getControlRate());
         samplerate = synth.getFormat().getSampleRate();
         nrofchannels = synth.getFormat().getChannels();
 
@@ -484,8 +481,6 @@ public final class SoftMainMixer {
                                 / synth.getControlRate());
 
         buffer_len = buffersize;
-
-        max_delay_midievent = buffersize;
 
         control_mutex = synth.control_mutex;
         buffers = new SoftAudioBuffer[14];
@@ -596,56 +591,6 @@ public final class SoftMainMixer {
 
     public AudioInputStream getInputStream() {
         return ais;
-    }
-
-    public void setVolume(int value) {
-        synchronized (control_mutex) {
-            co_master_volume[0] = value / 16384.0;
-        }
-    }
-
-    public void setBalance(int value) {
-        synchronized (control_mutex) {
-            co_master_balance[0] = value / 16384.0;
-        }
-    }
-
-    public void setFineTuning(int value) {
-        synchronized (control_mutex) {
-            co_master_fine_tuning[0] = value / 16384.0;
-        }
-    }
-
-    public void setCoarseTuning(int value) {
-        synchronized (control_mutex) {
-            co_master_coarse_tuning[0] = value / 16384.0;
-        }
-    }
-
-    public void globalParameterControlChange(int[] slothpath, long[] params,
-            long[] paramsvalue) {
-        if (slothpath.length == 0)
-            return;
-
-        synchronized (control_mutex) {
-
-            // slothpath: 01xx are reserved only for GM2
-
-            if (slothpath[0] == 0x01 * 128 + 0x01) {
-                for (int i = 0; i < paramsvalue.length; i++) {
-                    reverb.globalParameterControlChange(slothpath, params[i],
-                            paramsvalue[i]);
-                }
-            }
-            if (slothpath[0] == 0x01 * 128 + 0x02) {
-                for (int i = 0; i < paramsvalue.length; i++) {
-                    chorus.globalParameterControlChange(slothpath, params[i],
-                            paramsvalue[i]);
-                }
-
-            }
-
-        }
     }
 
     public void close() {

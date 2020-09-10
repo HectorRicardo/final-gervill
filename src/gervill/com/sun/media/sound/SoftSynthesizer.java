@@ -407,14 +407,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         return gmmode;
     }
 
-    void setGeneralMidiMode(int gmmode) {
-        this.gmmode = gmmode;
-    }
-
-    int getDeviceID() {
-        return deviceid;
-    }
-
     float getControlRate() {
         return controlrate;
     }

@@ -31,18 +31,8 @@ public class SourceDataLineImpl implements SourceDataLine {
     }
 
     @Override
-    public void flush() {
-        realLine.flush();
-    }
-
-    @Override
     public void start() {
         realLine.start();
-    }
-
-    @Override
-    public void stop() {
-        realLine.stop();
     }
 
     @Override
@@ -58,11 +48,6 @@ public class SourceDataLineImpl implements SourceDataLine {
     @Override
     public int getBufferSize() {
         return realLine.getBufferSize();
-    }
-
-    @Override
-    public int available() {
-        return realLine.available();
     }
 
     @Override

@@ -94,22 +94,6 @@ public interface SourceDataLine extends AutoCloseable {
 
 
     /**
-     * Flushes queued data from the line.  The flushed data is discarded.
-     * In some cases, not all queued data can be discarded.  For example, a
-     * mixer can flush data from the buffer for a specific input line, but any
-     * unplayed data already in the output buffer (the result of the mix) will
-     * still be played.  You can invoke this method after pausing a line (the
-     * normal case) if you want to skip the "stale" data when you restart
-     * playback or capture. (It is legal to flush a line that is not stopped,
-     * but doing so on an active line is likely to cause a discontinuity in the
-     * data, resulting in a perceptible click.)
-     *
-     * see #stop()
-     * see #drain()
-     */
-    public void flush();
-
-    /**
      * Allows a line to engage in data I/O.  If invoked on a line
      * that is already running, this method does nothing.  Unless the data in
      * the buffer has been flushed, the line resumes I/O starting
@@ -122,24 +106,6 @@ public interface SourceDataLine extends AutoCloseable {
      * see LineEvent
      */
     public void start();
-
-    /**
-     * Stops the line.  A stopped line should cease I/O activity.
-     * If the line is open and running, however, it should retain the resources required
-     * to resume activity.  A stopped line should retain any audio data in its buffer
-     * instead of discarding it, so that upon resumption the I/O can continue where it left off,
-     * if possible.  (This doesn't guarantee that there will never be discontinuities beyond the
-     * current buffer, of course; if the stopped condition continues
-     * for too long, input or output samples might be dropped.)  If desired, the retained data can be
-     * discarded by invoking the <code>flush</code> method.
-     * When audio capture or playback stops, a <code> LineEvent.Type#STOP STOP</code> event is generated.
-     *
-     * see #start()
-     * see #isRunning()
-     * see #flush()
-     * see LineEvent
-     */
-    public void stop();
 
     /**
      * Indicates whether the line is engaging in active I/O (such as playback
@@ -187,27 +153,6 @@ public interface SourceDataLine extends AutoCloseable {
      * @return the size of the buffer in bytes
      */
     public int getBufferSize();
-
-    /**
-     * Obtains the number of bytes of data currently available to the
-     * application for processing in the data line's internal buffer.  For a
-     * source data line, this is the amount of data that can be written to the
-     * buffer without blocking.  For a target data line, this is the amount of data
-     * available to be read by the application.  For a clip, this value is always
-     * 0 because the audio data is loaded into the buffer when the clip is opened,
-     * and persists without modification until the clip is closed.
-     * <p>
-     * Note that the units used are bytes, but will always
-     * correspond to an integral number of sample frames of audio data.
-     * <p>
-     * An application is guaranteed that a read or
-     * write operation of up to the number of bytes returned from
-     * <code>available()</code> will not block; however, there is no guarantee
-     * that attempts to read or write more data will block.
-     *
-     * @return the amount of data available, in bytes
-     */
-    public int available();
 
 
     /**

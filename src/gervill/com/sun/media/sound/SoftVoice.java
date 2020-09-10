@@ -274,21 +274,6 @@ public final class SoftVoice extends VoiceStatus {
         // co_mixer_gain[0] = 0;
     }
 
-    void updateTuning(SoftTuning newtuning) {
-        tuning = newtuning;
-        tunedKey = tuning.getTuning(note) / 100.0;
-        if (!portamento) {
-            co_noteon_keynumber[0] = tunedKey * (1.0 / 128.0);
-            if(performer == null)
-                return;
-            int[] c = performer.midi_connections[4];
-            if (c == null)
-                return;
-            for (int i = 0; i < c.length; i++)
-                processConnection(c[i]);
-        }
-    }
-
     void setNote(int noteNumber) {
         note = noteNumber;
         tunedKey = tuning.getTuning(noteNumber) / 100.0;
