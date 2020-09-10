@@ -26,17 +26,16 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.*;
-import gervill.javax.sound.sampled.*;
+import gervill.javax.sound.sampled.AudioFormat;
+import gervill.javax.sound.sampled.AudioInputStream;
+import gervill.javax.sound.sampled.AudioSystem;
+import gervill.javax.sound.sampled.SourceDataLine;
 import own.impl.SourceDataLineImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 /**
  * The software synthesizer class.
@@ -171,8 +170,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     // 2: GM Level 2
     private int gmmode = 0;
 
-    private int deviceid = 0;
-
     private AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
 
     private SourceDataLine sourceDataLine = null;
@@ -184,8 +181,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     private boolean open = false;
 
-    private String resamplerType = "linear";
-    private SoftResampler resampler = new SoftLinearResampler();
+    private SoftResampler resampler;
 
     private int number_of_midi_channels = 16;
     private int maxpoly = 64;
@@ -260,59 +256,21 @@ public final class SoftSynthesizer implements AutoCloseable {
         return true;
     }
 
-    private void processPropertyInfo(Map<String, Object> info) {
-        AudioSynthesizerPropertyInfo[] items = getPropertyInfo(info);
+    private void processPropertyInfo() {
+        this.resampler = new SoftLinearResampler2();
 
-        String resamplerType = (String)items[0].value;
-        if (resamplerType.equalsIgnoreCase("point"))
-        {
-            this.resampler = new SoftPointResampler();
-            this.resamplerType = "point";
-        }
-        else if (resamplerType.equalsIgnoreCase("linear"))
-        {
-            this.resampler = new SoftLinearResampler2();
-            this.resamplerType = "linear";
-        }
-        else if (resamplerType.equalsIgnoreCase("linear1"))
-        {
-            this.resampler = new SoftLinearResampler();
-            this.resamplerType = "linear1";
-        }
-        else if (resamplerType.equalsIgnoreCase("linear2"))
-        {
-            this.resampler = new SoftLinearResampler2();
-            this.resamplerType = "linear2";
-        }
-        else if (resamplerType.equalsIgnoreCase("cubic"))
-        {
-            this.resampler = new SoftCubicResampler();
-            this.resamplerType = "cubic";
-        }
-        else if (resamplerType.equalsIgnoreCase("lanczos"))
-        {
-            this.resampler = new SoftLanczosResampler();
-            this.resamplerType = "lanczos";
-        }
-        else if (resamplerType.equalsIgnoreCase("sinc"))
-        {
-            this.resampler = new SoftSincResampler();
-            this.resamplerType = "sinc";
-        }
-
-        setFormat((AudioFormat)items[2].value);
-        controlrate = (Float)items[1].value;
-        latency = (Long)items[3].value;
-        deviceid = (Integer)items[4].value;
-        maxpoly = (Integer)items[5].value;
-        reverb_on = (Boolean)items[6].value;
-        chorus_on = (Boolean)items[7].value;
-        agc_on = (Boolean)items[8].value;
-        largemode = (Boolean)items[9].value;
-        number_of_midi_channels = (Integer)items[10].value;
-        jitter_correction = (Boolean)items[11].value;
-        reverb_light = (Boolean)items[12].value;
-        load_default_soundbank = (Boolean)items[13].value;
+        setFormat(new AudioFormat(44100, 16, 2, true, false));
+        controlrate = 147f;
+        latency = 120000L;
+        maxpoly = 64;
+        reverb_on = true;
+        chorus_on = true;
+        agc_on = true;
+        largemode = false;
+        number_of_midi_channels = 16;
+        jitter_correction = true;
+        reverb_light = true;
+        load_default_soundbank = true;
     }
 
     private String patchToString(Patch patch) {
@@ -655,180 +613,16 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private Properties getStoredProperties() {
-        return AccessController
-                .doPrivileged((PrivilegedAction<Properties>) () -> {
-                    Properties p = new Properties();
-                    String notePath = "/gervill/com/sun/media/sound/softsynthesizer";
-                    try {
-                        Preferences prefroot = Preferences.userRoot();
-                        if (prefroot.nodeExists(notePath)) {
-                            Preferences prefs = prefroot.node(notePath);
-                            String[] prefs_keys = prefs.keys();
-                            for (String prefs_key : prefs_keys) {
-                                String val = prefs.get(prefs_key, null);
-                                if (val != null) {
-                                    p.setProperty(prefs_key, val);
-                                }
-                            }
-                        }
-                    } catch (final BackingStoreException ignored) {
-                    }
-                    return p;
-                });
-    }
-
-    private AudioSynthesizerPropertyInfo[] getPropertyInfo(Map<String, Object> info) {
-        List<AudioSynthesizerPropertyInfo> list =
-                new ArrayList<AudioSynthesizerPropertyInfo>();
-
-        AudioSynthesizerPropertyInfo item;
-
-        // If info != null or synthesizer is closed
-        //   we return how the synthesizer will be set on next open
-        // If info == null and synthesizer is open
-        //   we return current synthesizer properties.
-        boolean o = info == null && open;
-
-        item = new AudioSynthesizerPropertyInfo("interpolation", o?resamplerType:"linear");
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("control rate", o?controlrate:147f);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("format",
-                o?format:new AudioFormat(44100, 16, 2, true, false));
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("latency", o?latency:120000L);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("device id", o?deviceid:0);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("max polyphony", o?maxpoly:64);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("reverb", o?reverb_on:true);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("chorus", o?chorus_on:true);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("auto gain control", o?agc_on:true);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("large mode", o?largemode:false);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("midi channels", o?channels.length:16);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("jitter correction", o?jitter_correction:true);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("light reverb", o?reverb_light:true);
-        list.add(item);
-
-        item = new AudioSynthesizerPropertyInfo("load default soundbank", o?load_default_soundbank:true);
-        list.add(item);
-
-        AudioSynthesizerPropertyInfo[] items;
-        items = list.toArray(new AudioSynthesizerPropertyInfo[list.size()]);
-
-        Properties storedProperties = getStoredProperties();
-
-        for (AudioSynthesizerPropertyInfo item2 : items) {
-            Object v = (info == null) ? null : info.get(item2.name);
-            v = (v != null) ? v : storedProperties.getProperty(item2.name);
-            if (v != null) {
-                Class c = (item2.valueClass);
-                if (c.isInstance(v))
-                    item2.value = v;
-                else if (v instanceof String) {
-                    String s = (String) v;
-                    if (c == Boolean.class) {
-                        if (s.equalsIgnoreCase("true"))
-                            item2.value = Boolean.TRUE;
-                        if (s.equalsIgnoreCase("false"))
-                            item2.value = Boolean.FALSE;
-                    } else if (c == AudioFormat.class) {
-                        int channels = 2;
-                        boolean signed = true;
-                        boolean bigendian = false;
-                        int bits = 16;
-                        float sampleRate = 44100f;
-                        try {
-                            StringTokenizer st = new StringTokenizer(s, ", ");
-                            String prevToken = "";
-                            while (st.hasMoreTokens()) {
-                                String token = st.nextToken().toLowerCase();
-                                if (token.equals("mono"))
-                                    channels = 1;
-                                if (token.startsWith("channel"))
-                                    channels = Integer.parseInt(prevToken);
-                                if (token.contains("unsigned"))
-                                    signed = false;
-                                if (token.equals("big-endian"))
-                                    bigendian = true;
-                                if (token.equals("bit"))
-                                    bits = Integer.parseInt(prevToken);
-                                if (token.equals("hz"))
-                                    sampleRate = Float.parseFloat(prevToken);
-                                prevToken = token;
-                            }
-                            item2.value = new AudioFormat(sampleRate, bits,
-                                    channels, signed, bigendian);
-                        } catch (NumberFormatException e) {
-                        }
-
-                    } else
-                        try {
-                            if (c == Byte.class)
-                                item2.value = Byte.valueOf(s);
-                            else if (c == Short.class)
-                                item2.value = Short.valueOf(s);
-                            else if (c == Integer.class)
-                                item2.value = Integer.valueOf(s);
-                            else if (c == Long.class)
-                                item2.value = Long.valueOf(s);
-                            else if (c == Float.class)
-                                item2.value = Float.valueOf(s);
-                            else if (c == Double.class)
-                                item2.value = Double.valueOf(s);
-                        } catch (NumberFormatException e) {
-                        }
-                } else if (v instanceof Number) {
-                    Number n = (Number) v;
-                    if (c == Byte.class)
-                        item2.value = Byte.valueOf(n.byteValue());
-                    if (c == Short.class)
-                        item2.value = Short.valueOf(n.shortValue());
-                    if (c == Integer.class)
-                        item2.value = Integer.valueOf(n.intValue());
-                    if (c == Long.class)
-                        item2.value = Long.valueOf(n.longValue());
-                    if (c == Float.class)
-                        item2.value = Float.valueOf(n.floatValue());
-                    if (c == Double.class)
-                        item2.value = Double.valueOf(n.doubleValue());
-                }
-            }
-        }
-
-        return items;
-    }
-
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
             synchronized (control_mutex) {
             }
             return;
         }
-        open(null, null);
+        open(null);
     }
 
-    private void open(SourceDataLine line, Map<String, Object> info) throws MidiUnavailableException {
+    private void open(SourceDataLine line) throws MidiUnavailableException {
         if (isOpen()) {
             synchronized (control_mutex) {
             }
@@ -841,7 +635,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                     setFormat(line.getFormat());
                 }
 
-                AudioInputStream ais = openStream(getFormat(), info);
+                AudioInputStream ais = openStream(getFormat());
 
                 weakstream = new WeakAudioStream(ais);
                 ais = weakstream.getAudioInputStream();
@@ -921,8 +715,7 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private AudioInputStream openStream(AudioFormat targetFormat,
-                                        Map<String, Object> info) throws MidiUnavailableException {
+    private AudioInputStream openStream(AudioFormat targetFormat) throws MidiUnavailableException {
 
         if (isOpen())
             throw new MidiUnavailableException("Synthesizer is already open");
@@ -932,7 +725,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             gmmode = 0;
             voice_allocation_mode = 0;
 
-            processPropertyInfo(info);
+            processPropertyInfo();
 
             open = true;
 
