@@ -25,9 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-
-import gervill.javax.sound.midi.Patch;
 
 /**
  * A tuning program container, for use with MIDI Tuning.
@@ -37,31 +34,14 @@ import gervill.javax.sound.midi.Patch;
  */
 public final class SoftTuning {
 
-    private String name = null;
     private final double[] tuning = new double[128];
-    private Patch patch = null;
 
     public SoftTuning() {
-        name = "12-TET";
         for (int i = 0; i < tuning.length; i++)
             tuning[i] = i * 100;
     }
 
     public SoftTuning(byte[] data) {
-        for (int i = 0; i < tuning.length; i++)
-            tuning[i] = i * 100;
-        load(data);
-    }
-
-    public SoftTuning(Patch patch) {
-        this.patch = patch;
-        name = "12-TET";
-        for (int i = 0; i < tuning.length; i++)
-            tuning[i] = i * 100;
-    }
-
-    public SoftTuning(Patch patch, byte[] data) {
-        this.patch = patch;
         for (int i = 0; i < tuning.length; i++)
             tuning[i] = i * 100;
         load(data);
@@ -98,11 +78,6 @@ public final class SoftTuning {
                     // http://www.midi.org/about-midi/tuning.shtml
                     //if (!checksumOK2(data))
                     //    break;
-                    try {
-                        name = new String(data, 6, 16, "ascii");
-                    } catch (UnsupportedEncodingException e) {
-                        name = null;
-                    }
                     int r = 22;
                     for (int i = 0; i < 128; i++) {
                         int xx = data[r++] & 0xFF;
@@ -134,11 +109,6 @@ public final class SoftTuning {
                     // http://www.midi.org/about-midi/tuning_extens.shtml
                     if (!checksumOK(data))
                         break;
-                    try {
-                        name = new String(data, 7, 16, "ascii");
-                    } catch (UnsupportedEncodingException e) {
-                        name = null;
-                    }
                     int r = 23;
                     for (int i = 0; i < 128; i++) {
                         int xx = data[r++] & 0xFF;
@@ -155,11 +125,6 @@ public final class SoftTuning {
                     // http://www.midi.org/about-midi/tuning_extens.shtml
                     if (!checksumOK(data))
                         break;
-                    try {
-                        name = new String(data, 7, 16, "ascii");
-                    } catch (UnsupportedEncodingException e) {
-                        name = null;
-                    }
                     int[] octave_tuning = new int[12];
                     for (int i = 0; i < 12; i++)
                         octave_tuning[i] = (data[i + 23] & 0xFF) - 64;
@@ -173,11 +138,6 @@ public final class SoftTuning {
                     // http://www.midi.org/about-midi/tuning_extens.shtml
                     if (!checksumOK(data))
                         break;
-                    try {
-                        name = new String(data, 7, 16, "ascii");
-                    } catch (UnsupportedEncodingException e) {
-                        name = null;
-                    }
                     double[] octave_tuning = new double[12];
                     for (int i = 0; i < 12; i++) {
                         int v = (data[i * 2 + 23] & 0xFF) * 128
@@ -235,25 +195,8 @@ public final class SoftTuning {
         }
     }
 
-    // am: getTuning(int) is more effective.
-    // currently getTuning() is used only by tests
-    public double[] getTuning() {
-        return Arrays.copyOf(tuning, tuning.length);
-    }
-
     public double getTuning(int noteNumber) {
         return tuning[noteNumber];
     }
 
-    public Patch getPatch() {
-        return patch;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

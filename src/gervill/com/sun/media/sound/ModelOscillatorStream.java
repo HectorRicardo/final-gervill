@@ -25,8 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import java.io.IOException;
-import gervill.javax.sound.midi.MidiChannel;
-import gervill.javax.sound.midi.VoiceStatus;
 
 /**
  * This interface is used for audio streams from ModelOscillator.
@@ -37,10 +35,9 @@ public interface ModelOscillatorStream {
 
     public void setPitch(float pitch); // Pitch is in cents!
 
-    public void noteOn(MidiChannel channel, VoiceStatus voice, int noteNumber,
-            int velocity);
+    public void noteOn();
 
-    public void noteOff(int velocity);
+    public void noteOff();
 
     public int read(float[][] buffer, int offset, int len) throws IOException;
 

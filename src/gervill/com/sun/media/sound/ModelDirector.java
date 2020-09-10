@@ -42,5 +42,4 @@ public interface ModelDirector {
 
     public void noteOff(int noteNumber, int velocity);
 
-    public void close();
 }

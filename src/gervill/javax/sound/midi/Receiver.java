@@ -42,15 +42,6 @@ public interface Receiver extends AutoCloseable {
 
 
     //$$fb 2002-04-12: fix for 4662090: Contradiction in Receiver specification
-    /**
-     * Sends a MIDI message and time-stamp to this receiver.
-     * If time-stamping is not supported by this receiver, the time-stamp
-     * value should be -1.
-     * @param message the MIDI message to send
-     * @param timeStamp the time-stamp for the message, in microseconds.
-     * throws IllegalStateException if the receiver is closed
-     */
-    public void send(MidiMessage message, long timeStamp);
 
     /**
      * Indicates that the application has finished using the receiver, and

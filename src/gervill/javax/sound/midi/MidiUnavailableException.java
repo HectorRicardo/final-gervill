@@ -40,15 +40,6 @@ package gervill.javax.sound.midi;
  */
 public class MidiUnavailableException extends Exception {
 
-    /**
-     * Constructs a <code>MidiUnavailableException</code> that has
-     * <code>null</code> as its error detail message.
-     */
-    public MidiUnavailableException() {
-
-        super();
-    }
-
 
     /**
      *  Constructs a <code>MidiUnavailableException</code> with the

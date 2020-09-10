@@ -83,8 +83,6 @@ public final class ModelDestination {
                                         // 0.1 % ( I want this to be value not %)
     public static final ModelIdentifier DESTINATION_EG2_RELEASE
             = new ModelIdentifier("eg", "release", 1); // timecent
-    public static final ModelIdentifier DESTINATION_EG2_SHUTDOWN
-            = new ModelIdentifier("eg", "shutdown", 1); // timecent
     public static final ModelIdentifier DESTINATION_FILTER_FREQ
             = new ModelIdentifier("filter", "freq", 0); // cent
     public static final ModelIdentifier DESTINATION_FILTER_Q

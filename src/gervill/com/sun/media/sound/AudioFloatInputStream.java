@@ -67,10 +67,6 @@ public abstract class AudioFloatInputStream {
             return format;
         }
 
-        public long getFrameLength() {
-            return buffer_len;// / format.getFrameSize();
-        }
-
         public int read(float[] b, int off, int len) throws IOException {
             if (b == null)
                 throw new NullPointerException();
@@ -99,19 +95,11 @@ public abstract class AudioFloatInputStream {
             return len;
         }
 
-        public int available() throws IOException {
-            return buffer_len - pos;
-        }
-
         public void close() throws IOException {
         }
 
         public void mark(int readlimit) {
             markpos = pos;
-        }
-
-        public boolean markSupported() {
-            return true;
         }
 
         public void reset() throws IOException {
@@ -154,10 +142,6 @@ public abstract class AudioFloatInputStream {
             return stream.getFormat();
         }
 
-        public long getFrameLength() {
-            return stream.getFrameLength();
-        }
-
         public int read(float[] b, int off, int len) throws IOException {
             int b_len = len * framesize_pc;
             if (buffer == null || buffer.length < b_len)
@@ -177,20 +161,12 @@ public abstract class AudioFloatInputStream {
             return ret / framesize_pc;
         }
 
-        public int available() throws IOException {
-            return stream.available() / framesize_pc;
-        }
-
         public void close() throws IOException {
             stream.close();
         }
 
         public void mark(int readlimit) {
             stream.mark(readlimit * framesize_pc);
-        }
-
-        public boolean markSupported() {
-            return stream.markSupported();
         }
 
         public void reset() throws IOException {
@@ -220,31 +196,13 @@ public abstract class AudioFloatInputStream {
 
     public abstract AudioFormat getFormat();
 
-    public abstract long getFrameLength();
-
     public abstract int read(float[] b, int off, int len) throws IOException;
 
-    public final int read(float[] b) throws IOException {
-        return read(b, 0, b.length);
-    }
-
-    public final float read() throws IOException {
-        float[] b = new float[1];
-        int ret = read(b, 0, 1);
-        if (ret == -1 || ret == 0)
-            return 0;
-        return b[0];
-    }
-
     public abstract long skip(long len) throws IOException;
-
-    public abstract int available() throws IOException;
 
     public abstract void close() throws IOException;
 
     public abstract void mark(int readlimit);
-
-    public abstract boolean markSupported();
 
     public abstract void reset() throws IOException;
 }

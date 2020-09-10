@@ -27,9 +27,6 @@ package gervill.com.sun.media.sound;
 import java.io.IOException;
 import java.util.Arrays;
 
-import gervill.javax.sound.midi.MidiChannel;
-import gervill.javax.sound.midi.VoiceStatus;
-
 /**
  * Abstract resampler class.
  *
@@ -74,11 +71,10 @@ public abstract class SoftAbstractResampler implements SoftResampler {
             ibuffer_order = true;
         }
 
-        public void noteOn(MidiChannel channel, VoiceStatus voice,
-                int noteNumber, int velocity) {
+        public void noteOn() {
         }
 
-        public void noteOff(int velocity) {
+        public void noteOff() {
             noteOff_flag = true;
         }
 

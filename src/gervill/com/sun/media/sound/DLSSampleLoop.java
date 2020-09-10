@@ -41,23 +41,12 @@ public final class DLSSampleLoop {
         return length;
     }
 
-    public void setLength(long length) {
-        this.length = length;
-    }
-
     public long getStart() {
         return start;
-    }
-
-    public void setStart(long start) {
-        this.start = start;
     }
 
     public long getType() {
         return type;
     }
 
-    public void setType(long type) {
-        this.type = type;
-    }
 }

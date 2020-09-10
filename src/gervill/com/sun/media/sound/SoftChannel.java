@@ -365,7 +365,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         voice.channel = channel;
         voice.bank = bank;
         voice.program = program;
-        voice.instrument = current_instrument;
         voice.performer = p;
         voice.objects.clear();
         voice.objects.put("midi", co_midi[noteNumber]);
@@ -438,7 +437,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                             && voices[i].note == noteNumber) {
                         voices[i].sustain = false;
                         voices[i].on = true;
-                        voices[i].noteOff(0);
+                        voices[i].noteOff();
                     }
                 }
                 sustain = true;
@@ -570,7 +569,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                 if (voices[i].on && voices[i].channel == channel
                         && voices[i].note == noteNumber
                         && voices[i].releaseTriggered == false) {
-                    voices[i].noteOff(velocity);
+                    voices[i].noteOff();
                 }
                 // We must also check stolen voices
                 if (voices[i].stealer_channel == this && voices[i].stealer_noteNumber == noteNumber) {
@@ -675,7 +674,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             polypressure[noteNumber] = pressure;
             for (int i = 0; i < voices.length; i++) {
                 if (voices[i].active && voices[i].note == noteNumber)
-                    voices[i].setPolyPressure(pressure);
+                    voices[i].setPolyPressure();
             }
         }
     }
@@ -696,7 +695,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             channelpressure = pressure;
             for (int i = 0; i < voices.length; i++) {
                 if (voices[i].active)
-                    voices[i].setChannelPressure(pressure);
+                    voices[i].setChannelPressure();
             }
         }
     }
@@ -1032,27 +1031,17 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         if (controller < 120) {
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].active)
-                    voices[i].controlChange(controller, -1);
+                    voices[i].controlChange(controller);
         } else if (controller == 120) {
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].active)
-                    voices[i].rpnChange(1, -1);
+                    voices[i].rpnChange(1);
         } else if (controller == 121) {
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].active)
-                    voices[i].rpnChange(2, -1);
+                    voices[i].rpnChange(2);
         }
 
-    }
-
-    public int getControlPerNote(int noteNumber, int controller) {
-        if (keybasedcontroller_active == null)
-            return -1;
-        if (keybasedcontroller_active[noteNumber] == null)
-            return -1;
-        if (!keybasedcontroller_active[noteNumber][controller])
-            return -1;
-        return (int)(keybasedcontroller_value[noteNumber][controller] * 128);
     }
 
     public void controlChange(int controller, int value) {
@@ -1128,7 +1117,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                                 voices[i].sustain = false;
                                 if (!voices[i].on) {
                                     voices[i].on = true;
-                                    voices[i].noteOff(0);
+                                    voices[i].noteOff();
                                 }
                             }
                         }
@@ -1166,7 +1155,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                             voices[i].sostenuto = false;
                             if (!voices[i].on) {
                                 voices[i].on = true;
-                                voices[i].noteOff(0);
+                                voices[i].noteOff();
                             }
                         }
                     }
@@ -1236,7 +1225,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
 
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].active)
-                    voices[i].controlChange(controller, value);
+                    voices[i].controlChange(controller);
 
         }
     }
@@ -1247,10 +1236,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             // even when controller is "boosted" higher.
             return this.controller[controller] & 127;
         }
-    }
-
-    public void tuningChange(int program) {
-        tuningChange(0, program);
     }
 
     public void tuningChange(int bank, int program) {
@@ -1293,7 +1278,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             pitchbend = bend;
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].active)
-                    voices[i].setPitchBend(bend);
+                    voices[i].setPitchBend();
         }
     }
 
@@ -1358,7 +1343,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
 
         for (int i = 0; i < voices.length; i++)
             if (voices[i].active)
-                voices[i].nrpnChange(controller, val_i[0]);
+                voices[i].nrpnChange(controller);
 
     }
 
@@ -1395,7 +1380,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
 
         for (int i = 0; i < voices.length; i++)
             if (voices[i].active)
-                voices[i].rpnChange(controller, val_i[0]);
+                voices[i].rpnChange(controller);
     }
 
     public void resetAllControllers() {
@@ -1470,7 +1455,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].on && voices[i].channel == channel
                         && voices[i].releaseTriggered == false) {
-                    voices[i].noteOff(0);
+                    voices[i].noteOff();
                 }
         }
     }

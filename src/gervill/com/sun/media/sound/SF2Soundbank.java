@@ -235,9 +235,9 @@ public final class SF2Soundbank implements Soundbank {
                     preset.preset = chunk.readUnsignedShort();
                     preset.bank = chunk.readUnsignedShort();
                     presets_bagNdx.add(chunk.readUnsignedShort());
-                    preset.library = chunk.readUnsignedInt();
-                    preset.genre = chunk.readUnsignedInt();
-                    preset.morphology = chunk.readUnsignedInt();
+                    chunk.readUnsignedInt();
+                    chunk.readUnsignedInt();
+                    chunk.readUnsignedInt();
                     presets.add(preset);
                     if (i != count - 1)
                         this.instruments.add(preset);
@@ -436,8 +436,8 @@ public final class SF2Soundbank implements Soundbank {
                     sample.sampleRate = chunk.readUnsignedInt();
                     sample.originalPitch = chunk.readUnsignedByte();
                     sample.pitchCorrection = chunk.readByte();
-                    sample.sampleLink = chunk.readUnsignedShort();
-                    sample.sampleType = chunk.readUnsignedShort();
+                    chunk.readUnsignedShort();
+                    chunk.readUnsignedShort();
                     if (i != count - 1)
                         this.samples.add(sample);
                 }

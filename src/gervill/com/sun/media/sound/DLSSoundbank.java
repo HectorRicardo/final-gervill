@@ -402,37 +402,37 @@ public final class DLSSoundbank implements Soundbank {
             if (format.equals("INAM"))
                 info.name = chunk.readString(chunk.available());
             else if (format.equals("ICRD"))
-                info.creationDate = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("IENG"))
                 info.engineers = chunk.readString(chunk.available());
             else if (format.equals("IPRD"))
-                info.product = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ICOP"))
-                info.copyright = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ICMT"))
                 info.comments = chunk.readString(chunk.available());
             else if (format.equals("ISFT"))
-                info.tools = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("IARL"))
-                info.archival_location = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("IART"))
-                info.artist = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ICMS"))
-                info.commissioned = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("IGNR"))
-                info.genre = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("IKEY"))
-                info.keywords = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("IMED"))
-                info.medium = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ISBJ"))
-                info.subject = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ISRC"))
-                info.source = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ISRF"))
-                info.source_form = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             else if (format.equals("ITCH"))
-                info.technician = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
         }
     }
 
@@ -625,13 +625,13 @@ public final class DLSSoundbank implements Soundbank {
                     split.keyto = chunk.readUnsignedShort();
                     split.velfrom = chunk.readUnsignedShort();
                     split.velto = chunk.readUnsignedShort();
-                    split.options = chunk.readUnsignedShort();
+                    chunk.readUnsignedShort();
                     split.exclusiveClass = chunk.readUnsignedShort();
                 }
                 if (format.equals("wlnk")) {
                     split.fusoptions = chunk.readUnsignedShort();
-                    split.phasegroup = chunk.readUnsignedShort();
-                    split.channel = chunk.readUnsignedInt();
+                    chunk.readUnsignedShort();
+                    chunk.readUnsignedInt();
                     long sampleid = chunk.readUnsignedInt();
                     temp_rgnassign.put(split, sampleid);
                 }
@@ -649,8 +649,8 @@ public final class DLSSoundbank implements Soundbank {
         long size = riff.readUnsignedInt();
         sampleOptions.unitynote = riff.readUnsignedShort();
         sampleOptions.finetune = riff.readShort();
-        sampleOptions.attenuation = riff.readInt();
-        sampleOptions.options = riff.readUnsignedInt();
+        riff.readInt();
+        riff.readUnsignedInt();
         long loops = riff.readInt();
 
         if (size > 20)
@@ -677,46 +677,39 @@ public final class DLSSoundbank implements Soundbank {
             if (format.equals("INAM")) {
                 dlsinstrument.info.name = chunk.readString(chunk.available());
             } else if (format.equals("ICRD")) {
-                dlsinstrument.info.creationDate =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IENG")) {
                 dlsinstrument.info.engineers =
                         chunk.readString(chunk.available());
             } else if (format.equals("IPRD")) {
-                dlsinstrument.info.product = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICOP")) {
-                dlsinstrument.info.copyright =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICMT")) {
                 dlsinstrument.info.comments =
                         chunk.readString(chunk.available());
             } else if (format.equals("ISFT")) {
-                dlsinstrument.info.tools = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IARL")) {
-                dlsinstrument.info.archival_location =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IART")) {
-                dlsinstrument.info.artist = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICMS")) {
-                dlsinstrument.info.commissioned =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IGNR")) {
-                dlsinstrument.info.genre = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IKEY")) {
-                dlsinstrument.info.keywords =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IMED")) {
-                dlsinstrument.info.medium = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ISBJ")) {
-                dlsinstrument.info.subject = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ISRC")) {
-                dlsinstrument.info.source = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ISRF")) {
-                dlsinstrument.info.source_form =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ITCH")) {
-                dlsinstrument.info.technician =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             }
         }
     }
@@ -824,40 +817,37 @@ public final class DLSSoundbank implements Soundbank {
             if (format.equals("INAM")) {
                 dlssample.info.name = chunk.readString(chunk.available());
             } else if (format.equals("ICRD")) {
-                dlssample.info.creationDate =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IENG")) {
                 dlssample.info.engineers = chunk.readString(chunk.available());
             } else if (format.equals("IPRD")) {
-                dlssample.info.product = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICOP")) {
-                dlssample.info.copyright = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICMT")) {
                 dlssample.info.comments = chunk.readString(chunk.available());
             } else if (format.equals("ISFT")) {
-                dlssample.info.tools = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IARL")) {
-                dlssample.info.archival_location =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IART")) {
-                dlssample.info.artist = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICMS")) {
-                dlssample.info.commissioned =
-                        chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IGNR")) {
-                dlssample.info.genre = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IKEY")) {
-                dlssample.info.keywords = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IMED")) {
-                dlssample.info.medium = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ISBJ")) {
-                dlssample.info.subject = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ISRC")) {
-                dlssample.info.source = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ISRF")) {
-                dlssample.info.source_form = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ITCH")) {
-                dlssample.info.technician = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             }
         }
     }

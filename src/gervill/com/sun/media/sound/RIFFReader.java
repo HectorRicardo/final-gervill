@@ -114,10 +114,6 @@ public final class RIFFReader extends InputStream {
         return riff_type;
     }
 
-    public long getSize() {
-        return ckSize;
-    }
-
     public int read() throws IOException {
         if (avail == 0) {
             return -1;
@@ -261,36 +257,6 @@ public final class RIFFReader extends InputStream {
         if (ch4 < 0)
             throw new EOFException();
         return ch1 + (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
-    }
-
-    // Read 64 bit signed integer from stream
-    public long readLong() throws IOException {
-        long ch1 = read();
-        long ch2 = read();
-        long ch3 = read();
-        long ch4 = read();
-        long ch5 = read();
-        long ch6 = read();
-        long ch7 = read();
-        long ch8 = read();
-        if (ch1 < 0)
-            throw new EOFException();
-        if (ch2 < 0)
-            throw new EOFException();
-        if (ch3 < 0)
-            throw new EOFException();
-        if (ch4 < 0)
-            throw new EOFException();
-        if (ch5 < 0)
-            throw new EOFException();
-        if (ch6 < 0)
-            throw new EOFException();
-        if (ch7 < 0)
-            throw new EOFException();
-        if (ch8 < 0)
-            throw new EOFException();
-        return ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24)
-                | (ch5 << 32) | (ch6 << 40) | (ch7 << 48) | (ch8 << 56);
     }
 
     // Read 8 bit unsigned integer from stream

@@ -41,16 +41,9 @@ public final class SF2Instrument extends ModelInstrument {
     String name = "";
     int preset = 0;
     int bank = 0;
-    long library = 0;
-    long genre = 0;
-    long morphology = 0;
     SF2GlobalRegion globalregion = null;
     List<SF2InstrumentRegion> regions
             = new ArrayList<SF2InstrumentRegion>();
-
-    public SF2Instrument() {
-        super(null, null, null, null);
-    }
 
     public SF2Instrument(SF2Soundbank soundbank) {
         super(soundbank, null, null, null);
@@ -85,36 +78,8 @@ public final class SF2Instrument extends ModelInstrument {
         return null;
     }
 
-    public long getGenre() {
-        return genre;
-    }
-
-    public void setGenre(long genre) {
-        this.genre = genre;
-    }
-
-    public long getLibrary() {
-        return library;
-    }
-
-    public void setLibrary(long library) {
-        this.library = library;
-    }
-
-    public long getMorphology() {
-        return morphology;
-    }
-
-    public void setMorphology(long morphology) {
-        this.morphology = morphology;
-    }
-
     public List<SF2InstrumentRegion> getRegions() {
         return regions;
-    }
-
-    public SF2GlobalRegion getGlobalRegion() {
-        return globalregion;
     }
 
     public void setGlobalZone(SF2GlobalRegion zone) {

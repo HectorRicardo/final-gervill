@@ -40,5 +40,5 @@ public interface ModelOscillator {
      */
     public float getAttenuation();
 
-    public ModelOscillatorStream open(float samplerate);
+    public ModelOscillatorStream open();
 }

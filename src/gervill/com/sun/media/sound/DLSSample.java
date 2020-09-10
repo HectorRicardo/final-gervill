@@ -25,7 +25,7 @@
 package gervill.com.sun.media.sound;
 
 import java.io.InputStream;
-import java.util.Arrays;
+
 import gervill.javax.sound.midi.Soundbank;
 import gervill.javax.sound.midi.SoundbankResource;
 import gervill.javax.sound.sampled.AudioFormat;
@@ -52,14 +52,6 @@ public final class DLSSample extends SoundbankResource {
         super(soundBank, null, AudioInputStream.class);
     }
 
-    public DLSSample() {
-        super(null, null, AudioInputStream.class);
-    }
-
-    public DLSInfo getInfo() {
-        return info;
-    }
-
     public Object getData() {
         AudioFormat format = getFormat();
 
@@ -77,10 +69,6 @@ public final class DLSSample extends SoundbankResource {
         return format;
     }
 
-    public void setFormat(AudioFormat format) {
-        this.format = format;
-    }
-
     public void setData(ModelByteBuffer data) {
         this.data = data;
     }
@@ -89,35 +77,16 @@ public final class DLSSample extends SoundbankResource {
         this.data = new ModelByteBuffer(data);
     }
 
-    public void setData(byte[] data, int offset, int length) {
-        this.data = new ModelByteBuffer(data, offset, length);
-    }
-
     public String getName() {
         return info.name;
-    }
-
-    public void setName(String name) {
-        info.name = name;
     }
 
     public DLSSampleOptions getSampleoptions() {
         return sampleoptions;
     }
 
-    public void setSampleoptions(DLSSampleOptions sampleOptions) {
-        this.sampleoptions = sampleOptions;
-    }
-
     public String toString() {
         return "Sample: " + info.name;
     }
 
-    public byte[] getGuid() {
-        return guid == null ? null : Arrays.copyOf(guid, guid.length);
-    }
-
-    public void setGuid(byte[] guid) {
-        this.guid = guid == null ? null : Arrays.copyOf(guid, guid.length);
-    }
 }

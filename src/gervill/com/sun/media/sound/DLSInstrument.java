@@ -25,12 +25,9 @@
 package gervill.com.sun.media.sound;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import gervill.javax.sound.midi.Patch;
 
 /**
  * This class is used to store information to describe instrument.
@@ -50,40 +47,16 @@ public final class DLSInstrument extends ModelInstrument {
     List<DLSRegion> regions = new ArrayList<DLSRegion>();
     List<DLSModulator> modulators = new ArrayList<DLSModulator>();
 
-    public DLSInstrument() {
-        super(null, null, null, null);
-    }
-
     public DLSInstrument(DLSSoundbank soundbank) {
         super(soundbank, null, null, null);
-    }
-
-    public DLSInfo getInfo() {
-        return info;
     }
 
     public String getName() {
         return info.name;
     }
 
-    public void setName(String name) {
-        info.name = name;
-    }
-
     public ModelPatch getPatch() {
         return new ModelPatch(bank, preset, druminstrument);
-    }
-
-    public void setPatch(Patch patch) {
-        if (patch instanceof ModelPatch && ((ModelPatch)patch).isPercussion()) {
-            druminstrument = true;
-            bank = patch.getBank();
-            preset = patch.getProgram();
-        } else {
-            druminstrument = false;
-            bank = patch.getBank();
-            preset = patch.getProgram();
-        }
     }
 
     public Object getData() {
@@ -439,11 +412,4 @@ public final class DLSInstrument extends ModelInstrument {
         return performers.toArray(new ModelPerformer[performers.size()]);
     }
 
-    public byte[] getGuid() {
-        return guid == null ? null : Arrays.copyOf(guid, guid.length);
-    }
-
-    public void setGuid(byte[] guid) {
-        this.guid = guid == null ? null : Arrays.copyOf(guid, guid.length);
-    }
 }

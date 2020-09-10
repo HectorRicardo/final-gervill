@@ -25,10 +25,6 @@
 
 package gervill.javax.sound.sampled;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * <code>AudioFormat</code> is the class that specifies a particular arrangement of data in a sound stream.
  * By examining the information stored in the audio format, you can discover how to interpret the bits in the
@@ -163,10 +159,6 @@ public class AudioFormat {
     protected boolean bigEndian;
 
 
-    /** The set of properties */
-    private HashMap<String, Object> properties;
-
-
     /**
      * Constructs an <code>AudioFormat</code> with the given parameters.
      * The encoding specifies the convention used to represent the data.
@@ -192,37 +184,6 @@ public class AudioFormat {
         this.frameSize = frameSize;
         this.frameRate = frameRate;
         this.bigEndian = bigEndian;
-        this.properties = null;
-    }
-
-
-    /**
-     * Constructs an <code>AudioFormat</code> with the given parameters.
-     * The encoding specifies the convention used to represent the data.
-     * The other parameters are further explained in the  AudioFormat
-     * class description.
-     * @param encoding         the audio encoding technique
-     * @param sampleRate       the number of samples per second
-     * @param sampleSizeInBits the number of bits in each sample
-     * @param channels         the number of channels (1 for mono, 2 for
-     *                         stereo, and so on)
-     * @param frameSize        the number of bytes in each frame
-     * @param frameRate        the number of frames per second
-     * @param bigEndian        indicates whether the data for a single sample
-     *                         is stored in big-endian byte order
-     *                         (<code>false</code> means little-endian)
-     * @param properties       a <code>Map&lt;String,Object&gt;</code> object
-     *                         containing format properties
-     *
-     * @since 1.5
-     */
-    public AudioFormat(Encoding encoding, float sampleRate,
-                       int sampleSizeInBits, int channels,
-                       int frameSize, float frameRate,
-                       boolean bigEndian, Map<String, Object> properties) {
-        this(encoding, sampleRate, sampleSizeInBits, channels,
-             frameSize, frameRate, bigEndian);
-        this.properties = new HashMap<String, Object>(properties);
     }
 
 
@@ -381,53 +342,6 @@ public class AudioFormat {
     public boolean isBigEndian() {
 
         return bigEndian;
-    }
-
-
-    /**
-     * Obtain an unmodifiable map of properties.
-     * The concept of properties is further explained in
-     * the  AudioFileFormat class description.
-     *
-     * @return a <code>Map&lt;String,Object&gt;</code> object containing
-     *         all properties. If no properties are recognized, an empty map is
-     *         returned.
-     *
-     * see #getProperty(String)
-     * @since 1.5
-     */
-    public Map<String,Object> properties() {
-        Map<String,Object> ret;
-        if (properties == null) {
-            ret = new HashMap<String,Object>(0);
-        } else {
-            ret = (Map<String,Object>) (properties.clone());
-        }
-        return (Map<String,Object>) Collections.unmodifiableMap(ret);
-    }
-
-
-    /**
-     * Obtain the property value specified by the key.
-     * The concept of properties is further explained in
-     * the  AudioFileFormat class description.
-     *
-     * <p>If the specified property is not defined for a
-     * particular file format, this method returns
-     * <code>null</code>.
-     *
-     * @param key the key of the desired property
-     * @return the value of the property with the specified key,
-     *         or <code>null</code> if the property does not exist.
-     *
-     * see #properties()
-     * @since 1.5
-     */
-    public Object getProperty(String key) {
-        if (properties == null) {
-            return null;
-        }
-        return properties.get(key);
     }
 
 
@@ -598,16 +512,6 @@ public class AudioFormat {
          * @since 1.7
          */
         public static final Encoding PCM_FLOAT = new Encoding("PCM_FLOAT");
-
-        /**
-         * Specifies u-law encoded data.
-         */
-        public static final Encoding ULAW = new Encoding("ULAW");
-
-        /**
-         * Specifies a-law encoded data.
-         */
-        public static final Encoding ALAW = new Encoding("ALAW");
 
 
         // INSTANCE VARIABLES

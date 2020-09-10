@@ -40,9 +40,6 @@ public final class SoftVoice extends VoiceStatus {
 
     public int exclusiveClass = 0;
     public boolean releaseTriggered = false;
-    private int noteOn_noteNumber = 0;
-    private int noteOn_velocity = 0;
-    private int noteOff_velocity = 0;
     private int delay = 0;
     ModelChannelMixer channelmixer = null;
     double tunedKey = 0;
@@ -66,7 +63,6 @@ public final class SoftVoice extends VoiceStatus {
     Map<String, SoftControl> objects =
             new HashMap<String, SoftControl>();
     SoftSynthesizer synthesizer;
-    SoftInstrument instrument;
     SoftPerformer performer;
     SoftChannel softchannel = null;
     boolean on = false;
@@ -310,8 +306,6 @@ public final class SoftVoice extends VoiceStatus {
         started = true;
         // volume = velocity;
 
-        noteOn_noteNumber = noteNumber;
-        noteOn_velocity = velocity;
         this.delay = delay;
 
         lastMuteValue = 0;
@@ -435,7 +429,7 @@ public final class SoftVoice extends VoiceStatus {
 
     }
 
-    void setPolyPressure(int pressure) {
+    void setPolyPressure() {
         if(performer == null)
             return;
         int[] c = performer.midi_connections[2];
@@ -445,7 +439,7 @@ public final class SoftVoice extends VoiceStatus {
             processConnection(c[i]);
     }
 
-    void setChannelPressure(int pressure) {
+    void setChannelPressure() {
         if(performer == null)
             return;
         int[] c = performer.midi_connections[1];
@@ -455,7 +449,7 @@ public final class SoftVoice extends VoiceStatus {
             processConnection(c[i]);
     }
 
-    void controlChange(int controller, int value) {
+    void controlChange(int controller) {
         if(performer == null)
             return;
         int[] c = performer.midi_ctrl_connections[controller];
@@ -465,7 +459,7 @@ public final class SoftVoice extends VoiceStatus {
             processConnection(c[i]);
     }
 
-    void nrpnChange(int controller, int value) {
+    void nrpnChange(int controller) {
         if(performer == null)
             return;
         int[] c = performer.midi_nrpn_connections.get(controller);
@@ -475,7 +469,7 @@ public final class SoftVoice extends VoiceStatus {
             processConnection(c[i]);
     }
 
-    void rpnChange(int controller, int value) {
+    void rpnChange(int controller) {
         if(performer == null)
             return;
         int[] c = performer.midi_rpn_connections.get(controller);
@@ -485,7 +479,7 @@ public final class SoftVoice extends VoiceStatus {
             processConnection(c[i]);
     }
 
-    void setPitchBend(int bend) {
+    void setPitchBend() {
         if(performer == null)
             return;
         int[] c = performer.midi_connections[0];
@@ -528,12 +522,10 @@ public final class SoftVoice extends VoiceStatus {
         soundoff = true;
     }
 
-    void noteOff(int velocity) {
+    void noteOff() {
         if (!on)
             return;
         on = false;
-
-        noteOff_velocity = velocity;
 
         if (softchannel.sustain) {
             sustain = true;
@@ -576,7 +568,6 @@ public final class SoftVoice extends VoiceStatus {
             active = false;
             stopping = false;
             audiostarted = false;
-            instrument = null;
             performer = null;
             connections = null;
             extendedConnectionBlocks = null;
@@ -618,7 +609,7 @@ public final class SoftVoice extends VoiceStatus {
                     //e.printStackTrace();
                 }
             } else {
-                osc_stream = osc.open(synthesizer.getFormat().getSampleRate());
+                osc_stream = osc.open();
             }
             osc_attenuation = osc.getAttenuation();
             osc_stream_nrofchannels = osc.getChannels();
@@ -626,8 +617,8 @@ public final class SoftVoice extends VoiceStatus {
                 osc_buff = new float[osc_stream_nrofchannels][];
 
             if (osc_stream != null)
-                osc_stream.noteOn(softchannel, this, noteOn_noteNumber,
-                        noteOn_velocity);
+                osc_stream.noteOn(
+                );
 
 
         }
@@ -746,7 +737,7 @@ public final class SoftVoice extends VoiceStatus {
                 if (!osc_stream_off_transmitted) {
                     osc_stream_off_transmitted = true;
                     if (osc_stream != null)
-                        osc_stream.noteOff(noteOff_velocity);
+                        osc_stream.noteOff();
                 }
 
         }

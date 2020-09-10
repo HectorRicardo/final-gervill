@@ -8,7 +8,7 @@ public class SourceDataLineImpl implements SourceDataLine {
 
     private final javax.sound.sampled.SourceDataLine realLine;
 
-    public SourceDataLineImpl(AudioFormat format) {
+    public SourceDataLineImpl() {
         try {
             realLine = javax.sound.sampled.AudioSystem.getSourceDataLine(null);
         } catch (LineUnavailableException e) {
@@ -26,17 +26,8 @@ public class SourceDataLineImpl implements SourceDataLine {
     }
 
     @Override
-    public void open(AudioFormat format) {
-    }
-
-    @Override
     public int write(byte[] b, int off, int len) {
         return realLine.write(b, off, len);
-    }
-
-    @Override
-    public void drain() {
-        realLine.drain();
     }
 
     @Override
@@ -52,11 +43,6 @@ public class SourceDataLineImpl implements SourceDataLine {
     @Override
     public void stop() {
         realLine.stop();
-    }
-
-    @Override
-    public boolean isRunning() {
-        return realLine.isRunning();
     }
 
     @Override
@@ -80,40 +66,6 @@ public class SourceDataLineImpl implements SourceDataLine {
     }
 
     @Override
-    public int getFramePosition() {
-        return realLine.getFramePosition();
-    }
-
-    @Override
-    public long getLongFramePosition() {
-        return realLine.getLongFramePosition();
-    }
-
-    @Override
-    public long getMicrosecondPosition() {
-        return realLine.getMicrosecondPosition();
-    }
-
-    @Override
-    public float getLevel() {
-        return realLine.getLevel();
-    }
-
-    @Override
-    public Line.Info getLineInfo() {
-        return null;
-    }
-
-    @Override
-    public void open() {
-        try {
-            realLine.open();
-        } catch (LineUnavailableException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    @Override
     public void close() {
         realLine.close();
     }
@@ -123,26 +75,4 @@ public class SourceDataLineImpl implements SourceDataLine {
         return realLine.isOpen();
     }
 
-    @Override
-    public Control[] getControls() {
-        return null;
-    }
-
-    @Override
-    public boolean isControlSupported(Control.Type control) {
-        return false;
-    }
-
-    @Override
-    public Control getControl(Control.Type control) {
-        return null;
-    }
-
-    @Override
-    public void addLineListener(LineListener listener) {
-    }
-
-    @Override
-    public void removeLineListener(LineListener listener) {
-    }
 }

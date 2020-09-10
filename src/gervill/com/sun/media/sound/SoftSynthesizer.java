@@ -142,18 +142,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         }
     }
 
-    private static class Info extends MidiDevice.Info {
-        Info() {
-            super(INFO_NAME, INFO_VENDOR, INFO_DESCRIPTION, INFO_VERSION);
-        }
-    }
-
-    static final String INFO_NAME = "Gervill";
-    static final String INFO_VENDOR = "OpenJDK";
-    static final String INFO_DESCRIPTION = "Software MIDI Synthesizer";
-    static final String INFO_VERSION = "1.0";
-    final static MidiDevice.Info info = new Info();
-
     private static SourceDataLine testline = null;
 
     private static Soundbank defaultSoundBank = null;
@@ -196,7 +184,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
     private float controlrate = 147f;
 
     private boolean open = false;
-    private boolean implicitOpen = false;
 
     private String resamplerType = "linear";
     private SoftResampler resampler = new SoftLinearResampler();
@@ -348,18 +335,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         this.format = format;
     }
 
-    void removeReceiver(Receiver recv) {
-        boolean perform_close = false;
-        synchronized (control_mutex) {
-            if (recvslist.remove(recv)) {
-                if (implicitOpen && recvslist.isEmpty())
-                    perform_close = true;
-            }
-        }
-        if (perform_close)
-            close();
-    }
-
     SoftMainMixer getMainMixer() {
         if (!isOpen())
             return null;
@@ -455,7 +430,7 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         String t_id = patchToString(patch);
         SoftTuning tuning = tunings.get(t_id);
         if (tuning == null) {
-            tuning = new SoftTuning(patch);
+            tuning = new SoftTuning();
             tunings.put(t_id, tuning);
         }
         return tuning;
@@ -691,10 +666,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         }
     }
 
-    public MidiDevice.Info getDeviceInfo() {
-        return info;
-    }
-
     private Properties getStoredProperties() {
         return AccessController
                 .doPrivileged((PrivilegedAction<Properties>) () -> {
@@ -718,7 +689,7 @@ public final class SoftSynthesizer implements AudioSynthesizer,
                 });
     }
 
-    public AudioSynthesizerPropertyInfo[] getPropertyInfo(Map<String, Object> info) {
+    private AudioSynthesizerPropertyInfo[] getPropertyInfo(Map<String, Object> info) {
         List<AudioSynthesizerPropertyInfo> list =
                 new ArrayList<AudioSynthesizerPropertyInfo>();
 
@@ -731,62 +702,46 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         boolean o = info == null && open;
 
         item = new AudioSynthesizerPropertyInfo("interpolation", o?resamplerType:"linear");
-        item.choices = new String[]{"linear", "linear1", "linear2", "cubic",
-                                    "lanczos", "sinc", "point"};
-        item.description = "Interpolation method";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("control rate", o?controlrate:147f);
-        item.description = "Control rate";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("format",
                 o?format:new AudioFormat(44100, 16, 2, true, false));
-        item.description = "Default audio format";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("latency", o?latency:120000L);
-        item.description = "Default latency";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("device id", o?deviceid:0);
-        item.description = "Device ID for SysEx Messages";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("max polyphony", o?maxpoly:64);
-        item.description = "Maximum polyphony";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("reverb", o?reverb_on:true);
-        item.description = "Turn reverb effect on or off";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("chorus", o?chorus_on:true);
-        item.description = "Turn chorus effect on or off";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("auto gain control", o?agc_on:true);
-        item.description = "Turn auto gain control on or off";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("large mode", o?largemode:false);
-        item.description = "Turn large mode on or off.";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("midi channels", o?channels.length:16);
-        item.description = "Number of midi channels.";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("jitter correction", o?jitter_correction:true);
-        item.description = "Turn jitter correction on or off.";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("light reverb", o?reverb_light:true);
-        item.description = "Turn light reverb mode on or off";
         list.add(item);
 
         item = new AudioSynthesizerPropertyInfo("load default soundbank", o?load_default_soundbank:true);
-        item.description = "Enabled/disable loading default soundbank";
         list.add(item);
 
         AudioSynthesizerPropertyInfo[] items;
@@ -878,17 +833,15 @@ public final class SoftSynthesizer implements AudioSynthesizer,
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
             synchronized (control_mutex) {
-                implicitOpen = false;
             }
             return;
         }
         open(null, null);
     }
 
-    public void open(SourceDataLine line, Map<String, Object> info) throws MidiUnavailableException {
+    private void open(SourceDataLine line, Map<String, Object> info) throws MidiUnavailableException {
         if (isOpen()) {
             synchronized (control_mutex) {
-                implicitOpen = false;
             }
             return;
         }
@@ -911,7 +864,7 @@ public final class SoftSynthesizer implements AudioSynthesizer,
                     } else {
                         // can throw LineUnavailableException,
                         // IllegalArgumentException, SecurityException
-                        line = new SourceDataLineImpl(getFormat());
+                        line = new SourceDataLineImpl();
                     }
                 }
 
@@ -965,7 +918,7 @@ public final class SoftSynthesizer implements AudioSynthesizer,
                     weakstream.sourceDataLine = sourceDataLine;
                 }
 
-            } catch (final LineUnavailableException | SecurityException
+            } catch (final SecurityException
                     | IllegalArgumentException e) {
                 if (isOpen()) {
                     close();
@@ -979,8 +932,8 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         }
     }
 
-    public AudioInputStream openStream(AudioFormat targetFormat,
-            Map<String, Object> info) throws MidiUnavailableException {
+    private AudioInputStream openStream(AudioFormat targetFormat,
+                                        Map<String, Object> info) throws MidiUnavailableException {
 
         if (isOpen())
             throw new MidiUnavailableException("Synthesizer is already open");
@@ -993,7 +946,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
             processPropertyInfo(info);
 
             open = true;
-            implicitOpen = false;
 
             if (targetFormat != null)
                 setFormat(targetFormat);
@@ -1049,13 +1001,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
             for (SoftVoice voice: getVoices())
                 voice.resampler = resampler.openStreamer();
 
-            for (Receiver recv: getReceivers()) {
-                SoftReceiver srecv = ((SoftReceiver)recv);
-                srecv.open = open;
-                srecv.mainmixer = mainmixer;
-                srecv.midimessages = mainmixer.midimessages;
-            }
-
             return mainmixer.getInputStream();
         }
     }
@@ -1094,7 +1039,6 @@ public final class SoftSynthesizer implements AudioSynthesizer,
             if (mainmixer != null)
                 mainmixer.close();
             open = false;
-            implicitOpen = false;
             mainmixer = null;
             voices = null;
             channels = null;
@@ -1124,69 +1068,4 @@ public final class SoftSynthesizer implements AudioSynthesizer,
         }
     }
 
-    public long getMicrosecondPosition() {
-
-        if (!isOpen())
-            return 0;
-
-        synchronized (control_mutex) {
-            return mainmixer.getMicrosecondPosition();
-        }
-    }
-
-    public int getMaxReceivers() {
-        return -1;
-    }
-
-    public int getMaxTransmitters() {
-        return 0;
-    }
-
-    public Receiver getReceiver() throws MidiUnavailableException {
-
-        synchronized (control_mutex) {
-            SoftReceiver receiver = new SoftReceiver(this);
-            receiver.open = open;
-            recvslist.add(receiver);
-            return receiver;
-        }
-    }
-
-    public List<Receiver> getReceivers() {
-
-        synchronized (control_mutex) {
-            ArrayList<Receiver> recvs = new ArrayList<Receiver>();
-            recvs.addAll(recvslist);
-            return recvs;
-        }
-    }
-
-    public Transmitter getTransmitter() throws MidiUnavailableException {
-
-        throw new MidiUnavailableException("No transmitter available");
-    }
-
-    public List<Transmitter> getTransmitters() {
-
-        return new ArrayList<Transmitter>();
-    }
-
-    public Receiver getReceiverReferenceCounting()
-            throws MidiUnavailableException {
-
-        if (!isOpen()) {
-            open();
-            synchronized (control_mutex) {
-                implicitOpen = true;
-            }
-        }
-
-        return getReceiver();
-    }
-
-    public Transmitter getTransmitterReferenceCounting()
-            throws MidiUnavailableException {
-
-        throw new MidiUnavailableException("No transmitter available");
-    }
 }

@@ -88,10 +88,6 @@ public final class ModelIdentifier {
     private String variable = null;
     private int instance = 0;
 
-    public ModelIdentifier(String object) {
-        this.object = object;
-    }
-
     public ModelIdentifier(String object, int instance) {
         this.object = object;
         this.instance = instance;
@@ -114,24 +110,12 @@ public final class ModelIdentifier {
         return instance;
     }
 
-    public void setInstance(int instance) {
-        this.instance = instance;
-    }
-
     public String getObject() {
         return object;
     }
 
-    public void setObject(String object) {
-        this.object = object;
-    }
-
     public String getVariable() {
         return variable;
-    }
-
-    public void setVariable(String variable) {
-        this.variable = variable;
     }
 
     public int hashCode() {

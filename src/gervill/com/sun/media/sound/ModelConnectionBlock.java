@@ -52,15 +52,6 @@ public final class ModelConnectionBlock {
         this.destination = destination;
     }
 
-    public ModelConnectionBlock(ModelSource source,
-            ModelDestination destination) {
-        if (source != null) {
-            this.sources = new ModelSource[1];
-            this.sources[0] = source;
-        }
-        this.destination = destination;
-    }
-
     public ModelConnectionBlock(ModelSource source, double scale,
             ModelDestination destination) {
         if (source != null) {

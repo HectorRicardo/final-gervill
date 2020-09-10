@@ -114,29 +114,6 @@ public abstract class MidiMessage implements Cloneable {
 
 
     /**
-     * Sets the data for the MIDI message.   This protected
-     * method is called by concrete subclasses, which should
-     * ensure that the data array specifies a complete, valid MIDI
-     * message.
-     *
-     * @param data the data bytes in the MIDI message
-     * @param length the number of bytes in the data byte array
-     * throws InvalidMidiDataException if the parameter values do not specify a valid MIDI meta message
-     */
-    protected void setMessage(byte[] data, int length) throws InvalidMidiDataException {
-        if (length < 0 || (length > 0 && length > data.length)) {
-            throw new IndexOutOfBoundsException("length out of bounds: "+length);
-        }
-        this.length = length;
-
-        if (this.data == null || this.data.length < this.length) {
-            this.data = new byte[this.length];
-        }
-        System.arraycopy(data, 0, this.data, 0, length);
-    }
-
-
-    /**
      * Obtains the MIDI message data.  The first byte of the returned byte
      * array is the status byte of the message.  Any subsequent bytes up to
      * the length of the message are data bytes.  The byte array may have a
@@ -166,20 +143,6 @@ public abstract class MidiMessage implements Cloneable {
             return (data[0] & 0xFF);
         }
         return 0;
-    }
-
-
-    /**
-     * Obtains the total length of the MIDI message in bytes.  A
-     * MIDI message consists of one status byte and zero or more
-     * data bytes.  The return value ranges from 1 for system real-time messages,
-     * to 2 or 3 for channel messages, to any value for meta and system
-     * exclusive messages.
-     *
-     * @return the length of the message in bytes
-     */
-    public int getLength() {
-        return length;
     }
 
 

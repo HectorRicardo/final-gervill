@@ -44,10 +44,6 @@ public final class SF2Layer extends SoundbankResource {
         super(soundBank, null, null);
     }
 
-    public SF2Layer() {
-        super(null, null, null);
-    }
-
     public Object getData() {
         return null;
     }
