@@ -26,7 +26,6 @@
 package gervill.javax.sound.sampled;
 
 import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.io.IOException;
 
 
@@ -137,29 +136,6 @@ public class AudioInputStream extends InputStream {
         }
 
         this.stream = stream;
-        framePos = 0;
-        markpos = 0;
-    }
-
-
-    /**
-     * Constructs an audio input stream that reads its data from the target
-     * data line indicated.  The format of the stream is the same as that of
-     * the target data line, and the length is AudioSystem#NOT_SPECIFIED.
-     * @param line the target data line from which this stream obtains its data.
-     * see AudioSystem#NOT_SPECIFIED
-     */
-    public AudioInputStream(TargetDataLine line) {
-
-        TargetDataLineInputStream tstream = new TargetDataLineInputStream(line);
-        format = line.getFormat();
-        frameLength = AudioSystem.NOT_SPECIFIED;
-        frameSize = format.getFrameSize();
-
-        if( frameSize == AudioSystem.NOT_SPECIFIED || frameSize <= 0) {
-            frameSize = 1;
-        }
-        this.stream = tstream;
         framePos = 0;
         markpos = 0;
     }
@@ -451,65 +427,4 @@ public class AudioInputStream extends InputStream {
     }
 
 
-    /**
-     * Private inner class that makes a TargetDataLine look like an InputStream.
-     */
-    private class TargetDataLineInputStream extends InputStream {
-
-        /**
-         * The TargetDataLine on which this TargetDataLineInputStream is based.
-         */
-        TargetDataLine line;
-
-
-        TargetDataLineInputStream(TargetDataLine line) {
-            super();
-            this.line = line;
-        }
-
-
-        public int available() throws IOException {
-            return line.available();
-        }
-
-        //$$fb 2001-07-16: added this method to correctly close the underlying TargetDataLine.
-        // fixes bug 4479984
-        public void close() throws IOException {
-            // the line needs to be flushed and stopped to avoid a dead lock...
-            // Probably related to bugs 4417527, 4334868, 4383457
-            if (line.isActive()) {
-                line.flush();
-                line.stop();
-            }
-            line.close();
-        }
-
-        public int read() throws IOException {
-
-            byte[] b = new byte[1];
-
-            int value = read(b, 0, 1);
-
-            if (value == -1) {
-                return -1;
-            }
-
-            value = (int)b[0];
-
-            if (line.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-                value += 128;
-            }
-
-            return value;
-        }
-
-
-        public int read(byte[] b, int off, int len) throws IOException {
-            try {
-                return line.read(b, off, len);
-            } catch (IllegalArgumentException e) {
-                throw new IOException(e.getMessage());
-            }
-        }
-    }
 }
