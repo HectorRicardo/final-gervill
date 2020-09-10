@@ -28,13 +28,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
@@ -55,27 +53,12 @@ public final class SF2Soundbank implements Soundbank {
     // version of the Sound Font RIFF file
     int major = 2;
     int minor = 1;
-    // target Sound Engine
-    String targetEngine = "EMU8000";
     // Sound Font Bank Name
     String name = "untitled";
-    // Sound ROM Name
-    String romName = null;
-    // Sound ROM Version
-    int romVersionMajor = -1;
-    int romVersionMinor = -1;
-    // Date of Creation of the Bank
-    String creationDate = null;
     // Sound Designers and Engineers for the Bank
     String engineers = null;
-    // Product for which the Bank was intended
-    String product = null;
-    // Copyright message
-    String copyright = null;
     // Comments
     String comments = null;
-    // The SoundFont tools used to create and alter the bank
-    String tools = null;
     // The Sample Data loaded from the SoundFont
     private ModelByteBuffer sampleData = null;
     private ModelByteBuffer sampleData24 = null;
@@ -144,26 +127,26 @@ public final class SF2Soundbank implements Soundbank {
                 major = chunk.readUnsignedShort();
                 minor = chunk.readUnsignedShort();
             } else if (format.equals("isng")) {
-                this.targetEngine = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("INAM")) {
                 this.name = chunk.readString(chunk.available());
             } else if (format.equals("irom")) {
-                this.romName = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("iver")) {
-                romVersionMajor = chunk.readUnsignedShort();
-                romVersionMinor = chunk.readUnsignedShort();
+                chunk.readUnsignedShort();
+                chunk.readUnsignedShort();
             } else if (format.equals("ICRD")) {
-                this.creationDate = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("IENG")) {
                 this.engineers = chunk.readString(chunk.available());
             } else if (format.equals("IPRD")) {
-                this.product = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICOP")) {
-                this.copyright = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             } else if (format.equals("ICMT")) {
                 this.comments = chunk.readString(chunk.available());
             } else if (format.equals("ISFT")) {
-                this.tools = chunk.readString(chunk.available());
+                chunk.readString(chunk.available());
             }
 
         }
@@ -521,315 +504,6 @@ public final class SF2Soundbank implements Soundbank {
 
     }
 
-    public void save(String name) throws IOException {
-        writeSoundbank(new RIFFWriter(name, "sfbk"));
-    }
-
-    public void save(File file) throws IOException {
-        writeSoundbank(new RIFFWriter(file, "sfbk"));
-    }
-
-    public void save(OutputStream out) throws IOException {
-        writeSoundbank(new RIFFWriter(out, "sfbk"));
-    }
-
-    private void writeSoundbank(RIFFWriter writer) throws IOException {
-        writeInfo(writer.writeList("INFO"));
-        writeSdtaChunk(writer.writeList("sdta"));
-        writePdtaChunk(writer.writeList("pdta"));
-        writer.close();
-    }
-
-    private void writeInfoStringChunk(RIFFWriter writer, String name,
-            String value) throws IOException {
-        if (value == null)
-            return;
-        RIFFWriter chunk = writer.writeChunk(name);
-        chunk.writeString(value);
-        int len = value.getBytes("ascii").length;
-        chunk.write(0);
-        len++;
-        if (len % 2 != 0)
-            chunk.write(0);
-    }
-
-    private void writeInfo(RIFFWriter writer) throws IOException {
-        if (this.targetEngine == null)
-            this.targetEngine = "EMU8000";
-        if (this.name == null)
-            this.name = "";
-
-        RIFFWriter ifil_chunk = writer.writeChunk("ifil");
-        ifil_chunk.writeUnsignedShort(this.major);
-        ifil_chunk.writeUnsignedShort(this.minor);
-        writeInfoStringChunk(writer, "isng", this.targetEngine);
-        writeInfoStringChunk(writer, "INAM", this.name);
-        writeInfoStringChunk(writer, "irom", this.romName);
-        if (romVersionMajor != -1) {
-            RIFFWriter iver_chunk = writer.writeChunk("iver");
-            iver_chunk.writeUnsignedShort(this.romVersionMajor);
-            iver_chunk.writeUnsignedShort(this.romVersionMinor);
-        }
-        writeInfoStringChunk(writer, "ICRD", this.creationDate);
-        writeInfoStringChunk(writer, "IENG", this.engineers);
-        writeInfoStringChunk(writer, "IPRD", this.product);
-        writeInfoStringChunk(writer, "ICOP", this.copyright);
-        writeInfoStringChunk(writer, "ICMT", this.comments);
-        writeInfoStringChunk(writer, "ISFT", this.tools);
-
-        writer.close();
-    }
-
-    private void writeSdtaChunk(RIFFWriter writer) throws IOException {
-
-        byte[] pad = new byte[32];
-
-        RIFFWriter smpl_chunk = writer.writeChunk("smpl");
-        for (SF2Sample sample : samples) {
-            ModelByteBuffer data = sample.getDataBuffer();
-            data.writeTo(smpl_chunk);
-            /*
-            smpl_chunk.write(data.array(),
-            data.arrayOffset(),
-            data.capacity());
-             */
-            smpl_chunk.write(pad);
-            smpl_chunk.write(pad);
-        }
-        if (major < 2)
-            return;
-        if (major == 2 && minor < 4)
-            return;
-
-
-        for (SF2Sample sample : samples) {
-            ModelByteBuffer data24 = sample.getData24Buffer();
-            if (data24 == null)
-                return;
-        }
-
-        RIFFWriter sm24_chunk = writer.writeChunk("sm24");
-        for (SF2Sample sample : samples) {
-            ModelByteBuffer data = sample.getData24Buffer();
-            data.writeTo(sm24_chunk);
-            /*
-            sm24_chunk.write(data.array(),
-            data.arrayOffset(),
-            data.capacity());*/
-            smpl_chunk.write(pad);
-        }
-    }
-
-    private void writeModulators(RIFFWriter writer, List<SF2Modulator> modulators)
-            throws IOException {
-        for (SF2Modulator modulator : modulators) {
-            writer.writeUnsignedShort(modulator.sourceOperator);
-            writer.writeUnsignedShort(modulator.destinationOperator);
-            writer.writeShort(modulator.amount);
-            writer.writeUnsignedShort(modulator.amountSourceOperator);
-            writer.writeUnsignedShort(modulator.transportOperator);
-        }
-    }
-
-    private void writeGenerators(RIFFWriter writer, Map<Integer, Short> generators)
-            throws IOException {
-        Short keyrange = (Short) generators.get(SF2Region.GENERATOR_KEYRANGE);
-        Short velrange = (Short) generators.get(SF2Region.GENERATOR_VELRANGE);
-        if (keyrange != null) {
-            writer.writeUnsignedShort(SF2Region.GENERATOR_KEYRANGE);
-            writer.writeShort(keyrange);
-        }
-        if (velrange != null) {
-            writer.writeUnsignedShort(SF2Region.GENERATOR_VELRANGE);
-            writer.writeShort(velrange);
-        }
-        for (Map.Entry<Integer, Short> generator : generators.entrySet()) {
-            if (generator.getKey() == SF2Region.GENERATOR_KEYRANGE)
-                continue;
-            if (generator.getKey() == SF2Region.GENERATOR_VELRANGE)
-                continue;
-            writer.writeUnsignedShort(generator.getKey());
-            writer.writeShort(generator.getValue());
-        }
-    }
-
-    private void writePdtaChunk(RIFFWriter writer) throws IOException {
-
-        RIFFWriter phdr_chunk = writer.writeChunk("phdr");
-        int phdr_zone_count = 0;
-        for (SF2Instrument preset : this.instruments) {
-            phdr_chunk.writeString(preset.name, 20);
-            phdr_chunk.writeUnsignedShort(preset.preset);
-            phdr_chunk.writeUnsignedShort(preset.bank);
-            phdr_chunk.writeUnsignedShort(phdr_zone_count);
-            if (preset.getGlobalRegion() != null)
-                phdr_zone_count += 1;
-            phdr_zone_count += preset.getRegions().size();
-            phdr_chunk.writeUnsignedInt(preset.library);
-            phdr_chunk.writeUnsignedInt(preset.genre);
-            phdr_chunk.writeUnsignedInt(preset.morphology);
-        }
-        phdr_chunk.writeString("EOP", 20);
-        phdr_chunk.writeUnsignedShort(0);
-        phdr_chunk.writeUnsignedShort(0);
-        phdr_chunk.writeUnsignedShort(phdr_zone_count);
-        phdr_chunk.writeUnsignedInt(0);
-        phdr_chunk.writeUnsignedInt(0);
-        phdr_chunk.writeUnsignedInt(0);
-
-
-        RIFFWriter pbag_chunk = writer.writeChunk("pbag");
-        int pbag_gencount = 0;
-        int pbag_modcount = 0;
-        for (SF2Instrument preset : this.instruments) {
-            if (preset.getGlobalRegion() != null) {
-                pbag_chunk.writeUnsignedShort(pbag_gencount);
-                pbag_chunk.writeUnsignedShort(pbag_modcount);
-                pbag_gencount += preset.getGlobalRegion().getGenerators().size();
-                pbag_modcount += preset.getGlobalRegion().getModulators().size();
-            }
-            for (SF2InstrumentRegion region : preset.getRegions()) {
-                pbag_chunk.writeUnsignedShort(pbag_gencount);
-                pbag_chunk.writeUnsignedShort(pbag_modcount);
-                if (layers.indexOf(region.layer) != -1) {
-                    // One generator is used to reference to instrument record
-                    pbag_gencount += 1;
-                }
-                pbag_gencount += region.getGenerators().size();
-                pbag_modcount += region.getModulators().size();
-
-            }
-        }
-        pbag_chunk.writeUnsignedShort(pbag_gencount);
-        pbag_chunk.writeUnsignedShort(pbag_modcount);
-
-        RIFFWriter pmod_chunk = writer.writeChunk("pmod");
-        for (SF2Instrument preset : this.instruments) {
-            if (preset.getGlobalRegion() != null) {
-                writeModulators(pmod_chunk,
-                        preset.getGlobalRegion().getModulators());
-            }
-            for (SF2InstrumentRegion region : preset.getRegions())
-                writeModulators(pmod_chunk, region.getModulators());
-        }
-        pmod_chunk.write(new byte[10]);
-
-        RIFFWriter pgen_chunk = writer.writeChunk("pgen");
-        for (SF2Instrument preset : this.instruments) {
-            if (preset.getGlobalRegion() != null) {
-                writeGenerators(pgen_chunk,
-                        preset.getGlobalRegion().getGenerators());
-            }
-            for (SF2InstrumentRegion region : preset.getRegions()) {
-                writeGenerators(pgen_chunk, region.getGenerators());
-                int ix = (int) layers.indexOf(region.layer);
-                if (ix != -1) {
-                    pgen_chunk.writeUnsignedShort(SF2Region.GENERATOR_INSTRUMENT);
-                    pgen_chunk.writeShort((short) ix);
-                }
-            }
-        }
-        pgen_chunk.write(new byte[4]);
-
-        RIFFWriter inst_chunk = writer.writeChunk("inst");
-        int inst_zone_count = 0;
-        for (SF2Layer instrument : this.layers) {
-            inst_chunk.writeString(instrument.name, 20);
-            inst_chunk.writeUnsignedShort(inst_zone_count);
-            if (instrument.getGlobalRegion() != null)
-                inst_zone_count += 1;
-            inst_zone_count += instrument.getRegions().size();
-        }
-        inst_chunk.writeString("EOI", 20);
-        inst_chunk.writeUnsignedShort(inst_zone_count);
-
-
-        RIFFWriter ibag_chunk = writer.writeChunk("ibag");
-        int ibag_gencount = 0;
-        int ibag_modcount = 0;
-        for (SF2Layer instrument : this.layers) {
-            if (instrument.getGlobalRegion() != null) {
-                ibag_chunk.writeUnsignedShort(ibag_gencount);
-                ibag_chunk.writeUnsignedShort(ibag_modcount);
-                ibag_gencount
-                        += instrument.getGlobalRegion().getGenerators().size();
-                ibag_modcount
-                        += instrument.getGlobalRegion().getModulators().size();
-            }
-            for (SF2LayerRegion region : instrument.getRegions()) {
-                ibag_chunk.writeUnsignedShort(ibag_gencount);
-                ibag_chunk.writeUnsignedShort(ibag_modcount);
-                if (samples.indexOf(region.sample) != -1) {
-                    // One generator is used to reference to instrument record
-                    ibag_gencount += 1;
-                }
-                ibag_gencount += region.getGenerators().size();
-                ibag_modcount += region.getModulators().size();
-
-            }
-        }
-        ibag_chunk.writeUnsignedShort(ibag_gencount);
-        ibag_chunk.writeUnsignedShort(ibag_modcount);
-
-
-        RIFFWriter imod_chunk = writer.writeChunk("imod");
-        for (SF2Layer instrument : this.layers) {
-            if (instrument.getGlobalRegion() != null) {
-                writeModulators(imod_chunk,
-                        instrument.getGlobalRegion().getModulators());
-            }
-            for (SF2LayerRegion region : instrument.getRegions())
-                writeModulators(imod_chunk, region.getModulators());
-        }
-        imod_chunk.write(new byte[10]);
-
-        RIFFWriter igen_chunk = writer.writeChunk("igen");
-        for (SF2Layer instrument : this.layers) {
-            if (instrument.getGlobalRegion() != null) {
-                writeGenerators(igen_chunk,
-                        instrument.getGlobalRegion().getGenerators());
-            }
-            for (SF2LayerRegion region : instrument.getRegions()) {
-                writeGenerators(igen_chunk, region.getGenerators());
-                int ix = samples.indexOf(region.sample);
-                if (ix != -1) {
-                    igen_chunk.writeUnsignedShort(SF2Region.GENERATOR_SAMPLEID);
-                    igen_chunk.writeShort((short) ix);
-                }
-            }
-        }
-        igen_chunk.write(new byte[4]);
-
-
-        RIFFWriter shdr_chunk = writer.writeChunk("shdr");
-        long sample_pos = 0;
-        for (SF2Sample sample : samples) {
-            shdr_chunk.writeString(sample.name, 20);
-            long start = sample_pos;
-            sample_pos += sample.data.capacity() / 2;
-            long end = sample_pos;
-            long startLoop = sample.startLoop + start;
-            long endLoop = sample.endLoop + start;
-            if (startLoop < start)
-                startLoop = start;
-            if (endLoop > end)
-                endLoop = end;
-            shdr_chunk.writeUnsignedInt(start);
-            shdr_chunk.writeUnsignedInt(end);
-            shdr_chunk.writeUnsignedInt(startLoop);
-            shdr_chunk.writeUnsignedInt(endLoop);
-            shdr_chunk.writeUnsignedInt(sample.sampleRate);
-            shdr_chunk.writeUnsignedByte(sample.originalPitch);
-            shdr_chunk.writeByte(sample.pitchCorrection);
-            shdr_chunk.writeUnsignedShort(sample.sampleLink);
-            shdr_chunk.writeUnsignedShort(sample.sampleType);
-            sample_pos += 32;
-        }
-        shdr_chunk.writeString("EOS", 20);
-        shdr_chunk.write(new byte[26]);
-
-    }
-
     public String getName() {
         return name;
     }
@@ -858,30 +532,11 @@ public final class SF2Soundbank implements Soundbank {
         comments = s;
     }
 
-    public SoundbankResource[] getResources() {
-        SoundbankResource[] resources
-                = new SoundbankResource[layers.size() + samples.size()];
-        int j = 0;
-        for (int i = 0; i < layers.size(); i++)
-            resources[j++] = layers.get(i);
-        for (int i = 0; i < samples.size(); i++)
-            resources[j++] = samples.get(i);
-        return resources;
-    }
-
     public SF2Instrument[] getInstruments() {
         SF2Instrument[] inslist_array
                 = instruments.toArray(new SF2Instrument[instruments.size()]);
         Arrays.sort(inslist_array, new ModelInstrumentComparator());
         return inslist_array;
-    }
-
-    public SF2Layer[] getLayers() {
-        return layers.toArray(new SF2Layer[layers.size()]);
-    }
-
-    public SF2Sample[] getSamples() {
-        return samples.toArray(new SF2Sample[samples.size()]);
     }
 
     public Instrument getInstrument(Patch patch) {
@@ -905,62 +560,6 @@ public final class SF2Soundbank implements Soundbank {
         return null;
     }
 
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public String getProduct() {
-        return product;
-    }
-
-    public void setProduct(String product) {
-        this.product = product;
-    }
-
-    public String getRomName() {
-        return romName;
-    }
-
-    public void setRomName(String romName) {
-        this.romName = romName;
-    }
-
-    public int getRomVersionMajor() {
-        return romVersionMajor;
-    }
-
-    public void setRomVersionMajor(int romVersionMajor) {
-        this.romVersionMajor = romVersionMajor;
-    }
-
-    public int getRomVersionMinor() {
-        return romVersionMinor;
-    }
-
-    public void setRomVersionMinor(int romVersionMinor) {
-        this.romVersionMinor = romVersionMinor;
-    }
-
-    public String getTargetEngine() {
-        return targetEngine;
-    }
-
-    public void setTargetEngine(String targetEngine) {
-        this.targetEngine = targetEngine;
-    }
-
-    public String getTools() {
-        return tools;
-    }
-
-    public void setTools(String tools) {
-        this.tools = tools;
-    }
-
     public void addResource(SoundbankResource resource) {
         if (resource instanceof SF2Instrument)
             instruments.add((SF2Instrument)resource);
@@ -970,20 +569,8 @@ public final class SF2Soundbank implements Soundbank {
             samples.add((SF2Sample)resource);
     }
 
-    public void removeResource(SoundbankResource resource) {
-        if (resource instanceof SF2Instrument)
-            instruments.remove((SF2Instrument)resource);
-        if (resource instanceof SF2Layer)
-            layers.remove((SF2Layer)resource);
-        if (resource instanceof SF2Sample)
-            samples.remove((SF2Sample)resource);
-    }
-
     public void addInstrument(SF2Instrument resource) {
         instruments.add(resource);
     }
 
-    public void removeInstrument(SF2Instrument resource) {
-        instruments.remove(resource);
-    }
 }

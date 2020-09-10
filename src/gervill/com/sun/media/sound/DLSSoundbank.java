@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,10 +39,7 @@ import java.util.Stack;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.midi.Soundbank;
-import gervill.javax.sound.midi.SoundbankResource;
 import gervill.javax.sound.sampled.AudioFormat;
-import gervill.javax.sound.sampled.AudioInputStream;
-import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.AudioFormat.Encoding;
 
 /**
@@ -181,9 +177,6 @@ public final class DLSSoundbank implements Soundbank {
 
     private boolean largeFormat = false;
     private File sampleFile;
-
-    public DLSSoundbank() {
-    }
 
     public DLSSoundbank(URL url) throws IOException {
         InputStream is = url.openStream();
@@ -869,316 +862,6 @@ public final class DLSSoundbank implements Soundbank {
         }
     }
 
-    public void save(String name) throws IOException {
-        writeSoundbank(new RIFFWriter(name, "DLS "));
-    }
-
-    public void save(File file) throws IOException {
-        writeSoundbank(new RIFFWriter(file, "DLS "));
-    }
-
-    public void save(OutputStream out) throws IOException {
-        writeSoundbank(new RIFFWriter(out, "DLS "));
-    }
-
-    private void writeSoundbank(RIFFWriter writer) throws IOException {
-        RIFFWriter colh_chunk = writer.writeChunk("colh");
-        colh_chunk.writeUnsignedInt(instruments.size());
-
-        if (major != -1 && minor != -1) {
-            RIFFWriter vers_chunk = writer.writeChunk("vers");
-            vers_chunk.writeUnsignedInt(major);
-            vers_chunk.writeUnsignedInt(minor);
-        }
-
-        writeInstruments(writer.writeList("lins"));
-
-        RIFFWriter ptbl = writer.writeChunk("ptbl");
-        ptbl.writeUnsignedInt(8);
-        ptbl.writeUnsignedInt(samples.size());
-        long ptbl_offset = writer.getFilePointer();
-        for (int i = 0; i < samples.size(); i++)
-            ptbl.writeUnsignedInt(0);
-
-        RIFFWriter wvpl = writer.writeList("wvpl");
-        long off = wvpl.getFilePointer();
-        List<Long> offsettable = new ArrayList<Long>();
-        for (DLSSample sample : samples) {
-            offsettable.add(Long.valueOf(wvpl.getFilePointer() - off));
-            writeSample(wvpl.writeList("wave"), sample);
-        }
-
-        // small cheat, we are going to rewrite data back in wvpl
-        long bak = writer.getFilePointer();
-        writer.seek(ptbl_offset);
-        writer.setWriteOverride(true);
-        for (Long offset : offsettable)
-            writer.writeUnsignedInt(offset.longValue());
-        writer.setWriteOverride(false);
-        writer.seek(bak);
-
-        writeInfo(writer.writeList("INFO"), info);
-
-        writer.close();
-    }
-
-    private void writeSample(RIFFWriter writer, DLSSample sample)
-            throws IOException {
-
-        AudioFormat audioformat = sample.getFormat();
-
-        Encoding encoding = audioformat.getEncoding();
-        float sampleRate = audioformat.getSampleRate();
-        int sampleSizeInBits = audioformat.getSampleSizeInBits();
-        int channels = audioformat.getChannels();
-        int frameSize = audioformat.getFrameSize();
-        float frameRate = audioformat.getFrameRate();
-        boolean bigEndian = audioformat.isBigEndian();
-
-        boolean convert_needed = false;
-
-        if (audioformat.getSampleSizeInBits() == 8) {
-            if (!encoding.equals(Encoding.PCM_UNSIGNED)) {
-                encoding = Encoding.PCM_UNSIGNED;
-                convert_needed = true;
-            }
-        } else {
-            if (!encoding.equals(Encoding.PCM_SIGNED)) {
-                encoding = Encoding.PCM_SIGNED;
-                convert_needed = true;
-            }
-            if (bigEndian) {
-                bigEndian = false;
-                convert_needed = true;
-            }
-        }
-
-        if (convert_needed) {
-            audioformat = new AudioFormat(encoding, sampleRate,
-                    sampleSizeInBits, channels, frameSize, frameRate, bigEndian);
-        }
-
-        // fmt
-        RIFFWriter fmt_chunk = writer.writeChunk("fmt ");
-        int sampleformat = 0;
-        if (audioformat.getEncoding().equals(Encoding.PCM_UNSIGNED))
-            sampleformat = 1;
-        else if (audioformat.getEncoding().equals(Encoding.PCM_SIGNED))
-            sampleformat = 1;
-        else if (audioformat.getEncoding().equals(Encoding.PCM_FLOAT))
-            sampleformat = 3;
-
-        fmt_chunk.writeUnsignedShort(sampleformat);
-        fmt_chunk.writeUnsignedShort(audioformat.getChannels());
-        fmt_chunk.writeUnsignedInt((long) audioformat.getSampleRate());
-        long srate = ((long)audioformat.getFrameRate())*audioformat.getFrameSize();
-        fmt_chunk.writeUnsignedInt(srate);
-        fmt_chunk.writeUnsignedShort(audioformat.getFrameSize());
-        fmt_chunk.writeUnsignedShort(audioformat.getSampleSizeInBits());
-        fmt_chunk.write(0);
-        fmt_chunk.write(0);
-
-        writeSampleOptions(writer.writeChunk("wsmp"), sample.sampleoptions);
-
-        if (convert_needed) {
-            RIFFWriter data_chunk = writer.writeChunk("data");
-            AudioInputStream stream = AudioSystem.getAudioInputStream(
-                    audioformat, (AudioInputStream)sample.getData());
-            byte[] buff = new byte[1024];
-            int ret;
-            while ((ret = stream.read(buff)) != -1) {
-                data_chunk.write(buff, 0, ret);
-            }
-        } else {
-            RIFFWriter data_chunk = writer.writeChunk("data");
-            ModelByteBuffer databuff = sample.getDataBuffer();
-            databuff.writeTo(data_chunk);
-            /*
-            data_chunk.write(databuff.array(),
-            databuff.arrayOffset(),
-            databuff.capacity());
-             */
-        }
-
-        writeInfo(writer.writeList("INFO"), sample.info);
-    }
-
-    private void writeInstruments(RIFFWriter writer) throws IOException {
-        for (DLSInstrument instrument : instruments) {
-            writeInstrument(writer.writeList("ins "), instrument);
-        }
-    }
-
-    private void writeInstrument(RIFFWriter writer, DLSInstrument instrument)
-            throws IOException {
-
-        int art1_count = 0;
-        int art2_count = 0;
-        for (DLSModulator modulator : instrument.getModulators()) {
-            if (modulator.version == 1)
-                art1_count++;
-            if (modulator.version == 2)
-                art2_count++;
-        }
-        for (DLSRegion region : instrument.regions) {
-            for (DLSModulator modulator : region.getModulators()) {
-                if (modulator.version == 1)
-                    art1_count++;
-                if (modulator.version == 2)
-                    art2_count++;
-            }
-        }
-
-        int version = 1;
-        if (art2_count > 0)
-            version = 2;
-
-        RIFFWriter insh_chunk = writer.writeChunk("insh");
-        insh_chunk.writeUnsignedInt(instrument.getRegions().size());
-        insh_chunk.writeUnsignedInt(instrument.bank +
-                (instrument.druminstrument ? 2147483648L : 0));
-        insh_chunk.writeUnsignedInt(instrument.preset);
-
-        RIFFWriter lrgn = writer.writeList("lrgn");
-        for (DLSRegion region: instrument.regions)
-            writeRegion(lrgn, region, version);
-
-        writeArticulators(writer, instrument.getModulators());
-
-        writeInfo(writer.writeList("INFO"), instrument.info);
-
-    }
-
-    private void writeArticulators(RIFFWriter writer,
-            List<DLSModulator> modulators) throws IOException {
-        int art1_count = 0;
-        int art2_count = 0;
-        for (DLSModulator modulator : modulators) {
-            if (modulator.version == 1)
-                art1_count++;
-            if (modulator.version == 2)
-                art2_count++;
-        }
-        if (art1_count > 0) {
-            RIFFWriter lar1 = writer.writeList("lart");
-            RIFFWriter art1 = lar1.writeChunk("art1");
-            art1.writeUnsignedInt(8);
-            art1.writeUnsignedInt(art1_count);
-            for (DLSModulator modulator : modulators) {
-                if (modulator.version == 1) {
-                    art1.writeUnsignedShort(modulator.source);
-                    art1.writeUnsignedShort(modulator.control);
-                    art1.writeUnsignedShort(modulator.destination);
-                    art1.writeUnsignedShort(modulator.transform);
-                    art1.writeInt(modulator.scale);
-                }
-            }
-        }
-        if (art2_count > 0) {
-            RIFFWriter lar2 = writer.writeList("lar2");
-            RIFFWriter art2 = lar2.writeChunk("art2");
-            art2.writeUnsignedInt(8);
-            art2.writeUnsignedInt(art2_count);
-            for (DLSModulator modulator : modulators) {
-                if (modulator.version == 2) {
-                    art2.writeUnsignedShort(modulator.source);
-                    art2.writeUnsignedShort(modulator.control);
-                    art2.writeUnsignedShort(modulator.destination);
-                    art2.writeUnsignedShort(modulator.transform);
-                    art2.writeInt(modulator.scale);
-                }
-            }
-        }
-    }
-
-    private void writeRegion(RIFFWriter writer, DLSRegion region, int version)
-            throws IOException {
-        RIFFWriter rgns = null;
-        if (version == 1)
-            rgns = writer.writeList("rgn ");
-        if (version == 2)
-            rgns = writer.writeList("rgn2");
-        if (rgns == null)
-            return;
-
-        RIFFWriter rgnh = rgns.writeChunk("rgnh");
-        rgnh.writeUnsignedShort(region.keyfrom);
-        rgnh.writeUnsignedShort(region.keyto);
-        rgnh.writeUnsignedShort(region.velfrom);
-        rgnh.writeUnsignedShort(region.velto);
-        rgnh.writeUnsignedShort(region.options);
-        rgnh.writeUnsignedShort(region.exclusiveClass);
-
-        if (region.sampleoptions != null)
-            writeSampleOptions(rgns.writeChunk("wsmp"), region.sampleoptions);
-
-        if (region.sample != null) {
-            if (samples.indexOf(region.sample) != -1) {
-                RIFFWriter wlnk = rgns.writeChunk("wlnk");
-                wlnk.writeUnsignedShort(region.fusoptions);
-                wlnk.writeUnsignedShort(region.phasegroup);
-                wlnk.writeUnsignedInt(region.channel);
-                wlnk.writeUnsignedInt(samples.indexOf(region.sample));
-            }
-        }
-        writeArticulators(rgns, region.getModulators());
-        rgns.close();
-    }
-
-    private void writeSampleOptions(RIFFWriter wsmp,
-            DLSSampleOptions sampleoptions) throws IOException {
-        wsmp.writeUnsignedInt(20);
-        wsmp.writeUnsignedShort(sampleoptions.unitynote);
-        wsmp.writeShort(sampleoptions.finetune);
-        wsmp.writeInt(sampleoptions.attenuation);
-        wsmp.writeUnsignedInt(sampleoptions.options);
-        wsmp.writeInt(sampleoptions.loops.size());
-
-        for (DLSSampleLoop loop : sampleoptions.loops) {
-            wsmp.writeUnsignedInt(16);
-            wsmp.writeUnsignedInt(loop.type);
-            wsmp.writeUnsignedInt(loop.start);
-            wsmp.writeUnsignedInt(loop.length);
-        }
-    }
-
-    private void writeInfoStringChunk(RIFFWriter writer,
-            String name, String value) throws IOException {
-        if (value == null)
-            return;
-        RIFFWriter chunk = writer.writeChunk(name);
-        chunk.writeString(value);
-        int len = value.getBytes("ascii").length;
-        chunk.write(0);
-        len++;
-        if (len % 2 != 0)
-            chunk.write(0);
-    }
-
-    private void writeInfo(RIFFWriter writer, DLSInfo info) throws IOException {
-        writeInfoStringChunk(writer, "INAM", info.name);
-        writeInfoStringChunk(writer, "ICRD", info.creationDate);
-        writeInfoStringChunk(writer, "IENG", info.engineers);
-        writeInfoStringChunk(writer, "IPRD", info.product);
-        writeInfoStringChunk(writer, "ICOP", info.copyright);
-        writeInfoStringChunk(writer, "ICMT", info.comments);
-        writeInfoStringChunk(writer, "ISFT", info.tools);
-        writeInfoStringChunk(writer, "IARL", info.archival_location);
-        writeInfoStringChunk(writer, "IART", info.artist);
-        writeInfoStringChunk(writer, "ICMS", info.commissioned);
-        writeInfoStringChunk(writer, "IGNR", info.genre);
-        writeInfoStringChunk(writer, "IKEY", info.keywords);
-        writeInfoStringChunk(writer, "IMED", info.medium);
-        writeInfoStringChunk(writer, "ISBJ", info.subject);
-        writeInfoStringChunk(writer, "ISRC", info.source);
-        writeInfoStringChunk(writer, "ISRF", info.source_form);
-        writeInfoStringChunk(writer, "ITCH", info.technician);
-    }
-
-    public DLSInfo getInfo() {
-        return info;
-    }
-
     public String getName() {
         return info.name;
     }
@@ -1195,35 +878,11 @@ public final class DLSSoundbank implements Soundbank {
         return info.comments;
     }
 
-    public void setName(String s) {
-        info.name = s;
-    }
-
-    public void setVendor(String s) {
-        info.engineers = s;
-    }
-
-    public void setDescription(String s) {
-        info.comments = s;
-    }
-
-    public SoundbankResource[] getResources() {
-        SoundbankResource[] resources = new SoundbankResource[samples.size()];
-        int j = 0;
-        for (int i = 0; i < samples.size(); i++)
-            resources[j++] = samples.get(i);
-        return resources;
-    }
-
     public DLSInstrument[] getInstruments() {
         DLSInstrument[] inslist_array =
                 instruments.toArray(new DLSInstrument[instruments.size()]);
         Arrays.sort(inslist_array, new ModelInstrumentComparator());
         return inslist_array;
-    }
-
-    public DLSSample[] getSamples() {
-        return samples.toArray(new DLSSample[samples.size()]);
     }
 
     public Instrument getInstrument(Patch patch) {
@@ -1247,41 +906,4 @@ public final class DLSSoundbank implements Soundbank {
         return null;
     }
 
-    public void addResource(SoundbankResource resource) {
-        if (resource instanceof DLSInstrument)
-            instruments.add((DLSInstrument) resource);
-        if (resource instanceof DLSSample)
-            samples.add((DLSSample) resource);
-    }
-
-    public void removeResource(SoundbankResource resource) {
-        if (resource instanceof DLSInstrument)
-            instruments.remove((DLSInstrument) resource);
-        if (resource instanceof DLSSample)
-            samples.remove((DLSSample) resource);
-    }
-
-    public void addInstrument(DLSInstrument resource) {
-        instruments.add(resource);
-    }
-
-    public void removeInstrument(DLSInstrument resource) {
-        instruments.remove(resource);
-    }
-
-    public long getMajor() {
-        return major;
-    }
-
-    public void setMajor(long major) {
-        this.major = major;
-    }
-
-    public long getMinor() {
-        return minor;
-    }
-
-    public void setMinor(long minor) {
-        this.minor = minor;
-    }
 }
