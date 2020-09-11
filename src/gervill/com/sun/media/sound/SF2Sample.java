@@ -104,7 +104,7 @@ public final class SF2Sample extends SoundbankResource {
     }
 
     public AudioFormat getFormat() {
-        return new AudioFormat(sampleRate, 16, 1, true, false);
+        return new AudioFormat(sampleRate, 16, 1, true);
     }
 
     public void setData(byte[] data) {

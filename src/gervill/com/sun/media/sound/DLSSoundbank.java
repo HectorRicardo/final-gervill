@@ -758,17 +758,17 @@ public final class DLSSoundbank implements Soundbank {
                         if (bits == 8) {
                             audioformat = new AudioFormat(
                                     Encoding.PCM_UNSIGNED, samplerate, bits,
-                                    channels, framesize, samplerate, false);
+                                    channels, framesize, samplerate);
                         } else {
                             audioformat = new AudioFormat(
                                     Encoding.PCM_SIGNED, samplerate, bits,
-                                    channels, framesize, samplerate, false);
+                                    channels, framesize, samplerate);
                         }
                     }
                     if (sampleformat == 3) {
                         audioformat = new AudioFormat(
                                 Encoding.PCM_FLOAT, samplerate, bits,
-                                channels, framesize, samplerate, false);
+                                channels, framesize, samplerate);
                     }
 
                     sample.format = audioformat;

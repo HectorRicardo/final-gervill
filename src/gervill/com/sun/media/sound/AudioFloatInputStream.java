@@ -128,7 +128,7 @@ public abstract class AudioFloatInputStream {
                 newformat = new AudioFormat(
                         AudioFormat.Encoding.PCM_SIGNED, samplerate,
                         samplesizeinbits, format.getChannels(), framesize,
-                        samplerate, false);
+                        samplerate);
 
                 AudioSystem.getAudioInputStream(newformat, stream);
                 converter = AudioFloatConverter.getConverter(stream.getFormat());

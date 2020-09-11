@@ -40,7 +40,6 @@ public final class ModelByteBufferWavetable implements ModelWavetable {
 
     private class Buffer8PlusInputStream extends InputStream {
 
-        private final boolean bigendian;
         private final int framesize_pc;
         int pos = 0;
         int pos2 = 0;
@@ -49,7 +48,6 @@ public final class ModelByteBufferWavetable implements ModelWavetable {
 
         Buffer8PlusInputStream() {
             framesize_pc = format.getFrameSize() / format.getChannels();
-            bigendian = format.isBigEndian();
         }
 
         public int read(byte[] b, int off, int len) throws IOException {
@@ -62,20 +60,11 @@ public final class ModelByteBufferWavetable implements ModelWavetable {
             byte[] buff2 = buffer8.array();
             pos += buffer.arrayOffset();
             pos2 += buffer8.arrayOffset();
-            if (bigendian) {
-                for (int i = 0; i < len; i += (framesize_pc + 1)) {
-                    System.arraycopy(buff1, pos, b, i, framesize_pc);
-                    System.arraycopy(buff2, pos2, b, i + framesize_pc, 1);
-                    pos += framesize_pc;
-                    pos2 += 1;
-                }
-            } else {
-                for (int i = 0; i < len; i += (framesize_pc + 1)) {
-                    System.arraycopy(buff2, pos2, b, i, 1);
-                    System.arraycopy(buff1, pos, b, i + 1, framesize_pc);
-                    pos += framesize_pc;
-                    pos2 += 1;
-                }
+            for (int i = 0; i < len; i += (framesize_pc + 1)) {
+                System.arraycopy(buff2, pos2, b, i, 1);
+                System.arraycopy(buff1, pos, b, i + 1, framesize_pc);
+                pos += framesize_pc;
+                pos2 += 1;
             }
             pos -= buffer.arrayOffset();
             pos2 -= buffer8.arrayOffset();
@@ -175,8 +164,8 @@ public final class ModelByteBufferWavetable implements ModelWavetable {
                         format.getSampleSizeInBits() + 8,
                         format.getChannels(),
                         format.getFrameSize() + (1 * format.getChannels()),
-                        format.getFrameRate(),
-                        format.isBigEndian());
+                        format.getFrameRate()
+                );
 
                 AudioInputStream ais = new AudioInputStream(is, format2,
                         buffer.capacity() / format.getFrameSize());

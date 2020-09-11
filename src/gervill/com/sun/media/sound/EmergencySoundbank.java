@@ -2436,7 +2436,7 @@ public final class EmergencySoundbank {
             double[] data, double base, int fadeuptime) {
 
         int fftsize = data.length / 2;
-        AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
+        AudioFormat format = new AudioFormat(44100, 16, 1, true);
         double basefreq = (base / fftsize) * format.getSampleRate() * 0.5;
 
         randomPhase(data);
@@ -2470,7 +2470,7 @@ public final class EmergencySoundbank {
             String name, double[] data, double base, double preamp) {
 
         int fftsize = data.length / 2;
-        AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
+        AudioFormat format = new AudioFormat(44100, 16, 1, true);
         double basefreq = (base / fftsize) * format.getSampleRate() * 0.5;
 
         randomPhase(data);
@@ -2510,7 +2510,7 @@ public final class EmergencySoundbank {
             double[] data) {
 
         int fftsize = data.length;
-        AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
+        AudioFormat format = new AudioFormat(44100, 16, 1, true);
 
         byte[] bdata = toBytes(toFloat(realPart(data)), format);
 

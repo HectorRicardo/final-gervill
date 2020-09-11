@@ -170,7 +170,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     // 2: GM Level 2
     private int gmmode = 0;
 
-    private final AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
+    private final AudioFormat format = new AudioFormat(44100, 16, 2, true);
 
     private SourceDataLine sourceDataLine = null;
 
