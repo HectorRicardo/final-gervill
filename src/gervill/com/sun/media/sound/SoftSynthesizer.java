@@ -162,8 +162,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     SoftChannel[] channels;
     SoftChannelProxy[] external_channels = null;
 
-    private boolean largemode = false;
-
     // 0: GM Mode off (default)
     // 1: GM Level 1
     // 2: GM Level 2
@@ -176,16 +174,12 @@ public final class SoftSynthesizer implements AutoCloseable {
     private SoftAudioPusher pusher = null;
     private AudioInputStream pusher_stream = null;
 
-    private float controlrate = 147f;
-
     private boolean open = false;
 
-    private SoftResampler resampler;
+    private final SoftResampler resampler = new SoftLinearResampler2();
 
-    private int number_of_midi_channels = 16;
-    private int maxpoly = 64;
-    private long latency = 200000; // 200 msec
-    private boolean jitter_correction = false;
+    private final int maxpoly = 64;
+    private final long latency = 120000L;
 
     private SoftMainMixer mainmixer;
     private SoftVoice[] voices;
@@ -217,8 +211,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     private boolean loadSamples(List<ModelInstrument> instruments) {
-        if (largemode)
-            return true;
         List<ModelByteBuffer> buffers = new ArrayList<ModelByteBuffer>();
         for (ModelInstrument instrument : instruments)
             getBuffers(instrument, buffers);
@@ -253,22 +245,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
 
         return true;
-    }
-
-    private void processPropertyInfo() {
-        this.resampler = new SoftLinearResampler2();
-
-        setFormat(new AudioFormat(44100, 16, 2, true, false));
-        controlrate = 147f;
-        latency = 120000L;
-        maxpoly = 64;
-        reverb_on = true;
-        chorus_on = true;
-        agc_on = true;
-        largemode = false;
-        number_of_midi_channels = 16;
-        jitter_correction = true;
-        reverb_light = true;
     }
 
     private String patchToString(Patch patch) {
@@ -364,7 +340,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     float getControlRate() {
-        return controlrate;
+        return 147f;
     }
 
     SoftVoice[] getVoices() {
@@ -633,7 +609,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                     setFormat(line.getFormat());
                 }
 
-                AudioInputStream ais = openStream(getFormat());
+                AudioInputStream ais = openStream();
 
                 weakstream = new WeakAudioStream(ais);
                 ais = weakstream.getAudioInputStream();
@@ -683,21 +659,15 @@ public final class SoftSynthesizer implements AutoCloseable {
                 if (buffersize < 3 * controlbuffersize)
                     buffersize = 3 * controlbuffersize;
 
-                if (jitter_correction) {
-                    ais = new SoftJitterCorrector(ais, buffersize,
-                            controlbuffersize);
-                    if(weakstream != null)
-                        weakstream.jitter_stream = ais;
-                }
+                ais = new SoftJitterCorrector(ais, buffersize,
+                        controlbuffersize);
+                weakstream.jitter_stream = ais;
                 pusher = new SoftAudioPusher(line, ais, controlbuffersize);
                 pusher_stream = ais;
                 pusher.start();
 
-                if(weakstream != null)
-                {
-                    weakstream.pusher = pusher;
-                    weakstream.sourceDataLine = sourceDataLine;
-                }
+                weakstream.pusher = pusher;
+                weakstream.sourceDataLine = sourceDataLine;
 
             } catch (final SecurityException
                     | IllegalArgumentException e) {
@@ -713,7 +683,7 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private AudioInputStream openStream(AudioFormat targetFormat) throws MidiUnavailableException {
+    private AudioInputStream openStream() throws MidiUnavailableException {
 
         if (isOpen())
             throw new MidiUnavailableException("Synthesizer is already open");
@@ -723,12 +693,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             gmmode = 0;
             voice_allocation_mode = 0;
 
-            processPropertyInfo();
-
             open = true;
-
-            if (targetFormat != null)
-                setFormat(targetFormat);
 
             voices = new SoftVoice[maxpoly];
             for (int i = 0; i < maxpoly; i++)
@@ -736,6 +701,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
             mainmixer = new SoftMainMixer(this);
 
+            int number_of_midi_channels = 16;
             channels = new SoftChannel[number_of_midi_channels];
             for (int i = 0; i < channels.length; i++)
                 channels[i] = new SoftChannel(this, i);
