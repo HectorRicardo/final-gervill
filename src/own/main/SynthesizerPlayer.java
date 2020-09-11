@@ -44,11 +44,7 @@ public class SynthesizerPlayer {
                 synthesizer.open();
             }
 
-            // Can be removed later on...
-            Soundbank defaultSoundbank = synthesizer.getDefaultSoundbank();
-            synthesizer.unloadAllInstruments(defaultSoundbank);
-
-            this.soundbank = soundbank == null ? defaultSoundbank : soundbank;
+            this.soundbank = soundbank == null ? synthesizer.getDefaultSoundbank() : soundbank;
 
             ready = true;
         } catch (gervill.javax.sound.midi.MidiUnavailableException e) {

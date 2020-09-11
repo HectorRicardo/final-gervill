@@ -154,7 +154,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     // 1: DLS Voice Allocation
     int voice_allocation_mode = 0;
 
-    boolean load_default_soundbank = false;
     boolean reverb_light = true;
     boolean reverb_on = true;
     boolean chorus_on = true;
@@ -270,7 +269,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         number_of_midi_channels = 16;
         jitter_correction = true;
         reverb_light = true;
-        load_default_soundbank = true;
     }
 
     private String patchToString(Patch patch) {
@@ -731,14 +729,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
             if (targetFormat != null)
                 setFormat(targetFormat);
-
-            if (load_default_soundbank)
-            {
-                Soundbank defbank = getDefaultSoundbank();
-                if (defbank != null) {
-                    loadAllInstruments(defbank);
-                }
-            }
 
             voices = new SoftVoice[maxpoly];
             for (int i = 0; i < maxpoly; i++)
