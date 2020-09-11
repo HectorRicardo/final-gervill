@@ -156,8 +156,14 @@ public final class SoftSynthesizer implements AutoCloseable {
     boolean chorus_on = true;
     boolean agc_on = true;
 
+    public static final int NUMBER_OF_CHANNELS = 16;
     SoftChannel[] channels;
-    SoftChannelProxy[] external_channels = null;
+    final SoftChannelProxy[] external_channels = new SoftChannelProxy[NUMBER_OF_CHANNELS];
+    {
+        for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+            external_channels[i] = new SoftChannelProxy();
+        }
+    }
 
     // 0: GM Mode off (default)
     // 1: GM Level 1
@@ -365,22 +371,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     public MidiChannel[] getChannels() {
 
         synchronized (control_mutex) {
-            // if (external_channels == null) => the synthesizer is not open,
-            // create 16 proxy channels
-            // otherwise external_channels has the same length as channels array
-            if (external_channels == null) {
-                external_channels = new SoftChannelProxy[16];
-                for (int i = 0; i < external_channels.length; i++)
-                    external_channels[i] = new SoftChannelProxy();
-            }
-            MidiChannel[] ret;
-            if (isOpen())
-                ret = new MidiChannel[channels.length];
-            else
-                ret = new MidiChannel[16];
-            for (int i = 0; i < ret.length; i++)
-                ret[i] = external_channels[i];
-            return ret;
+            return external_channels;
         }
     }
 
@@ -658,40 +649,11 @@ public final class SoftSynthesizer implements AutoCloseable {
 
             mainmixer = new SoftMainMixer(this);
 
-            int number_of_midi_channels = 16;
-            channels = new SoftChannel[number_of_midi_channels];
-            for (int i = 0; i < channels.length; i++)
+            channels = new SoftChannel[NUMBER_OF_CHANNELS];
+            for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
                 channels[i] = new SoftChannel(this, i);
-
-            if (external_channels == null) {
-                // Always create external_channels array
-                // with 16 or more channels
-                // so getChannels works correctly
-                // when the synhtesizer is closed.
-                if (channels.length < 16)
-                    external_channels = new SoftChannelProxy[16];
-                else
-                    external_channels = new SoftChannelProxy[channels.length];
-                for (int i = 0; i < external_channels.length; i++)
-                    external_channels[i] = new SoftChannelProxy();
-            } else {
-                // We must resize external_channels array
-                // but we must also copy the old SoftChannelProxy
-                // into the new one
-                if (channels.length > external_channels.length) {
-                    SoftChannelProxy[] new_external_channels
-                            = new SoftChannelProxy[channels.length];
-                    for (int i = 0; i < external_channels.length; i++)
-                        new_external_channels[i] = external_channels[i];
-                    for (int i = external_channels.length;
-                            i < new_external_channels.length; i++) {
-                        new_external_channels[i] = new SoftChannelProxy();
-                    }
-                }
-            }
-
-            for (int i = 0; i < channels.length; i++)
                 external_channels[i].setChannel(channels[i]);
+            }
 
             for (SoftVoice voice: getVoices())
                 voice.resampler = resampler.openStreamer();
@@ -738,9 +700,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             voices = null;
             channels = null;
 
-            if (external_channels != null)
-                for (int i = 0; i < external_channels.length; i++)
-                    external_channels[i].setChannel(null);
+            for (SoftChannelProxy external_channel : external_channels) external_channel.setChannel(null);
 
             if (sourceDataLine != null) {
                 sourceDataLine.close();
