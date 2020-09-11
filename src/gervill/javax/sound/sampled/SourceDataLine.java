@@ -26,6 +26,8 @@
 package gervill.javax.sound.sampled;
 
 
+import javax.sound.sampled.LineUnavailableException;
+
 /**
  * A source data line is a data line to which data may be written.  It acts as
  * a source to its mixer. An application writes audio bytes to a source data line,
@@ -62,7 +64,17 @@ package gervill.javax.sound.sampled;
  * see TargetDataLine
  * @since 1.3
  */
-public interface SourceDataLine extends AutoCloseable {
+public class SourceDataLine implements AutoCloseable {
+
+    private final javax.sound.sampled.SourceDataLine realLine;
+
+    public SourceDataLine() {
+        try {
+            realLine = javax.sound.sampled.AudioSystem.getSourceDataLine(null);
+        } catch (LineUnavailableException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
 
     /**
@@ -77,7 +89,9 @@ public interface SourceDataLine extends AutoCloseable {
      * see #isOpen
      * see LineEvent
      */
-    public void close();
+    public void close() {
+        realLine.close();
+    }
 
 
 
@@ -90,7 +104,9 @@ public interface SourceDataLine extends AutoCloseable {
      * see #open()
      * see #close()
      */
-    public boolean isOpen();
+    public boolean isOpen() {
+        return realLine.isOpen();
+    }
 
 
     /**
@@ -105,7 +121,9 @@ public interface SourceDataLine extends AutoCloseable {
      * see #isRunning()
      * see LineEvent
      */
-    public void start();
+    public void start() {
+        realLine.start();
+    }
 
     /**
      * Indicates whether the line is engaging in active I/O (such as playback
@@ -121,26 +139,9 @@ public interface SourceDataLine extends AutoCloseable {
      * see LineEvent
      * see LineListener
      */
-    public boolean isActive();
-
-    /**
-     * Obtains the current format (encoding, sample rate, number of channels,
-     * etc.) of the data line's audio data.
-     *
-     * <p>If the line is not open and has never been opened, it returns
-     * the default format. The default format is an implementation
-     * specific audio format, or, if the <code>DataLine.Info</code>
-     * object, which was used to retrieve this <code>DataLine</code>,
-     * specifies at least one fully qualified audio format, the
-     * last one will be used as the default format. Opening the
-     * line with a specific audio format (e.g.
-     *  SourceDataLine#open(AudioFormat)) will override the
-     * default format.
-     *
-     * @return current audio data format
-     * see AudioFormat
-     */
-    public AudioFormat getFormat();
+    public boolean isActive() {
+        return realLine.isActive();
+    }
 
     /**
      * Obtains the maximum number of bytes of data that will fit in the data line's
@@ -152,7 +153,9 @@ public interface SourceDataLine extends AutoCloseable {
      *
      * @return the size of the buffer in bytes
      */
-    public int getBufferSize();
+    public int getBufferSize() {
+        return realLine.getBufferSize();
+    }
 
 
     /**
@@ -195,7 +198,13 @@ public interface SourceDataLine extends AutoCloseable {
      * see Line#isOpen
      * see LineEvent
      */
-    public void open(AudioFormat format, int bufferSize);
+    public void open(AudioFormat format, int bufferSize) {
+        try {
+            realLine.open(new javax.sound.sampled.AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false), bufferSize);
+        } catch (LineUnavailableException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 
 
     /**
@@ -241,14 +250,7 @@ public interface SourceDataLine extends AutoCloseable {
      * see TargetDataLine#read
      * see DataLine#available
      */
-    public int write(byte[] b, int off, int len);
-
-    /**
-     * Obtains the number of sample frames of audio data that can be written to
-     * the mixer, via this data line, without blocking.  Note that the return
-     * value measures sample frames, not bytes.
-     * @return the number of sample frames currently available for writing
-     * see TargetDataLine#availableRead
-     */
-    //public int availableWrite();
+    public int write(byte[] b, int off, int len) {
+        return realLine.write(b, off, len);
+    }
 }

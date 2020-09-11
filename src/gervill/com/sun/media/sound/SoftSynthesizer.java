@@ -30,7 +30,6 @@ import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.SourceDataLine;
-import own.impl.SourceDataLineImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -140,8 +139,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private static SourceDataLine testline = null;
-
     private static Soundbank defaultSoundBank = null;
 
     WeakAudioStream weakstream = null;
@@ -167,7 +164,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     // 2: GM Level 2
     private int gmmode = 0;
 
-    private AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
+    private final AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
 
     private SourceDataLine sourceDataLine = null;
 
@@ -252,16 +249,6 @@ public final class SoftSynthesizer implements AutoCloseable {
             return "p." + patch.getProgram() + "." + patch.getBank();
         else
             return patch.getProgram() + "." + patch.getBank();
-    }
-
-    private void setFormat(AudioFormat format) {
-        if (format.getChannels() > 2) {
-            throw new IllegalArgumentException(
-                    "Only mono and stereo audio supported.");
-        }
-        if (AudioFloatConverter.getConverter(format) == null)
-            throw new IllegalArgumentException("Audio format not supported.");
-        this.format = format;
     }
 
     SoftMainMixer getMainMixer() {
@@ -589,57 +576,27 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-            synchronized (control_mutex) {
-            }
-            return;
-        }
-        open(null);
-    }
-
-    private void open(SourceDataLine line) throws MidiUnavailableException {
-        if (isOpen()) {
-            synchronized (control_mutex) {
-            }
             return;
         }
         synchronized (control_mutex) {
             try {
-                if (line != null) {
-                    // can throw IllegalArgumentException
-                    setFormat(line.getFormat());
-                }
 
                 AudioInputStream ais = openStream();
 
                 weakstream = new WeakAudioStream(ais);
                 ais = weakstream.getAudioInputStream();
 
-                if (line == null)
-                {
-                    if (testline != null) {
-                        line = testline;
-                    } else {
-                        // can throw LineUnavailableException,
-                        // IllegalArgumentException, SecurityException
-                        line = new SourceDataLineImpl();
-                    }
-                }
+                sourceDataLine = new SourceDataLine();
 
                 double latency = this.latency;
 
-                if (!line.isOpen()) {
-                    int bufferSize = getFormat().getFrameSize()
-                        * (int)(getFormat().getFrameRate() * (latency/1000000f));
-                    // can throw LineUnavailableException,
-                    // IllegalArgumentException, SecurityException
-                    line.open(getFormat(), bufferSize);
+                int bufferSize = getFormat().getFrameSize()
+                    * (int)(getFormat().getFrameRate() * (latency/1000000f));
+                // can throw LineUnavailableException,
+                // IllegalArgumentException, SecurityException
+                sourceDataLine.open(getFormat(), bufferSize);
 
-                    // Remember that we opened that line
-                    // so we can close again in SoftSynthesizer.close()
-                    sourceDataLine = line;
-                }
-                if (!line.isActive())
-                    line.start();
+                sourceDataLine.start();
 
                 int controlbuffersize = 512;
                 try {
@@ -653,7 +610,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                 //mainmixer.readfully = false;
                 //pusher = new DataPusher(line, ais);
 
-                int buffersize = line.getBufferSize();
+                int buffersize = sourceDataLine.getBufferSize();
                 buffersize -= buffersize % controlbuffersize;
 
                 if (buffersize < 3 * controlbuffersize)
@@ -662,7 +619,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                 ais = new SoftJitterCorrector(ais, buffersize,
                         controlbuffersize);
                 weakstream.jitter_stream = ais;
-                pusher = new SoftAudioPusher(line, ais, controlbuffersize);
+                pusher = new SoftAudioPusher(sourceDataLine, ais, controlbuffersize);
                 pusher_stream = ais;
                 pusher.start();
 
