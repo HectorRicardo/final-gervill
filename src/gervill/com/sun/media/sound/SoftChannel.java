@@ -496,7 +496,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                 if (current_mixer != null)
                     mainmixer.registerMixer(current_mixer);
                 current_director = current_instrument.getDirector(this, this);
-                applyInstrumentCustomization();
             }
             prevVoiceID = synthesizer.voiceIDCounter++;
             firstVoice = true;
@@ -599,7 +598,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                 if (current_mixer != null)
                     mainmixer.registerMixer(current_mixer);
                 current_director = current_instrument.getDirector(this, this);
-                applyInstrumentCustomization();
 
             }
             prevVoiceID = synthesizer.voiceIDCounter++;
@@ -704,108 +702,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         synchronized (control_mutex) {
             return channelpressure;
         }
-    }
-
-    void applyInstrumentCustomization() {
-        if (cds_control_connections == null
-                && cds_channelpressure_connections == null
-                && cds_polypressure_connections == null) {
-            return;
-        }
-
-        ModelInstrument src_instrument = current_instrument.getSourceInstrument();
-        ModelPerformer[] performers = src_instrument.getPerformers();
-        ModelPerformer[] new_performers = new ModelPerformer[performers.length];
-        for (int i = 0; i < new_performers.length; i++) {
-            ModelPerformer performer = performers[i];
-            ModelPerformer new_performer = new ModelPerformer();
-            new_performer.setName(performer.getName());
-            new_performer.setExclusiveClass(performer.getExclusiveClass());
-            new_performer.setKeyFrom(performer.getKeyFrom());
-            new_performer.setKeyTo(performer.getKeyTo());
-            new_performer.setVelFrom(performer.getVelFrom());
-            new_performer.setVelTo(performer.getVelTo());
-            new_performer.getOscillators().addAll(performer.getOscillators());
-            new_performer.getConnectionBlocks().addAll(
-                    performer.getConnectionBlocks());
-            new_performers[i] = new_performer;
-
-            List<ModelConnectionBlock> connblocks =
-                    new_performer.getConnectionBlocks();
-
-            if (cds_control_connections != null) {
-                String cc = Integer.toString(cds_control_number);
-                Iterator<ModelConnectionBlock> iter = connblocks.iterator();
-                while (iter.hasNext()) {
-                    ModelConnectionBlock conn = iter.next();
-                    ModelSource[] sources = conn.getSources();
-                    boolean removeok = false;
-                    if (sources != null) {
-                        for (int j = 0; j < sources.length; j++) {
-                            ModelSource src = sources[j];
-                            if ("midi_cc".equals(src.getIdentifier().getObject())
-                                    && cc.equals(src.getIdentifier().getVariable())) {
-                                removeok = true;
-                            }
-                        }
-                    }
-                    if (removeok)
-                        iter.remove();
-                }
-                for (int j = 0; j < cds_control_connections.length; j++)
-                    connblocks.add(cds_control_connections[j]);
-            }
-
-            if (cds_polypressure_connections != null) {
-                Iterator<ModelConnectionBlock> iter = connblocks.iterator();
-                while (iter.hasNext()) {
-                    ModelConnectionBlock conn = iter.next();
-                    ModelSource[] sources = conn.getSources();
-                    boolean removeok = false;
-                    if (sources != null) {
-                        for (int j = 0; j < sources.length; j++) {
-                            ModelSource src = sources[j];
-                            if ("midi".equals(src.getIdentifier().getObject())
-                                    && "poly_pressure".equals(
-                                        src.getIdentifier().getVariable())) {
-                                removeok = true;
-                            }
-                        }
-                    }
-                    if (removeok)
-                        iter.remove();
-                }
-                for (int j = 0; j < cds_polypressure_connections.length; j++)
-                    connblocks.add(cds_polypressure_connections[j]);
-            }
-
-
-            if (cds_channelpressure_connections != null) {
-                Iterator<ModelConnectionBlock> iter = connblocks.iterator();
-                while (iter.hasNext()) {
-                    ModelConnectionBlock conn = iter.next();
-                    ModelSource[] sources = conn.getSources();
-                    boolean removeok = false;
-                    if (sources != null) {
-                        for (int j = 0; j < sources.length; j++) {
-                            ModelIdentifier srcid = sources[j].getIdentifier();
-                            if ("midi".equals(srcid.getObject()) &&
-                                    "channel_pressure".equals(srcid.getVariable())) {
-                                removeok = true;
-                            }
-                        }
-                    }
-                    if (removeok)
-                        iter.remove();
-                }
-                for (int j = 0; j < cds_channelpressure_connections.length; j++)
-                    connblocks.add(cds_channelpressure_connections[j]);
-            }
-
-        }
-
-        current_instrument = new SoftInstrument(src_instrument, new_performers);
-
     }
 
     public void controlChangePerNote(int noteNumber, int controller, int value) {
