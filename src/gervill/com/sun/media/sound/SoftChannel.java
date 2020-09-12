@@ -24,11 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import gervill.javax.sound.midi.MidiChannel;
@@ -115,7 +112,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     int tuning_bank = 0;
     int tuning_program = 0;
     SoftInstrument current_instrument = null;
-    ModelChannelMixer current_mixer = null;
     ModelDirector current_director = null;
 
     boolean sustain = false;
@@ -332,8 +328,8 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     void initVoice(SoftVoice voice, SoftPerformer p, int voiceID,
-            int noteNumber, int velocity, int delay, ModelConnectionBlock[] connectionBlocks,
-            ModelChannelMixer channelmixer, boolean releaseTriggered) {
+                   int noteNumber, int velocity, int delay, ModelConnectionBlock[] connectionBlocks,
+                   boolean releaseTriggered) {
         if (voice.active) {
             // Voice is active , we must steal the voice
             voice.stealer_channel = this;
@@ -342,7 +338,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             voice.stealer_noteNumber = noteNumber;
             voice.stealer_velocity = velocity;
             voice.stealer_extendedConnectionBlocks = connectionBlocks;
-            voice.stealer_channelmixer = channelmixer;
             voice.stealer_releaseTriggered = releaseTriggered;
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].active && voices[i].voiceID == voice.voiceID)
@@ -351,7 +346,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         }
 
         voice.extendedConnectionBlocks = connectionBlocks;
-        voice.channelmixer = channelmixer;
+        voice.channelmixer = null;
         voice.releaseTriggered = releaseTriggered;
         voice.voiceID = voiceID;
         voice.tuning = tuning;
@@ -412,8 +407,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         noteNumber = restrict7Bit(noteNumber);
         velocity = restrict7Bit(velocity);
         noteOn_internal(noteNumber, velocity, delay);
-        if (current_mixer != null)
-            current_mixer.noteOn(noteNumber, velocity);
     }
 
     private void noteOn_internal(int noteNumber, int velocity, int delay) {
@@ -484,12 +477,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                         = synthesizer.findInstrument(program, bank, channel);
                 if (current_instrument == null)
                     return;
-                if (current_mixer != null)
-                    mainmixer.stopMixer(current_mixer);
-                current_mixer = current_instrument.getSourceInstrument()
-                        .getChannelMixer(this, synthesizer.getFormat());
-                if (current_mixer != null)
-                    mainmixer.registerMixer(current_mixer);
                 current_director = current_instrument.getDirector(this, this);
             }
             prevVoiceID = synthesizer.voiceIDCounter++;
@@ -542,8 +529,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         velocity = restrict7Bit(velocity);
         noteOff_internal(noteNumber, velocity);
 
-        if (current_mixer != null)
-            current_mixer.noteOff(noteNumber, velocity);
     }
 
     private void noteOff_internal(int noteNumber, int velocity) {
@@ -575,7 +560,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                     v.stealer_noteNumber = 0;
                     v.stealer_velocity = 0;
                     v.stealer_extendedConnectionBlocks = null;
-                    v.stealer_channelmixer = null;
                 }
             }
 
@@ -586,12 +570,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
                         = synthesizer.findInstrument(program, bank, channel);
                 if (current_instrument == null)
                     return;
-                if (current_mixer != null)
-                    mainmixer.stopMixer(current_mixer);
-                current_mixer = current_instrument.getSourceInstrument()
-                        .getChannelMixer(this, synthesizer.getFormat());
-                if (current_mixer != null)
-                    mainmixer.registerMixer(current_mixer);
                 current_director = current_instrument.getDirector(this, this);
 
             }
@@ -646,7 +624,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             return;
 
         initVoice(voices[voiceNo], p, prevVoiceID, noteNumber, velocity, delay,
-                connectionBlocks, current_mixer, releasetriggered);
+                connectionBlocks, releasetriggered);
     }
 
     public void noteOff(int noteNumber) {
@@ -657,9 +635,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     public void setPolyPressure(int noteNumber, int pressure) {
         noteNumber = restrict7Bit(noteNumber);
         pressure = restrict7Bit(pressure);
-
-        if (current_mixer != null)
-            current_mixer.setPolyPressure(noteNumber, pressure);
 
         synchronized (control_mutex) {
             mainmixer.activity();
@@ -680,8 +655,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
 
     public void setChannelPressure(int pressure) {
         pressure = restrict7Bit(pressure);
-        if (current_mixer != null)
-            current_mixer.setChannelPressure(pressure);
         synchronized (control_mutex) {
             mainmixer.activity();
             co_midi_channel_pressure[0] = pressure * (1.0 / 128.0);
@@ -758,8 +731,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     public void controlChange(int controller, int value) {
         controller = restrict7Bit(controller);
         value = restrict7Bit(value);
-        if (current_mixer != null)
-            current_mixer.controlChange(controller, value);
 
         synchronized (control_mutex) {
             switch (controller) {
@@ -981,8 +952,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
 
     public void setPitchBend(int bend) {
         bend = restrict14Bit(bend);
-        if (current_mixer != null)
-            current_mixer.setPitchBend(bend);
         synchronized (control_mutex) {
             mainmixer.activity();
             co_midi_pitch[0] = bend * (1.0 / 16384.0);
@@ -1160,8 +1129,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     public void allNotesOff() {
-        if (current_mixer != null)
-            current_mixer.allNotesOff();
         synchronized (control_mutex) {
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].on && voices[i].channel == channel
@@ -1172,8 +1139,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     public void allSoundOff() {
-        if (current_mixer != null)
-            current_mixer.allSoundOff();
         synchronized (control_mutex) {
             for (int i = 0; i < voices.length; i++)
                 if (voices[i].on && voices[i].channel == channel)
@@ -1186,8 +1151,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     public void setMono(boolean on) {
-        if (current_mixer != null)
-            current_mixer.setMono(on);
         synchronized (control_mutex) {
             allNotesOff();
             mono = on;
@@ -1201,8 +1164,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     public void setOmni(boolean on) {
-        if (current_mixer != null)
-            current_mixer.setOmni(on);
         allNotesOff();
     // Omni is not supported by GM2
     }
@@ -1212,8 +1173,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     public void setMute(boolean mute) {
-        if (current_mixer != null)
-            current_mixer.setMute(mute);
         synchronized (control_mutex) {
             this.mute = mute;
             for (int i = 0; i < voices.length; i++)
@@ -1229,8 +1188,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     }
 
     public void setSolo(boolean soloState) {
-        if (current_mixer != null)
-            current_mixer.setSolo(soloState);
 
         synchronized (control_mutex) {
             this.solo = soloState;

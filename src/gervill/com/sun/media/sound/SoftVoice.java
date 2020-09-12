@@ -47,7 +47,6 @@ public final class SoftVoice extends VoiceStatus {
     SoftChannel stealer_channel = null;
     ModelConnectionBlock[] stealer_extendedConnectionBlocks = null;
     SoftPerformer stealer_performer = null;
-    ModelChannelMixer stealer_channelmixer = null;
     int stealer_voiceID = -1;
     int stealer_noteNumber = 0;
     int stealer_velocity = 0;
@@ -567,7 +566,7 @@ public final class SoftVoice extends VoiceStatus {
             if (stealer_channel != null) {
                 stealer_channel.initVoice(this, stealer_performer,
                         stealer_voiceID, stealer_noteNumber, stealer_velocity, 0,
-                        stealer_extendedConnectionBlocks, stealer_channelmixer,
+                        stealer_extendedConnectionBlocks,
                         stealer_releaseTriggered);
                 stealer_releaseTriggered = false;
                 stealer_channel = null;
@@ -576,7 +575,6 @@ public final class SoftVoice extends VoiceStatus {
                 stealer_noteNumber = 0;
                 stealer_velocity = 0;
                 stealer_extendedConnectionBlocks = null;
-                stealer_channelmixer = null;
             }
         }
         if (started) {

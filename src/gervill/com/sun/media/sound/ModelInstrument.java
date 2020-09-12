@@ -63,9 +63,4 @@ public abstract class ModelInstrument extends Instrument {
         return new ModelPerformer[0];
     }
 
-    public ModelChannelMixer getChannelMixer(MidiChannel channel,
-            AudioFormat format) {
-        return null;
-    }
-
 }

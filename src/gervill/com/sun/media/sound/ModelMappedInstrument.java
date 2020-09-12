@@ -26,7 +26,6 @@ package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.MidiChannel;
 import gervill.javax.sound.midi.Patch;
-import gervill.javax.sound.sampled.AudioFormat;
 
 /**
  * This class is used to map instrument to another patch.
@@ -55,8 +54,4 @@ public final class ModelMappedInstrument extends ModelInstrument {
         return ins.getDirector(performers, channel, player);
     }
 
-    public ModelChannelMixer getChannelMixer(MidiChannel channel,
-            AudioFormat format) {
-        return ins.getChannelMixer(channel, format);
-    }
 }
