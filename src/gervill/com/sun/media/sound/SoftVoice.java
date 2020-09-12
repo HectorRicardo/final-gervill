@@ -41,7 +41,6 @@ public final class SoftVoice extends VoiceStatus {
     public int exclusiveClass = 0;
     public boolean releaseTriggered = false;
     private int delay = 0;
-    ModelChannelMixer channelmixer = null;
     double tunedKey = 0;
     SoftTuning tuning = null;
     SoftChannel stealer_channel = null;
@@ -555,7 +554,6 @@ public final class SoftVoice extends VoiceStatus {
             performer = null;
             connections = null;
             extendedConnectionBlocks = null;
-            channelmixer = null;
             if (osc_stream != null)
                 try {
                     osc_stream.close();

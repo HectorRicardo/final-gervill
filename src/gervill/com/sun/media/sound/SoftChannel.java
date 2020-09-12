@@ -346,7 +346,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
         }
 
         voice.extendedConnectionBlocks = connectionBlocks;
-        voice.channelmixer = null;
         voice.releaseTriggered = releaseTriggered;
         voice.voiceID = voiceID;
         voice.tuning = tuning;
