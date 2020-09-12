@@ -94,21 +94,6 @@ public class SourceDataLine implements AutoCloseable {
     }
 
 
-
-    /**
-     * Indicates whether the line is open, meaning that it has reserved
-     * system resources and is operational, although it might not currently be
-     * playing or capturing sound.
-     * @return <code>true</code> if the line is open, otherwise <code>false</code>
-     *
-     * see #open()
-     * see #close()
-     */
-    public boolean isOpen() {
-        return realLine.isOpen();
-    }
-
-
     /**
      * Allows a line to engage in data I/O.  If invoked on a line
      * that is already running, this method does nothing.  Unless the data in
@@ -123,24 +108,6 @@ public class SourceDataLine implements AutoCloseable {
      */
     public void start() {
         realLine.start();
-    }
-
-    /**
-     * Indicates whether the line is engaging in active I/O (such as playback
-     * or capture).  When an inactive line becomes active, it sends a
-     * <code> LineEvent.Type#START START</code> event to its listeners.  Similarly, when
-     * an active line becomes inactive, it sends a
-     * <code> LineEvent.Type#STOP STOP</code> event.
-     * @return <code>true</code> if the line is actively capturing or rendering
-     * sound, otherwise <code>false</code>
-     * see #isOpen
-     * see #addLineListener
-     * see #removeLineListener
-     * see LineEvent
-     * see LineListener
-     */
-    public boolean isActive() {
-        return realLine.isActive();
     }
 
     /**

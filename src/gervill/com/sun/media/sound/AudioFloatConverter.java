@@ -174,58 +174,6 @@ public abstract class AudioFloatConverter {
         }
     }
 
-    // PCM 64 bit float, big-endian
-    private static class AudioFloatConversion64B extends AudioFloatConverter {
-        ByteBuffer bytebuffer = null;
-
-        DoubleBuffer floatbuffer = null;
-
-        double[] double_buff = null;
-
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int in_len = out_len * 8;
-            if (bytebuffer == null || bytebuffer.capacity() < in_len) {
-                bytebuffer = ByteBuffer.allocate(in_len).order(
-                        ByteOrder.BIG_ENDIAN);
-                floatbuffer = bytebuffer.asDoubleBuffer();
-            }
-            bytebuffer.position(0);
-            floatbuffer.position(0);
-            bytebuffer.put(in_buff, in_offset, in_len);
-            if (double_buff == null
-                    || double_buff.length < out_len + out_offset)
-                double_buff = new double[out_len + out_offset];
-            floatbuffer.get(double_buff, out_offset, out_len);
-            int out_offset_end = out_offset + out_len;
-            for (int i = out_offset; i < out_offset_end; i++) {
-                out_buff[i] = (float) double_buff[i];
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int out_len = in_len * 8;
-            if (bytebuffer == null || bytebuffer.capacity() < out_len) {
-                bytebuffer = ByteBuffer.allocate(out_len).order(
-                        ByteOrder.BIG_ENDIAN);
-                floatbuffer = bytebuffer.asDoubleBuffer();
-            }
-            floatbuffer.position(0);
-            bytebuffer.position(0);
-            if (double_buff == null || double_buff.length < in_offset + in_len)
-                double_buff = new double[in_offset + in_len];
-            int in_offset_end = in_offset + in_len;
-            for (int i = in_offset; i < in_offset_end; i++) {
-                double_buff[i] = in_buff[i];
-            }
-            floatbuffer.put(double_buff, in_offset, in_len);
-            bytebuffer.get(out_buff, out_offset, out_len);
-            return out_buff;
-        }
-    }
-
     /***************************************************************************
      *
      * 32 bit float, little/big-endian
@@ -259,43 +207,6 @@ public abstract class AudioFloatConverter {
             if (bytebuffer == null || bytebuffer.capacity() < out_len) {
                 bytebuffer = ByteBuffer.allocate(out_len).order(
                         ByteOrder.LITTLE_ENDIAN);
-                floatbuffer = bytebuffer.asFloatBuffer();
-            }
-            floatbuffer.position(0);
-            bytebuffer.position(0);
-            floatbuffer.put(in_buff, in_offset, in_len);
-            bytebuffer.get(out_buff, out_offset, out_len);
-            return out_buff;
-        }
-    }
-
-    // PCM 32 bit float, big-endian
-    private static class AudioFloatConversion32B extends AudioFloatConverter {
-        ByteBuffer bytebuffer = null;
-
-        FloatBuffer floatbuffer = null;
-
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int in_len = out_len * 4;
-            if (bytebuffer == null || bytebuffer.capacity() < in_len) {
-                bytebuffer = ByteBuffer.allocate(in_len).order(
-                        ByteOrder.BIG_ENDIAN);
-                floatbuffer = bytebuffer.asFloatBuffer();
-            }
-            bytebuffer.position(0);
-            floatbuffer.position(0);
-            bytebuffer.put(in_buff, in_offset, in_len);
-            floatbuffer.get(out_buff, out_offset, out_len);
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int out_len = in_len * 4;
-            if (bytebuffer == null || bytebuffer.capacity() < out_len) {
-                bytebuffer = ByteBuffer.allocate(out_len).order(
-                        ByteOrder.BIG_ENDIAN);
                 floatbuffer = bytebuffer.asFloatBuffer();
             }
             floatbuffer.position(0);
@@ -388,32 +299,6 @@ public abstract class AudioFloatConverter {
         }
     }
 
-    // PCM 16 bit, signed, big-endian
-    private static class AudioFloatConversion16SB extends AudioFloatConverter {
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                out_buff[ox++] = ((short) ((in_buff[ix++] << 8) |
-                        (in_buff[ix++] & 0xFF))) * (1.0f / 32767.0f);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * 32767.0);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
-            }
-            return out_buff;
-        }
-    }
-
     // PCM 16 bit, unsigned, little-endian
     private static class AudioFloatConversion16UL extends AudioFloatConverter {
         public float[] toFloatArray(byte[] in_buff, int in_offset,
@@ -435,32 +320,6 @@ public abstract class AudioFloatConverter {
                 int x = 32767 + (int) (in_buff[ix++] * 32767.0);
                 out_buff[ox++] = (byte) x;
                 out_buff[ox++] = (byte) (x >>> 8);
-            }
-            return out_buff;
-        }
-    }
-
-    // PCM 16 bit, unsigned, big-endian
-    private static class AudioFloatConversion16UB extends AudioFloatConverter {
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 8) | (in_buff[ix++] & 0xFF);
-                out_buff[ox++] = (x - 32767) * (1.0f / 32767.0f);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = 32767 + (int) (in_buff[ix++] * 32767.0);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
             }
             return out_buff;
         }
@@ -504,38 +363,6 @@ public abstract class AudioFloatConverter {
         }
     }
 
-    // PCM 24 bit, signed, big-endian
-    private static class AudioFloatConversion24SB extends AudioFloatConverter {
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 16)
-                        | ((in_buff[ix++] & 0xFF) << 8) | (in_buff[ix++] & 0xFF);
-                if (x > 0x7FFFFF)
-                    x -= 0x1000000;
-                out_buff[ox++] = x * (1.0f / (float)0x7FFFFF);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * (float)0x7FFFFF);
-                if (x < 0)
-                    x += 0x1000000;
-                out_buff[ox++] = (byte) (x >>> 16);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
-            }
-            return out_buff;
-        }
-    }
-
     // PCM 24 bit, unsigned, little-endian
     private static class AudioFloatConversion24UL extends AudioFloatConverter {
         public float[] toFloatArray(byte[] in_buff, int in_offset,
@@ -561,36 +388,6 @@ public abstract class AudioFloatConverter {
                 out_buff[ox++] = (byte) x;
                 out_buff[ox++] = (byte) (x >>> 8);
                 out_buff[ox++] = (byte) (x >>> 16);
-            }
-            return out_buff;
-        }
-    }
-
-    // PCM 24 bit, unsigned, big-endian
-    private static class AudioFloatConversion24UB extends AudioFloatConverter {
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 16)
-                        | ((in_buff[ix++] & 0xFF) << 8) | (in_buff[ix++] & 0xFF);
-                x -= 0x7FFFFF;
-                out_buff[ox++] = x * (1.0f / (float)0x7FFFFF);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * (float)0x7FFFFF);
-                x += 0x7FFFFF;
-                out_buff[ox++] = (byte) (x >>> 16);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
             }
             return out_buff;
         }
@@ -632,36 +429,6 @@ public abstract class AudioFloatConverter {
         }
     }
 
-    // PCM 32 bit, signed, big-endian
-    private static class AudioFloatConversion32SB extends AudioFloatConverter {
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 24) |
-                        ((in_buff[ix++] & 0xFF) << 16) |
-                        ((in_buff[ix++] & 0xFF) << 8) | (in_buff[ix++] & 0xFF);
-                out_buff[ox++] = x * (1.0f / (float)0x7FFFFFFF);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * (float)0x7FFFFFFF);
-                out_buff[ox++] = (byte) (x >>> 24);
-                out_buff[ox++] = (byte) (x >>> 16);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
-            }
-            return out_buff;
-        }
-    }
-
     // PCM 32 bit, unsigned, little-endian
     private static class AudioFloatConversion32UL extends AudioFloatConverter {
         public float[] toFloatArray(byte[] in_buff, int in_offset,
@@ -689,39 +456,6 @@ public abstract class AudioFloatConverter {
                 out_buff[ox++] = (byte) (x >>> 8);
                 out_buff[ox++] = (byte) (x >>> 16);
                 out_buff[ox++] = (byte) (x >>> 24);
-            }
-            return out_buff;
-        }
-    }
-
-    // PCM 32 bit, unsigned, big-endian
-    private static class AudioFloatConversion32UB extends AudioFloatConverter {
-
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 24) |
-                        ((in_buff[ix++] & 0xFF) << 16) |
-                        ((in_buff[ix++] & 0xFF) << 8) | (in_buff[ix++] & 0xFF);
-                x -= 0x7FFFFFFF;
-                out_buff[ox++] = x * (1.0f / (float)0x7FFFFFFF);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * (float)0x7FFFFFFF);
-                x += 0x7FFFFFFF;
-                out_buff[ox++] = (byte) (x >>> 24);
-                out_buff[ox++] = (byte) (x >>> 16);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
             }
             return out_buff;
         }
@@ -774,48 +508,6 @@ public abstract class AudioFloatConverter {
         }
     }
 
-    // PCM 32+ bit, signed, big-endian
-    private static class AudioFloatConversion32xSB extends AudioFloatConverter {
-
-        final int xbytes;
-
-        AudioFloatConversion32xSB(int xbytes) {
-            this.xbytes = xbytes;
-        }
-
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 24)
-                        | ((in_buff[ix++] & 0xFF) << 16)
-                        | ((in_buff[ix++] & 0xFF) << 8)
-                        | (in_buff[ix++] & 0xFF);
-                ix += xbytes;
-                out_buff[ox++] = x * (1.0f / (float)0x7FFFFFFF);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * (float)0x7FFFFFFF);
-                out_buff[ox++] = (byte) (x >>> 24);
-                out_buff[ox++] = (byte) (x >>> 16);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
-                for (int j = 0; j < xbytes; j++) {
-                    out_buff[ox++] = 0;
-                }
-            }
-            return out_buff;
-        }
-    }
-
     // PCM 32+ bit, unsigned, little-endian
     private static class AudioFloatConversion32xUL extends AudioFloatConverter {
 
@@ -854,49 +546,6 @@ public abstract class AudioFloatConverter {
                 out_buff[ox++] = (byte) (x >>> 8);
                 out_buff[ox++] = (byte) (x >>> 16);
                 out_buff[ox++] = (byte) (x >>> 24);
-            }
-            return out_buff;
-        }
-    }
-
-    // PCM 32+ bit, unsigned, big-endian
-    private static class AudioFloatConversion32xUB extends AudioFloatConverter {
-
-        final int xbytes;
-
-        AudioFloatConversion32xUB(int xbytes) {
-            this.xbytes = xbytes;
-        }
-
-        public float[] toFloatArray(byte[] in_buff, int in_offset,
-                float[] out_buff, int out_offset, int out_len) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < out_len; i++) {
-                int x = ((in_buff[ix++] & 0xFF) << 24) |
-                        ((in_buff[ix++] & 0xFF) << 16) |
-                        ((in_buff[ix++] & 0xFF) << 8) | (in_buff[ix++] & 0xFF);
-                ix += xbytes;
-                x -= 2147483647;
-                out_buff[ox++] = x * (1.0f / 2147483647.0f);
-            }
-            return out_buff;
-        }
-
-        public byte[] toByteArray(float[] in_buff, int in_offset, int in_len,
-                byte[] out_buff, int out_offset) {
-            int ix = in_offset;
-            int ox = out_offset;
-            for (int i = 0; i < in_len; i++) {
-                int x = (int) (in_buff[ix++] * 2147483647.0);
-                x += 2147483647;
-                out_buff[ox++] = (byte) (x >>> 24);
-                out_buff[ox++] = (byte) (x >>> 16);
-                out_buff[ox++] = (byte) (x >>> 8);
-                out_buff[ox++] = (byte) x;
-                for (int j = 0; j < xbytes; j++) {
-                    out_buff[ox++] = 0;
-                }
             }
             return out_buff;
         }
