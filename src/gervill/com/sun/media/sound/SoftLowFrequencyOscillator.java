@@ -41,7 +41,6 @@ public final class SoftLowFrequencyOscillator implements SoftProcess {
     private final double[] sin_phase = new double[max_count];
     private final double[] sin_stepfreq = new double[max_count];
     private final double[] sin_step = new double[max_count];
-    private double control_time = 0;
     private double sin_factor = 0;
     private static final double PI2 = 2.0 * Math.PI;
 
@@ -68,7 +67,7 @@ public final class SoftLowFrequencyOscillator implements SoftProcess {
     }
 
     public void init(SoftSynthesizer synth) {
-        control_time = 1.0 / synth.getControlRate();
+        double control_time = 1.0 / synth.getControlRate();
         sin_factor = control_time * 2 * Math.PI;
         for (int i = 0; i < used_count; i++) {
             delay_counter[i] = (int)(Math.pow(2,

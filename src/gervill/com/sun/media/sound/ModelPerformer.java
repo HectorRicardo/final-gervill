@@ -43,9 +43,7 @@ public final class ModelPerformer {
     private int velFrom = 0;
     private int velTo = 127;
     private int exclusiveClass = 0;
-    private boolean releaseTrigger = false;
     private boolean selfNonExclusive = false;
-    private boolean addDefaultConnections = true;
 
     public List<ModelConnectionBlock> getConnectionBlocks() {
         return connectionBlocks;
@@ -104,11 +102,11 @@ public final class ModelPerformer {
     }
 
     public boolean isReleaseTriggered() {
-        return releaseTrigger;
+        return false;
     }
 
     public boolean isDefaultConnectionsEnabled() {
-        return addDefaultConnections;
+        return true;
     }
 
 }

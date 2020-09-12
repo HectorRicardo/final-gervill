@@ -179,8 +179,7 @@ public final class SoftReverb implements SoftAudioProcessor {
             filtercoeff2 = (1 - filtercoeff1)* feedback;
         }
     }
-    private float roomsize;
-    private float damp;
+
     private float gain = 1;
     private Delay delay;
     private Comb[] combL;
@@ -469,7 +468,7 @@ public final class SoftReverb implements SoftAudioProcessor {
     }
 
     public void setRoomSize(float value) {
-        roomsize = 1 - (0.17f / value);
+        float roomsize = 1 - (0.17f / value);
 
         for (int i = 0; i < combL.length; i++) {
             combL[i].feedback = roomsize;
@@ -488,7 +487,7 @@ public final class SoftReverb implements SoftAudioProcessor {
     public void setDamp(float value) {
         double x = (value / samplerate) * (2 * Math.PI);
         double cx = 2 - Math.cos(x);
-        damp = (float)(cx - Math.sqrt(cx * cx - 1));
+        float damp = (float) (cx - Math.sqrt(cx * cx - 1));
         if (damp > 1)
             damp = 1;
         if (damp < 0)

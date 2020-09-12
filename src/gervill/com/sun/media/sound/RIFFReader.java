@@ -39,7 +39,6 @@ public final class RIFFReader extends InputStream {
     private long filepointer = 0;
     private final String fourcc;
     private String riff_type = null;
-    private long ckSize = Integer.MAX_VALUE;
     private InputStream stream;
     private long avail = Integer.MAX_VALUE;
     private RIFFReader lastiterator = null;
@@ -74,8 +73,7 @@ public final class RIFFReader extends InputStream {
         fourcc[0] = (byte) b;
         readFully(fourcc, 1, 3);
         this.fourcc = new String(fourcc, "ascii");
-        ckSize = readUnsignedInt();
-        avail = ckSize;
+        avail = readUnsignedInt();
 
         if (getFormat().equals("RIFF") || getFormat().equals("LIST")) {
             if (avail > Integer.MAX_VALUE) {
