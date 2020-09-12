@@ -101,12 +101,4 @@ public final class ModelPerformer {
         this.velTo = velTo;
     }
 
-    public boolean isReleaseTriggered() {
-        return false;
-    }
-
-    public boolean isDefaultConnectionsEnabled() {
-        return true;
-    }
-
 }

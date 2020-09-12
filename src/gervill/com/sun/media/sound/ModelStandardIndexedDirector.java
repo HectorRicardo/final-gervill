@@ -49,11 +49,7 @@ public final class ModelStandardIndexedDirector implements ModelDirector {
         this.performers = Arrays.copyOf(performers, performers.length);
         this.player = player;
         for (final ModelPerformer p : this.performers) {
-            if (p.isReleaseTriggered()) {
-                noteOffUsed = true;
-            } else {
-                noteOnUsed = true;
-            }
+            noteOnUsed = true;
         }
         buildindex();
     }
@@ -157,16 +153,6 @@ public final class ModelStandardIndexedDirector implements ModelDirector {
     }
 
     public void noteOff(int noteNumber, int velocity) {
-        if (!noteOffUsed)
-            return;
-        int[] plist = lookupIndex(noteNumber, velocity);
-        if(plist == null) return;
-        for (int i : plist) {
-            ModelPerformer p = performers[i];
-            if (p.isReleaseTriggered()) {
-                player.play(i, null);
-            }
-        }
     }
 
     public void noteOn(int noteNumber, int velocity) {
@@ -175,10 +161,7 @@ public final class ModelStandardIndexedDirector implements ModelDirector {
         int[] plist = lookupIndex(noteNumber, velocity);
         if(plist == null) return;
         for (int i : plist) {
-            ModelPerformer p = performers[i];
-            if (!p.isReleaseTriggered()) {
-                player.play(i, null);
-            }
+            player.play(i, null);
         }
     }
 }
