@@ -349,7 +349,6 @@ public final class DLSInstrument extends ModelInstrument {
 
         for (DLSRegion zone: regions) {
             ModelPerformer performer = new ModelPerformer();
-            performer.setName(zone.getSample().getName());
             performer.setSelfNonExclusive((zone.getFusoptions() &
                     DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0);
             performer.setExclusiveClass(zone.getExclusiveClass());

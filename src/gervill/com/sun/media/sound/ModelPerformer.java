@@ -46,15 +46,6 @@ public final class ModelPerformer {
     private boolean releaseTrigger = false;
     private boolean selfNonExclusive = false;
     private boolean addDefaultConnections = true;
-    private String name = null;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public List<ModelConnectionBlock> getConnectionBlocks() {
         return connectionBlocks;

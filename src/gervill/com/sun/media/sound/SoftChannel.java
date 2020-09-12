@@ -118,11 +118,6 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     ModelChannelMixer current_mixer = null;
     ModelDirector current_director = null;
 
-    // Controller Destination Settings
-    int cds_control_number = -1;
-    ModelConnectionBlock[] cds_control_connections = null;
-    ModelConnectionBlock[] cds_channelpressure_connections = null;
-    ModelConnectionBlock[] cds_polypressure_connections = null;
     boolean sustain = false;
     boolean[][] keybasedcontroller_active = null;
     double[][] keybasedcontroller_value = null;

@@ -47,15 +47,6 @@ public final class SoftInstrument extends Instrument {
         initPerformers(((ModelInstrument)ins).getPerformers());
     }
 
-    public SoftInstrument(ModelInstrument ins,
-            ModelPerformer[] overrideperformers) {
-        super(ins.getSoundbank(), ins.getPatch(), ins.getName(),
-                ins.getDataClass());
-        data = ins.getData();
-        this.ins = ins;
-        initPerformers(overrideperformers);
-    }
-
     private void initPerformers(ModelPerformer[] modelperformers) {
         this.modelperformers = modelperformers;
         performers = new SoftPerformer[modelperformers.length];
