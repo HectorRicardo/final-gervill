@@ -60,15 +60,11 @@ public final class SoftMainMixer {
     public final static int CHANNEL_DELAY_EFFECT2 = 9;
     public final static int CHANNEL_LEFT_DRY = 10;
     public final static int CHANNEL_RIGHT_DRY = 11;
-    boolean active_sensing_on = false;
-    private long msec_last_activity = -1;
     private boolean pusher_silent = false;
     private int pusher_silent_count = 0;
-    private long sample_pos = 0;
     boolean readfully = true;
     private final Object control_mutex;
     private SoftSynthesizer synth;
-    private float samplerate = 44100;
     private int nrofchannels = 2;
     private SoftVoice[] voicestatus = null;
     private SoftAudioBuffer[] buffers;
@@ -113,7 +109,6 @@ public final class SoftMainMixer {
 
         if(synth.weakstream != null && synth.weakstream.silent_samples != 0)
         {
-            sample_pos += synth.weakstream.silent_samples;
             synth.weakstream.silent_samples = 0;
         }
 
@@ -155,24 +150,9 @@ public final class SoftMainMixer {
         // perform control logic
         synchronized (control_mutex) {
 
-            long msec_pos = (long)(sample_pos * (1000000.0 / samplerate));
-
-            if (active_sensing_on) {
-                // Active Sensing
-                // if no message occurs for max 1000 ms
-                // then do AllSoundOff on all channels
-                if ((msec_pos - msec_last_activity) > 1000000) {
-                    active_sensing_on = false;
-                    for (SoftChannel c : synth.channels)
-                        c.allSoundOff();
-                }
-
-            }
-
             for (int i = 0; i < voicestatus.length; i++)
                 if (voicestatus[i].active)
                     voicestatus[i].processControlLogic();
-            sample_pos += buffer_len;
 
             double volume = co_master_volume[0];
             volume_left = volume;
@@ -430,18 +410,14 @@ public final class SoftMainMixer {
     // Must only we called within control_mutex synchronization
     public void activity()
     {
-        long silent_samples = 0;
         if(pusher_silent)
         {
             pusher_silent = false;
             if(synth.weakstream != null)
             {
                 synth.weakstream.setInputStream(ais);
-                silent_samples = synth.weakstream.silent_samples;
             }
         }
-        msec_last_activity = (long)((sample_pos + silent_samples)
-                * (1000000.0 / samplerate));
     }
 
     public void stopMixer(ModelChannelMixer mixer) {
@@ -467,14 +443,11 @@ public final class SoftMainMixer {
     public SoftMainMixer(SoftSynthesizer synth) {
         this.synth = synth;
 
-        sample_pos = 0;
-
         co_master_balance[0] = 0.5;
         co_master_volume[0] = 1;
         co_master_coarse_tuning[0] = 0.5;
         co_master_fine_tuning[0] = 0.5;
 
-        samplerate = synth.getFormat().getSampleRate();
         nrofchannels = synth.getFormat().getChannels();
 
         int buffersize = (int) (synth.getFormat().getSampleRate()
