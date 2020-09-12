@@ -726,35 +726,6 @@ public final class SoftPerformer {
         oscillators = new ModelOscillator[performer.getOscillators().size()];
         performer.getOscillators().toArray(oscillators);
 
-        for (ModelConnectionBlock conn : connections) {
-            if (conn.getDestination() != null) {
-                if (isUnnecessaryTransform(conn.getDestination().getTransform())) {
-                    conn.getDestination().setTransform(null);
-                }
-            }
-            if (conn.getSources() != null) {
-                for (ModelSource src : conn.getSources()) {
-                    if (isUnnecessaryTransform(src.getTransform())) {
-                        src.setTransform(null);
-                    }
-                }
-            }
-        }
-
     }
 
-    private static boolean isUnnecessaryTransform(ModelTransform transform) {
-        if (transform == null)
-            return false;
-        if (!(transform instanceof ModelStandardTransform))
-            return false;
-        ModelStandardTransform stransform = (ModelStandardTransform)transform;
-        if (stransform.getDirection() != ModelStandardTransform.DIRECTION_MIN2MAX)
-            return false;
-        if (stransform.getPolarity() != ModelStandardTransform.POLARITY_UNIPOLAR)
-            return false;
-        if (stransform.getTransform() != ModelStandardTransform.TRANSFORM_LINEAR)
-            return false;
-        return false;
-    }
 }

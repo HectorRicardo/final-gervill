@@ -94,7 +94,4 @@ public final class ModelSource {
         return transform;
     }
 
-    public void setTransform(ModelTransform transform) {
-        this.transform = transform;
-    }
 }

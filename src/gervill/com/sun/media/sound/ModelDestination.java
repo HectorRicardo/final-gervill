@@ -88,7 +88,7 @@ public final class ModelDestination {
     public static final ModelIdentifier DESTINATION_FILTER_Q
             = new ModelIdentifier("filter", "q", 0); // cB
     private ModelIdentifier destination = DESTINATION_NONE;
-    private ModelTransform transform = new ModelStandardTransform();
+    private final ModelTransform transform = new ModelStandardTransform();
 
     public ModelDestination() {
     }
@@ -109,7 +109,4 @@ public final class ModelDestination {
         return transform;
     }
 
-    public void setTransform(ModelTransform transform) {
-        this.transform = transform;
-    }
 }
