@@ -36,7 +36,6 @@ public final class SoftLimiter implements SoftAudioProcessor {
     float gain = 1;
     float[] temp_bufferL;
     float[] temp_bufferR;
-    boolean mix = false;
     SoftAudioBuffer bufferL;
     SoftAudioBuffer bufferR;
     SoftAudioBuffer bufferLout;
@@ -61,60 +60,42 @@ public final class SoftLimiter implements SoftAudioProcessor {
             bufferRout = output;
     }
 
-    public void setMixMode(boolean mix) {
-        this.mix = mix;
-    }
-
     double silentcounter = 0;
 
     public void processAudio() {
-        if (this.bufferL.isSilent()
-                && (this.bufferR == null || this.bufferR.isSilent())) {
+        if (this.bufferL.isSilent() && this.bufferR.isSilent()) {
             silentcounter += 1 / controlrate;
 
             if (silentcounter > 60) {
-                if (!mix) {
-                    bufferLout.clear();
-                    if (bufferRout != null) bufferRout.clear();
-                }
+                bufferLout.clear();
+                bufferRout.clear();
                 return;
             }
         } else
             silentcounter = 0;
 
         float[] bufferL = this.bufferL.array();
-        float[] bufferR = this.bufferR == null ? null : this.bufferR.array();
+        float[] bufferR = this.bufferR.array();
         float[] bufferLout = this.bufferLout.array();
-        float[] bufferRout = this.bufferRout == null
-                                ? null : this.bufferRout.array();
+        float[] bufferRout = this.bufferRout.array();
 
         if (temp_bufferL == null || temp_bufferL.length < bufferL.length)
             temp_bufferL = new float[bufferL.length];
-        if (bufferR != null)
-            if (temp_bufferR == null || temp_bufferR.length < bufferR.length)
-                temp_bufferR = new float[bufferR.length];
+        if (temp_bufferR == null || temp_bufferR.length < bufferR.length)
+            temp_bufferR = new float[bufferR.length];
 
         float max = 0;
         int len = bufferL.length;
 
-        if (bufferR == null) {
-            for (int i = 0; i < len; i++) {
-                if (bufferL[i] > max)
-                    max = bufferL[i];
-                if (-bufferL[i] > max)
-                    max = -bufferL[i];
-            }
-        } else {
-            for (int i = 0; i < len; i++) {
-                if (bufferL[i] > max)
-                    max = bufferL[i];
-                if (bufferR[i] > max)
-                    max = bufferR[i];
-                if (-bufferL[i] > max)
-                    max = -bufferL[i];
-                if (-bufferR[i] > max)
-                    max = -bufferR[i];
-            }
+        for (int i = 0; i < len; i++) {
+            if (bufferL[i] > max)
+                max = bufferL[i];
+            if (bufferR[i] > max)
+                max = bufferR[i];
+            if (-bufferL[i] > max)
+                max = -bufferL[i];
+            if (-bufferR[i] > max)
+                max = -bufferR[i];
         }
 
         float lmax = lastmax;
@@ -132,53 +113,18 @@ public final class SoftLimiter implements SoftAudioProcessor {
             newgain = (newgain + gain * 9) / 10f;
 
         float gaindelta = (newgain - gain) / len;
-        if (mix) {
-            if (bufferR == null) {
-                for (int i = 0; i < len; i++) {
-                    gain += gaindelta;
-                    float bL = bufferL[i];
-                    float tL = temp_bufferL[i];
-                    temp_bufferL[i] = bL;
-                    bufferLout[i] += tL * gain;
-                }
-            } else {
-                for (int i = 0; i < len; i++) {
-                    gain += gaindelta;
-                    float bL = bufferL[i];
-                    float bR = bufferR[i];
-                    float tL = temp_bufferL[i];
-                    float tR = temp_bufferR[i];
-                    temp_bufferL[i] = bL;
-                    temp_bufferR[i] = bR;
-                    bufferLout[i] += tL * gain;
-                    bufferRout[i] += tR * gain;
-                }
-            }
-
-        } else {
-            if (bufferR == null) {
-                for (int i = 0; i < len; i++) {
-                    gain += gaindelta;
-                    float bL = bufferL[i];
-                    float tL = temp_bufferL[i];
-                    temp_bufferL[i] = bL;
-                    bufferLout[i] = tL * gain;
-                }
-            } else {
-                for (int i = 0; i < len; i++) {
-                    gain += gaindelta;
-                    float bL = bufferL[i];
-                    float bR = bufferR[i];
-                    float tL = temp_bufferL[i];
-                    float tR = temp_bufferR[i];
-                    temp_bufferL[i] = bL;
-                    temp_bufferR[i] = bR;
-                    bufferLout[i] = tL * gain;
-                    bufferRout[i] = tR * gain;
-                }
-            }
-
+        for (int i = 0; i < len; i++) {
+            gain += gaindelta;
+            float bL = bufferL[i];
+            float bR = bufferR[i];
+            float tL = temp_bufferL[i];
+            float tR = temp_bufferR[i];
+            temp_bufferL[i] = bL;
+            temp_bufferR[i] = bR;
+            bufferLout[i] = tL * gain;
+            bufferRout[i] = tR * gain;
         }
+
         gain = newgain;
     }
 

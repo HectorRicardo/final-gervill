@@ -24,8 +24,6 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.Arrays;
-
 /**
  * A chorus effect made using LFO and variable delay. One for each channel
  * (left,right), with different starting phase for stereo effect.
@@ -106,11 +104,6 @@ public final class SoftChorus implements SoftAudioProcessor {
             lastdelay = delay;
         }
 
-        public void processReplace(float[] in, float[] out, float[] rout) {
-            Arrays.fill(out, 0);
-            Arrays.fill(rout, 0);
-            processMix(in, out, rout);
-        }
     }
 
     private static class LFODelay {
@@ -163,15 +156,8 @@ public final class SoftChorus implements SoftAudioProcessor {
             vdelay.processMix(in, out, rout);
         }
 
-        public void processReplace(float[] in, float[] out, float[] rout) {
-            phase += phase_step;
-            while(phase > (Math.PI * 2)) phase -= (Math.PI * 2);
-            vdelay.setDelay((float) (depth * 0.5 * (Math.cos(phase) + 2)));
-            vdelay.processReplace(in, out, rout);
-
-        }
     }
-    private boolean mix = true;
+
     private SoftAudioBuffer inputA;
     private SoftAudioBuffer left;
     private SoftAudioBuffer right;
@@ -199,76 +185,37 @@ public final class SoftChorus implements SoftAudioProcessor {
         vdelay1L.setPhase(0.5 * Math.PI);
         vdelay1R.setPhase(0);
 
-        globalParameterControlChange(new int[]{0x01 * 128 + 0x02}, 0, 2);
+        globalParameterControlChange(0, 2);
     }
 
-    private void globalParameterControlChange(int[] slothpath, long param,
+    private void globalParameterControlChange(long param,
                                               long value) {
-        if (slothpath.length == 1) {
-            if (slothpath[0] == 0x01 * 128 + 0x02) {
-                if (param == 0) { // Chorus Type
-                    switch ((int)value) {
-                    case 0: // Chorus 1 0 (0%) 3 (0.4Hz) 5 (1.9ms) 0 (0%)
-                        globalParameterControlChange(slothpath, 3, 0);
-                        globalParameterControlChange(slothpath, 1, 3);
-                        globalParameterControlChange(slothpath, 2, 5);
-                        globalParameterControlChange(slothpath, 4, 0);
-                        break;
-                    case 1: // Chorus 2 5 (4%) 9 (1.1Hz) 19 (6.3ms) 0 (0%)
-                        globalParameterControlChange(slothpath, 3, 5);
-                        globalParameterControlChange(slothpath, 1, 9);
-                        globalParameterControlChange(slothpath, 2, 19);
-                        globalParameterControlChange(slothpath, 4, 0);
-                        break;
-                    case 2: // Chorus 3 8 (6%) 3 (0.4Hz) 19 (6.3ms) 0 (0%)
-                        globalParameterControlChange(slothpath, 3, 8);
-                        globalParameterControlChange(slothpath, 1, 3);
-                        globalParameterControlChange(slothpath, 2, 19);
-                        globalParameterControlChange(slothpath, 4, 0);
-                        break;
-                    case 3: // Chorus 4 16 (12%) 9 (1.1Hz) 16 (5.3ms) 0 (0%)
-                        globalParameterControlChange(slothpath, 3, 16);
-                        globalParameterControlChange(slothpath, 1, 9);
-                        globalParameterControlChange(slothpath, 2, 16);
-                        globalParameterControlChange(slothpath, 4, 0);
-                        break;
-                    case 4: // FB Chorus 64 (49%) 2 (0.2Hz) 24 (7.8ms) 0 (0%)
-                        globalParameterControlChange(slothpath, 3, 64);
-                        globalParameterControlChange(slothpath, 1, 2);
-                        globalParameterControlChange(slothpath, 2, 24);
-                        globalParameterControlChange(slothpath, 4, 0);
-                        break;
-                    case 5: // Flanger 112 (86%) 1 (0.1Hz) 5 (1.9ms) 0 (0%)
-                        globalParameterControlChange(slothpath, 3, 112);
-                        globalParameterControlChange(slothpath, 1, 1);
-                        globalParameterControlChange(slothpath, 2, 5);
-                        globalParameterControlChange(slothpath, 4, 0);
-                        break;
-                    default:
-                        break;
-                    }
-                } else if (param == 1) { // Mod Rate
-                    dirty_vdelay1L_rate = (value * 0.122);
-                    dirty_vdelay1R_rate = (value * 0.122);
-                    dirty = true;
-                } else if (param == 2) { // Mod Depth
-                    dirty_vdelay1L_depth = ((value + 1) / 3200.0);
-                    dirty_vdelay1R_depth = ((value + 1) / 3200.0);
-                    dirty = true;
-                } else if (param == 3) { // Feedback
-                    dirty_vdelay1L_feedback = (value * 0.00763f);
-                    dirty_vdelay1R_feedback = (value * 0.00763f);
-                    dirty = true;
-                }
-                if (param == 4) { // Send to Reverb
-                    rgain = value * 0.00787f;
-                    dirty_vdelay1L_reverbsendgain = (value * 0.00787f);
-                    dirty_vdelay1R_reverbsendgain = (value * 0.00787f);
-                    dirty = true;
-                }
-
-            }
+        if (param == 0) { // Chorus Type
+            // Chorus 3 8 (6%) 3 (0.4Hz) 19 (6.3ms) 0 (0%)
+            globalParameterControlChange(3, 8);
+            globalParameterControlChange(1, 3);
+            globalParameterControlChange(2, 19);
+            globalParameterControlChange(4, 0);
+        } else if (param == 1) { // Mod Rate
+            dirty_vdelay1L_rate = (value * 0.122);
+            dirty_vdelay1R_rate = (value * 0.122);
+            dirty = true;
+        } else if (param == 2) { // Mod Depth
+            dirty_vdelay1L_depth = ((value + 1) / 3200.0);
+            dirty_vdelay1R_depth = ((value + 1) / 3200.0);
+            dirty = true;
+        } else if (param == 3) { // Feedback
+            dirty_vdelay1L_feedback = (value * 0.00763f);
+            dirty_vdelay1R_feedback = (value * 0.00763f);
+            dirty = true;
         }
+        if (param == 4) { // Send to Reverb
+            rgain = value * 0.00787f;
+            dirty_vdelay1L_reverbsendgain = (value * 0.00787f);
+            dirty_vdelay1R_reverbsendgain = (value * 0.00787f);
+            dirty = true;
+        }
+
     }
 
     public void processControlLogic() {
@@ -292,10 +239,6 @@ public final class SoftChorus implements SoftAudioProcessor {
             silentcounter += 1 / controlrate;
 
             if (silentcounter > 1) {
-                if (!mix) {
-                    left.clear();
-                    right.clear();
-                }
                 return;
             }
         } else
@@ -306,24 +249,14 @@ public final class SoftChorus implements SoftAudioProcessor {
         float[] right = this.right == null ? null : this.right.array();
         float[] reverb = rgain != 0 ? this.reverb.array() : null;
 
-        if (mix) {
-            vdelay1L.processMix(inputA, left, reverb);
-            if (right != null)
-                vdelay1R.processMix(inputA, right, reverb);
-        } else {
-            vdelay1L.processReplace(inputA, left, reverb);
-            if (right != null)
-                vdelay1R.processReplace(inputA, right, reverb);
-        }
+        vdelay1L.processMix(inputA, left, reverb);
+        if (right != null)
+            vdelay1R.processMix(inputA, right, reverb);
     }
 
     public void setInput(int pin, SoftAudioBuffer input) {
         if (pin == 0)
             inputA = input;
-    }
-
-    public void setMixMode(boolean mix) {
-        this.mix = mix;
     }
 
     public void setOutput(int pin, SoftAudioBuffer output) {

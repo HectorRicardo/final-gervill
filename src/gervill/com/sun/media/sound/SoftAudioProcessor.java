@@ -37,8 +37,6 @@ public interface SoftAudioProcessor {
 
     public void setOutput(int pin, SoftAudioBuffer output);
 
-    public void setMixMode(boolean mix);
-
     public void processAudio();
 
     public void processControlLogic();

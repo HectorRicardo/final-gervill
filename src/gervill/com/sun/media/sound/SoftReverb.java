@@ -24,8 +24,6 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.Arrays;
-
 /**
  * Reverb effect based on allpass/comb filters. First audio is send to 8
  * parelled comb filters and then mixed together and then finally send thru 3
@@ -101,20 +99,6 @@ public final class SoftReverb implements SoftAudioProcessor {
             this.rovepos = rovepos;
         }
 
-        public void processReplace(float in[], float out[]) {
-            int len = in.length;
-            int delaybuffersize = this.delaybuffersize;
-            int rovepos = this.rovepos;
-            for (int i = 0; i < len; i++) {
-                float delayout = delaybuffer[rovepos];
-                float input = in[i];
-                out[i] = delayout - input;
-                delaybuffer[rovepos] = input + delayout * feedback;
-                if (++rovepos == delaybuffersize)
-                    rovepos = 0;
-            }
-            this.rovepos = rovepos;
-        }
     }
 
     private final static class Comb {
@@ -192,7 +176,6 @@ public final class SoftReverb implements SoftAudioProcessor {
     private float[] pre2;
     private float[] pre3;
     private boolean denormal_flip = false;
-    private boolean mix = true;
     private SoftAudioBuffer inputA;
     private SoftAudioBuffer left;
     private SoftAudioBuffer right;
@@ -249,7 +232,7 @@ public final class SoftReverb implements SoftAudioProcessor {
         }
 
         /* Init other settings */
-        globalParameterControlChange(new int[]{0x01 * 128 + 0x01}, 0, 4);
+        globalParameterControlChange();
 
     }
 
@@ -265,10 +248,6 @@ public final class SoftReverb implements SoftAudioProcessor {
             right = output;
     }
 
-    public void setMixMode(boolean mix) {
-        this.mix = mix;
-    }
-
     private boolean silent = true;
 
     public void processAudio() {
@@ -277,10 +256,6 @@ public final class SoftReverb implements SoftAudioProcessor {
             silent = false;
         if(silent)
         {
-            if (!mix) {
-                left.clear();
-                right.clear();
-            }
             return;
         }
 
@@ -325,11 +300,6 @@ public final class SoftReverb implements SoftAudioProcessor {
         for (int i = 5; i < combL.length-2; i+=2)
             combL[i].processMix(input, pre2);
 
-        if (!mix)
-        {
-            Arrays.fill(right, 0);
-            Arrays.fill(left, 0);
-        }
         for (int i = combR.length-2; i < combR.length; i++)
             combR[i].processMix(input, right);
         for (int i = combL.length-2; i < combL.length; i++)
@@ -359,71 +329,16 @@ public final class SoftReverb implements SoftAudioProcessor {
 
     }
 
-    private void globalParameterControlChange(int[] slothpath, long param,
-                                              long value) {
-        if (slothpath.length == 1) {
-            if (slothpath[0] == 0x01 * 128 + 0x01) {
+    private void globalParameterControlChange() {
 
-                if (param == 0) {
-                    if (value == 0) {
-                        // Small Room A small size room with a length
-                        // of 5m or so.
-                        dirty_roomsize = (1.1f);
-                        dirty_damp = (5000);
-                        dirty_predelay = (0);
-                        dirty_gain = (4);
-                        dirty = true;
-                    }
-                    if (value == 1) {
-                        // Medium Room A medium size room with a length
-                        // of 10m or so.
-                        dirty_roomsize = (1.3f);
-                        dirty_damp = (5000);
-                        dirty_predelay = (0);
-                        dirty_gain = (3);
-                        dirty = true;
-                    }
-                    if (value == 2) {
-                        // Large Room A large size room suitable for
-                        // live performances.
-                        dirty_roomsize = (1.5f);
-                        dirty_damp = (5000);
-                        dirty_predelay = (0);
-                        dirty_gain = (2);
-                        dirty = true;
-                    }
-                    if (value == 3) {
-                        // Medium Hall A medium size concert hall.
-                        dirty_roomsize = (1.8f);
-                        dirty_damp = (24000);
-                        dirty_predelay = (0.02f);
-                        dirty_gain = (1.5f);
-                        dirty = true;
-                    }
-                    if (value == 4) {
-                        // Large Hall A large size concert hall
-                        // suitable for a full orchestra.
-                        dirty_roomsize = (1.8f);
-                        dirty_damp = (24000);
-                        dirty_predelay = (0.03f);
-                        dirty_gain = (1.5f);
-                        dirty = true;
-                    }
-                    if (value == 8) {
-                        // Plate A plate reverb simulation.
-                        dirty_roomsize = (1.3f);
-                        dirty_damp = (2500);
-                        dirty_predelay = (0);
-                        dirty_gain = (6);
-                        dirty = true;
-                    }
-                } else if (param == 1) {
-                    dirty_roomsize = ((float) (Math.exp((value - 40) * 0.025)));
-                    dirty = true;
-                }
+        // Large Hall A large size concert hall
+        // suitable for a full orchestra.
+        dirty_roomsize = (1.8f);
+        dirty_damp = (24000);
+        dirty_predelay = (0.03f);
+        dirty_gain = (1.5f);
+        dirty = true;
 
-            }
-        }
     }
 
     public void processControlLogic() {

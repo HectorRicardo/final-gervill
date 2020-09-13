@@ -57,9 +57,9 @@ public final class SoftMainMixer {
     private SoftSynthesizer synth;
     private SoftVoice[] voicestatus = null;
     private SoftAudioBuffer[] buffers;
-    private SoftReverb reverb;
-    private SoftAudioProcessor chorus;
-    private SoftAudioProcessor agc;
+    private final SoftReverb reverb;
+    private final SoftChorus chorus;
+    private final SoftLimiter agc;
     TreeMap<Long, Object> midimessages = new TreeMap<Long, Object>();
     double last_volume_left = 1.0;
     double last_volume_right = 1.0;
@@ -287,10 +287,6 @@ public final class SoftMainMixer {
         reverb.init(samplerate, controlrate);
         chorus.init(samplerate, controlrate);
         agc.init(samplerate, controlrate);
-
-        reverb.setMixMode(true);
-        chorus.setMixMode(true);
-        agc.setMixMode(false);
 
         chorus.setInput(0, buffers[CHANNEL_EFFECT2]);
         chorus.setOutput(0, buffers[CHANNEL_LEFT]);
