@@ -39,17 +39,11 @@ public class SynthesizerPlayer {
     }
 
     public void open(Soundbank soundbank) {
-        try {
-            if (!synthesizer.isOpen()) {
-                synthesizer.open();
-            }
-
-            this.soundbank = soundbank == null ? synthesizer.getDefaultSoundbank() : soundbank;
-
-            ready = true;
-        } catch (gervill.javax.sound.midi.MidiUnavailableException e) {
-            throw new RuntimeException(e);
+        if (!synthesizer.isOpen()) {
+            synthesizer.open();
         }
+        this.soundbank = soundbank == null ? synthesizer.getDefaultSoundbank() : soundbank;
+        ready = true;
     }
 
     public void close() {
@@ -252,7 +246,7 @@ public class SynthesizerPlayer {
                     soundbank = new DLSSoundbank(fis);
                     soundbank = new DLSSoundbank(file);
                     soundbank = new DLSSoundbank(url);
-                } catch (gervill.javax.sound.midi.MidiUnavailableException | IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

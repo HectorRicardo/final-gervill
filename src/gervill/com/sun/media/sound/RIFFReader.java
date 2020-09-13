@@ -77,7 +77,7 @@ public final class RIFFReader extends InputStream {
 
         if (getFormat().equals("RIFF") || getFormat().equals("LIST")) {
             if (avail > Integer.MAX_VALUE) {
-                throw new RIFFInvalidDataException("Chunk size too big");
+                throw new RuntimeException("Chunk size too big");
             }
             byte[] format = new byte[4];
             readFully(format);

@@ -563,7 +563,7 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    public void open() throws MidiUnavailableException {
+    public void open() {
         if (isOpen()) {
             return;
         }
@@ -621,7 +621,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                     close();
                 }
                 // am: need MidiUnavailableException(Throwable) ctor!
-                MidiUnavailableException ex = new MidiUnavailableException(
+                RuntimeException ex = new RuntimeException(
                         "Can not open line");
                 ex.initCause(e);
                 throw ex;
@@ -629,10 +629,10 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private AudioInputStream openStream() throws MidiUnavailableException {
+    private AudioInputStream openStream() {
 
         if (isOpen())
-            throw new MidiUnavailableException("Synthesizer is already open");
+            throw new RuntimeException("Synthesizer is already open");
 
         synchronized (control_mutex) {
 
