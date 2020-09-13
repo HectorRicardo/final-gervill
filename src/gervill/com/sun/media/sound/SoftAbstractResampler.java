@@ -32,7 +32,7 @@ import java.util.Arrays;
  *
  * @author Karl Helgason
  */
-public abstract class SoftAbstractResampler implements SoftResampler {
+public abstract class SoftAbstractResampler {
 
     private class ModelAbstractResamplerStream implements SoftResamplerStreamer {
 
@@ -78,7 +78,7 @@ public abstract class SoftAbstractResampler implements SoftResampler {
             noteOff_flag = true;
         }
 
-        public void open(ModelWavetable osc, float outputsamplerate)
+        public void open(ModelByteBufferWavetable osc, float outputsamplerate)
                 throws IOException {
 
             eof = false;

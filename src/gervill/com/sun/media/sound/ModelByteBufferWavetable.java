@@ -36,7 +36,11 @@ import java.io.InputStream;
  *
  * @author Karl Helgason
  */
-public final class ModelByteBufferWavetable implements ModelWavetable {
+public final class ModelByteBufferWavetable {
+
+    public static final int LOOP_TYPE_OFF = 0;
+    public static final int LOOP_TYPE_FORWARD = 1;
+    public static final int LOOP_TYPE_RELEASE = 2;
 
     private class Buffer8PlusInputStream extends InputStream {
 
@@ -180,7 +184,7 @@ public final class ModelByteBufferWavetable implements ModelWavetable {
         return getFormat().getChannels();
     }
 
-    public ModelOscillatorStream open() {
+    public SoftResamplerStreamer open() {
         // ModelWavetableOscillator doesn't support ModelOscillatorStream
         return null;
     }

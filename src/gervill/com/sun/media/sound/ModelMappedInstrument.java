@@ -49,8 +49,8 @@ public final class ModelMappedInstrument extends ModelInstrument {
         return ins.getPerformers();
     }
 
-    public ModelDirector getDirector(ModelPerformer[] performers,
-            MidiChannel channel, ModelDirectedPlayer player) {
+    public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers,
+            MidiChannel channel, SoftChannel player) {
         return ins.getDirector(performers, channel, player);
     }
 

@@ -178,7 +178,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     private boolean open = false;
 
-    private final SoftResampler resampler = new SoftLinearResampler2();
+    private final SoftAbstractResampler resampler = new SoftLinearResampler2();
 
     private final int maxpoly = 64;
     private final long latency = 120000L;
@@ -197,13 +197,12 @@ public final class SoftSynthesizer implements AutoCloseable {
             List<ModelByteBuffer> buffers) {
         for (ModelPerformer performer : instrument.getPerformers()) {
             if (performer.getOscillators() != null) {
-                for (ModelOscillator osc : performer.getOscillators()) {
-                    if (osc instanceof ModelByteBufferWavetable) {
-                        ModelByteBufferWavetable w = (ModelByteBufferWavetable)osc;
-                        ModelByteBuffer buff = w.getBuffer();
+                for (ModelByteBufferWavetable osc : performer.getOscillators()) {
+                    if (osc != null) {
+                        ModelByteBuffer buff = osc.getBuffer();
                         if (buff != null)
                             buffers.add(buff);
-                        buff = w.get8BitExtensionBuffer();
+                        buff = osc.get8BitExtensionBuffer();
                         if (buff != null)
                             buffers.add(buff);
                     }

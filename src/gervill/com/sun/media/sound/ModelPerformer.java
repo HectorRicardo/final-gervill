@@ -35,7 +35,7 @@ import java.util.List;
  */
 public final class ModelPerformer {
 
-    private final List<ModelOscillator> oscillators = new ArrayList<ModelOscillator>();
+    private final List<ModelByteBufferWavetable> oscillators = new ArrayList<>();
     private List<ModelConnectionBlock> connectionBlocks
             = new ArrayList<ModelConnectionBlock>();
     private int keyFrom = 0;
@@ -49,7 +49,7 @@ public final class ModelPerformer {
         return connectionBlocks;
     }
 
-    public List<ModelOscillator> getOscillators() {
+    public List<ModelByteBufferWavetable> getOscillators() {
         return oscillators;
     }
 

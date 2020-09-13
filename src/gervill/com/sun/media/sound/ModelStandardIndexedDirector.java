@@ -32,10 +32,10 @@ import java.util.Arrays;
  *
  * @author Karl Helgason
  */
-public final class ModelStandardIndexedDirector implements ModelDirector {
+public final class ModelStandardIndexedDirector {
 
     private final ModelPerformer[] performers;
-    private final ModelDirectedPlayer player;
+    private final SoftChannel player;
     private boolean noteOnUsed = false;
 
     // Variables needed for index
@@ -44,7 +44,7 @@ public final class ModelStandardIndexedDirector implements ModelDirector {
     private int[][] mat;
 
     public ModelStandardIndexedDirector(final ModelPerformer[] performers,
-                                        final ModelDirectedPlayer player) {
+                                        final SoftChannel player) {
         this.performers = Arrays.copyOf(performers, performers.length);
         this.player = player;
         for (final ModelPerformer p : this.performers) {

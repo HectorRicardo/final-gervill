@@ -68,7 +68,7 @@ public final class SoftVoice extends VoiceStatus {
     private boolean started = false;
     private boolean stopping = false;
     private float osc_attenuation = 0.0f;
-    private ModelOscillatorStream osc_stream;
+    private SoftResamplerStreamer osc_stream;
     private int osc_stream_nrofchannels;
     private float[][] osc_buff = new float[2][];
     private boolean osc_stream_off_transmitted = false;
@@ -578,12 +578,12 @@ public final class SoftVoice extends VoiceStatus {
         if (started) {
             audiostarted = true;
 
-            ModelOscillator osc = performer.oscillators[0];
+            ModelByteBufferWavetable osc = performer.oscillators[0];
 
             osc_stream_off_transmitted = false;
-            if (osc instanceof ModelWavetable) {
+            if (osc != null) {
                 try {
-                    resampler.open((ModelWavetable)osc,
+                    resampler.open(osc,
                             synthesizer.getFormat().getSampleRate());
                     osc_stream = resampler;
                 } catch (IOException e) {

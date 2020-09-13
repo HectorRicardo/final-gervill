@@ -376,11 +376,11 @@ public final class DLSInstrument extends ModelInstrument {
                 osc.setLoopStart((int)loop.getStart());
                 osc.setLoopLength((int)loop.getLength());
                 if (loop.getType() == DLSSampleLoop.LOOP_TYPE_FORWARD)
-                    osc.setLoopType(ModelWavetable.LOOP_TYPE_FORWARD);
+                    osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
                 if (loop.getType() == DLSSampleLoop.LOOP_TYPE_RELEASE)
-                    osc.setLoopType(ModelWavetable.LOOP_TYPE_RELEASE);
+                    osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_RELEASE);
                 else
-                    osc.setLoopType(ModelWavetable.LOOP_TYPE_FORWARD);
+                    osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
             }
 
             performer.getConnectionBlocks().add(

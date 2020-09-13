@@ -304,7 +304,7 @@ public final class SoftPerformer {
     public boolean forcedVelocity = false;
     public boolean forcedKeynumber = false;
     public ModelConnectionBlock[] connections;
-    public ModelOscillator[] oscillators;
+    public ModelByteBufferWavetable[] oscillators;
     public Map<Integer, int[]> midi_rpn_connections = new HashMap<Integer, int[]>();
     public Map<Integer, int[]> midi_nrpn_connections = new HashMap<Integer, int[]>();
     public int[][] midi_ctrl_connections;
@@ -723,7 +723,7 @@ public final class SoftPerformer {
         for (int i = 0; i < this.ctrl_connections.length; i++)
             this.ctrl_connections[i] = ctrl_connections_list.get(i);
 
-        oscillators = new ModelOscillator[performer.getOscillators().size()];
+        oscillators = new ModelByteBufferWavetable[performer.getOscillators().size()];
         performer.getOscillators().toArray(oscillators);
 
     }

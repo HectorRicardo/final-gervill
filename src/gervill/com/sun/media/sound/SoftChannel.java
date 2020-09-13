@@ -36,7 +36,7 @@ import gervill.javax.sound.midi.Patch;
  *
  * @author Karl Helgason
  */
-public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
+public final class SoftChannel implements MidiChannel {
 
     private static boolean[] dontResetControls = new boolean[128];
     static {
@@ -112,7 +112,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     int tuning_bank = 0;
     int tuning_program = 0;
     SoftInstrument current_instrument = null;
-    ModelDirector current_director = null;
+    ModelStandardIndexedDirector current_director = null;
 
     boolean sustain = false;
     boolean[][] keybasedcontroller_active = null;

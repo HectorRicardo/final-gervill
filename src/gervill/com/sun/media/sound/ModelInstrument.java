@@ -54,8 +54,8 @@ public abstract class ModelInstrument extends Instrument {
         super(soundbank, patch, name, dataClass);
     }
 
-    public ModelDirector getDirector(ModelPerformer[] performers,
-            MidiChannel channel, ModelDirectedPlayer player) {
+    public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers,
+            MidiChannel channel, SoftChannel player) {
         return new ModelStandardIndexedDirector(performers, player);
     }
 
