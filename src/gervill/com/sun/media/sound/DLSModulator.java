@@ -86,9 +86,6 @@ public final class DLSModulator {
     public static final int CONN_SRC_CC91 = 0x0DB; // linear 0..1
     public static final int CONN_SRC_CC93 = 0x0DD; // linear 0..1
     public static final int CONN_TRN_CONCAVE = 0x001;
-    // DLS2 Transforms
-    public static final int CONN_TRN_CONVEX = 0x002;
-    public static final int CONN_TRN_SWITCH = 0x003;
     int source;
     int control;
     int destination;

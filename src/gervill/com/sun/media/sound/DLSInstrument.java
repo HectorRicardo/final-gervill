@@ -271,20 +271,12 @@ public final class DLSInstrument extends ModelInstrument {
                 int transform = mod.getTransform();
                 int src_transform_invert = (transform >> 15) & 1;
                 int src_transform_bipolar = (transform >> 14) & 1;
-                int src_transform = (transform >> 10) & 8;
                 int ctr_transform_invert = (transform >> 9) & 1;
                 int ctr_transform_bipolar = (transform >> 8) & 1;
-                int ctr_transform = (transform >> 4) & 8;
 
 
                 if (src != null) {
                     int trans = ModelStandardTransform.TRANSFORM_LINEAR;
-                    if (src_transform == DLSModulator.CONN_TRN_SWITCH)
-                        trans = ModelStandardTransform.TRANSFORM_SWITCH;
-                    if (src_transform == DLSModulator.CONN_TRN_CONCAVE)
-                        trans = ModelStandardTransform.TRANSFORM_CONCAVE;
-                    if (src_transform == DLSModulator.CONN_TRN_CONVEX)
-                        trans = ModelStandardTransform.TRANSFORM_CONVEX;
                     ((ModelStandardTransform)src.getTransform())
                             .setTransform(trans);
                     ((ModelStandardTransform)src.getTransform())
@@ -296,12 +288,6 @@ public final class DLSInstrument extends ModelInstrument {
 
                 if (ctrl != null) {
                     int trans = ModelStandardTransform.TRANSFORM_LINEAR;
-                    if (ctr_transform == DLSModulator.CONN_TRN_SWITCH)
-                        trans = ModelStandardTransform.TRANSFORM_SWITCH;
-                    if (ctr_transform == DLSModulator.CONN_TRN_CONCAVE)
-                        trans = ModelStandardTransform.TRANSFORM_CONCAVE;
-                    if (ctr_transform == DLSModulator.CONN_TRN_CONVEX)
-                        trans = ModelStandardTransform.TRANSFORM_CONVEX;
                     ((ModelStandardTransform)ctrl.getTransform())
                             .setTransform(trans);
                     ((ModelStandardTransform)ctrl.getTransform())
