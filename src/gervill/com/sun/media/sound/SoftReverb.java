@@ -202,7 +202,6 @@ public final class SoftReverb implements SoftAudioProcessor {
     private float dirty_predelay;
     private float dirty_gain;
     private float samplerate;
-    private boolean light = true;
 
     public void init(float samplerate, float controlrate) {
         this.samplerate = samplerate;
@@ -287,7 +286,7 @@ public final class SoftReverb implements SoftAudioProcessor {
 
         float[] inputA = this.inputA.array();
         float[] left = this.left.array();
-        float[] right = this.right == null ? null : this.right.array();
+        float[] right = this.right.array();
 
         int numsamples = inputA.length;
         if (input == null || input.length < numsamples)
@@ -305,74 +304,44 @@ public final class SoftReverb implements SoftAudioProcessor {
 
         delay.processReplace(input);
 
-        if(light && (right != null))
+        if (pre1 == null || pre1.length < numsamples)
         {
-            if (pre1 == null || pre1.length < numsamples)
-            {
-                pre1 = new float[numsamples];
-                pre2 = new float[numsamples];
-                pre3 = new float[numsamples];
-            }
-
-            for (int i = 0; i < allpassL.length; i++)
-                allpassL[i].processReplace(input);
-
-            combL[0].processReplace(input, pre3);
-            combL[1].processReplace(input, pre3);
-
-            combL[2].processReplace(input, pre1);
-            for (int i = 4; i < combL.length-2; i+=2)
-                combL[i].processMix(input, pre1);
-
-            combL[3].processReplace(input, pre2);;
-            for (int i = 5; i < combL.length-2; i+=2)
-                combL[i].processMix(input, pre2);
-
-            if (!mix)
-            {
-                Arrays.fill(right, 0);
-                Arrays.fill(left, 0);
-            }
-            for (int i = combR.length-2; i < combR.length; i++)
-                combR[i].processMix(input, right);
-            for (int i = combL.length-2; i < combL.length; i++)
-                combL[i].processMix(input, left);
-
-            for (int i = 0; i < numsamples; i++)
-            {
-                float p = pre1[i] - pre2[i];
-                float m = pre3[i];
-                left[i] += m + p;
-                right[i] += m - p;
-            }
-        }
-        else
-        {
-            if (out == null || out.length < numsamples)
-                out = new float[numsamples];
-
-            if (right != null) {
-                if (!mix)
-                    Arrays.fill(right, 0);
-                allpassR[0].processReplace(input, out);
-                for (int i = 1; i < allpassR.length; i++)
-                    allpassR[i].processReplace(out);
-                for (int i = 0; i < combR.length; i++)
-                    combR[i].processMix(out, right);
-            }
-
-            if (!mix)
-                Arrays.fill(left, 0);
-            allpassL[0].processReplace(input, out);
-            for (int i = 1; i < allpassL.length; i++)
-                allpassL[i].processReplace(out);
-            for (int i = 0; i < combL.length; i++)
-                combL[i].processMix(out, left);
+            pre1 = new float[numsamples];
+            pre2 = new float[numsamples];
+            pre3 = new float[numsamples];
         }
 
+        for (int i = 0; i < allpassL.length; i++)
+            allpassL[i].processReplace(input);
 
+        combL[0].processReplace(input, pre3);
+        combL[1].processReplace(input, pre3);
 
+        combL[2].processReplace(input, pre1);
+        for (int i = 4; i < combL.length-2; i+=2)
+            combL[i].processMix(input, pre1);
 
+        combL[3].processReplace(input, pre2);;
+        for (int i = 5; i < combL.length-2; i+=2)
+            combL[i].processMix(input, pre2);
+
+        if (!mix)
+        {
+            Arrays.fill(right, 0);
+            Arrays.fill(left, 0);
+        }
+        for (int i = combR.length-2; i < combR.length; i++)
+            combR[i].processMix(input, right);
+        for (int i = combL.length-2; i < combL.length; i++)
+            combL[i].processMix(input, left);
+
+        for (int i = 0; i < numsamples; i++)
+        {
+            float p = pre1[i] - pre2[i];
+            float m = pre3[i];
+            left[i] += m + p;
+            right[i] += m - p;
+        }
 
 
         if (silent_input) {
@@ -499,11 +468,6 @@ public final class SoftReverb implements SoftAudioProcessor {
             combR[i].setDamp(damp);
         }
 
-    }
-
-    public void setLightMode(boolean light)
-    {
-        this.light = light;
     }
 }
 

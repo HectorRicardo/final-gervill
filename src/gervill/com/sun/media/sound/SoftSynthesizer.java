@@ -151,7 +151,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     // 1: DLS Voice Allocation
     int voice_allocation_mode = 0;
 
-    boolean reverb_light = true;
     boolean reverb_on = true;
     boolean chorus_on = true;
     boolean agc_on = true;

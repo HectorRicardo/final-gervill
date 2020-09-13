@@ -55,7 +55,6 @@ public final class SoftMainMixer {
     boolean readfully = true;
     private final Object control_mutex;
     private SoftSynthesizer synth;
-    private int nrofchannels = 2;
     private SoftVoice[] voicestatus = null;
     private SoftAudioBuffer[] buffers;
     private SoftReverb reverb;
@@ -163,19 +162,11 @@ public final class SoftMainMixer {
             float[] mono = buffers[CHANNEL_MONO].array();
             float[] left = buffers[CHANNEL_LEFT].array();
             int bufferlen = buffers[CHANNEL_LEFT].getSize();
-            if (nrofchannels != 1) {
-                float[] right = buffers[CHANNEL_RIGHT].array();
-                for (int i = 0; i < bufferlen; i++) {
-                    float v = mono[i];
-                    left[i] += v;
-                    right[i] += v;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < bufferlen; i++) {
-                    left[i] += mono[i];
-                }
+            float[] right = buffers[CHANNEL_RIGHT].array();
+            for (int i = 0; i < bufferlen; i++) {
+                float v = mono[i];
+                left[i] += v;
+                right[i] += v;
             }
         }
 
@@ -185,9 +176,6 @@ public final class SoftMainMixer {
 
         if (synth.reverb_on)
             reverb.processAudio();
-
-        if (nrofchannels == 1)
-            volume_left = (volume_left + volume_right) / 2;
 
         // Set Volume / Balance
         if (last_volume_left != volume_left || last_volume_right != volume_right) {
@@ -203,13 +191,11 @@ public final class SoftMainMixer {
                 amp += amp_delta;
                 left[i] *= amp;
             }
-            if (nrofchannels != 1) {
-                amp = (float)(last_volume_right * last_volume_right);
-                amp_delta = (float)((volume_right*volume_right - amp) / bufferlen);
-                for (int i = 0; i < bufferlen; i++) {
-                    amp += amp_delta;
-                    right[i] *= volume_right;
-                }
+            amp = (float)(last_volume_right * last_volume_right);
+            amp_delta = (float)((volume_right*volume_right - amp) / bufferlen);
+            for (int i = 0; i < bufferlen; i++) {
+                amp += amp_delta;
+                right[i] *= volume_right;
             }
             last_volume_left = volume_left;
             last_volume_right = volume_right;
@@ -223,11 +209,9 @@ public final class SoftMainMixer {
                 amp = (float) (volume_left * volume_left);
                 for (int i = 0; i < bufferlen; i++)
                     left[i] *= amp;
-                if (nrofchannels != 1) {
-                    amp = (float)(volume_right * volume_right);
-                    for (int i = 0; i < bufferlen; i++)
-                        right[i] *= amp;
-                }
+                amp = (float)(volume_right * volume_right);
+                for (int i = 0; i < bufferlen; i++)
+                    right[i] *= amp;
 
             }
         }
@@ -284,8 +268,6 @@ public final class SoftMainMixer {
         co_master_coarse_tuning[0] = 0.5;
         co_master_fine_tuning[0] = 0.5;
 
-        nrofchannels = synth.getFormat().getChannels();
-
         int buffersize = (int) (synth.getFormat().getSampleRate()
                                 / synth.getControlRate());
 
@@ -306,29 +288,23 @@ public final class SoftMainMixer {
         chorus.init(samplerate, controlrate);
         agc.init(samplerate, controlrate);
 
-        reverb.setLightMode(synth.reverb_light);
-
         reverb.setMixMode(true);
         chorus.setMixMode(true);
         agc.setMixMode(false);
 
         chorus.setInput(0, buffers[CHANNEL_EFFECT2]);
         chorus.setOutput(0, buffers[CHANNEL_LEFT]);
-        if (nrofchannels != 1)
-            chorus.setOutput(1, buffers[CHANNEL_RIGHT]);
+        chorus.setOutput(1, buffers[CHANNEL_RIGHT]);
         chorus.setOutput(2, buffers[CHANNEL_EFFECT1]);
 
         reverb.setInput(0, buffers[CHANNEL_EFFECT1]);
         reverb.setOutput(0, buffers[CHANNEL_LEFT]);
-        if (nrofchannels != 1)
-            reverb.setOutput(1, buffers[CHANNEL_RIGHT]);
+        reverb.setOutput(1, buffers[CHANNEL_RIGHT]);
 
         agc.setInput(0, buffers[CHANNEL_LEFT]);
-        if (nrofchannels != 1)
-            agc.setInput(1, buffers[CHANNEL_RIGHT]);
+        agc.setInput(1, buffers[CHANNEL_RIGHT]);
         agc.setOutput(0, buffers[CHANNEL_LEFT]);
-        if (nrofchannels != 1)
-            agc.setOutput(1, buffers[CHANNEL_RIGHT]);
+        agc.setOutput(1, buffers[CHANNEL_RIGHT]);
 
         InputStream in = new InputStream() {
 
