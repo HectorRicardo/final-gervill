@@ -171,7 +171,6 @@ public final class SoftReverb implements SoftAudioProcessor {
     private AllPass[] allpassL;
     private AllPass[] allpassR;
     private float[] input;
-    private float[] out;
     private float[] pre1;
     private float[] pre2;
     private float[] pre3;
@@ -186,7 +185,7 @@ public final class SoftReverb implements SoftAudioProcessor {
     private float dirty_gain;
     private float samplerate;
 
-    public void init(float samplerate, float controlrate) {
+    public void init(float samplerate) {
         this.samplerate = samplerate;
 
         double freqscale = ((double) samplerate) / 44100.0;

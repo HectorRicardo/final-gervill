@@ -31,13 +31,4 @@ package gervill.com.sun.media.sound;
  */
 public interface SoftAudioProcessor {
 
-    public void init(float samplerate, float controlrate);
-
-    public void setInput(int pin, SoftAudioBuffer input);
-
-    public void setOutput(int pin, SoftAudioBuffer output);
-
-    public void processAudio();
-
-    public void processControlLogic();
 }

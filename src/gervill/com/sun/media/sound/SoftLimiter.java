@@ -42,7 +42,7 @@ public final class SoftLimiter implements SoftAudioProcessor {
     SoftAudioBuffer bufferRout;
     float controlrate;
 
-    public void init(float samplerate, float controlrate) {
+    public void init(float controlrate) {
         this.controlrate = controlrate;
     }
 

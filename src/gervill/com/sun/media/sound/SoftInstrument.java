@@ -59,10 +59,6 @@ public final class SoftInstrument extends Instrument {
         return ins.getDirector(modelperformers, channel, player);
     }
 
-    public ModelInstrument getSourceInstrument() {
-        return ins;
-    }
-
     public Object getData() {
         return data;
     }

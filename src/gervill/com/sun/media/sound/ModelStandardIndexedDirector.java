@@ -37,7 +37,6 @@ public final class ModelStandardIndexedDirector implements ModelDirector {
     private final ModelPerformer[] performers;
     private final ModelDirectedPlayer player;
     private boolean noteOnUsed = false;
-    private boolean noteOffUsed = false;
 
     // Variables needed for index
     private byte[][] trantables;
@@ -152,7 +151,7 @@ public final class ModelStandardIndexedDirector implements ModelDirector {
         }
     }
 
-    public void noteOff(int noteNumber, int velocity) {
+    public void noteOff() {
     }
 
     public void noteOn(int noteNumber, int velocity) {

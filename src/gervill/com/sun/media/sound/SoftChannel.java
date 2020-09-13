@@ -411,7 +411,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     private void noteOn_internal(int noteNumber, int velocity, int delay) {
 
         if (velocity == 0) {
-            noteOff_internal(noteNumber, 64);
+            noteOff_internal(noteNumber);
             return;
         }
 
@@ -526,11 +526,11 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
     public void noteOff(int noteNumber, int velocity) {
         noteNumber = restrict7Bit(noteNumber);
         velocity = restrict7Bit(velocity);
-        noteOff_internal(noteNumber, velocity);
+        noteOff_internal(noteNumber);
 
     }
 
-    private void noteOff_internal(int noteNumber, int velocity) {
+    private void noteOff_internal(int noteNumber) {
         synchronized (control_mutex) {
 
             if (!mono) {
@@ -576,12 +576,11 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
             firstVoice = true;
             voiceNo = 0;
 
-            int tunedKey = (int)(Math.round(tuning.getTuning(noteNumber)/100.0));
             play_noteNumber = noteNumber;
             play_velocity = lastVelocity[noteNumber];
             play_releasetriggered = true;
             play_delay = 0;
-            current_director.noteOff(tunedKey, velocity);
+            current_director.noteOff();
 
         }
     }
@@ -628,7 +627,7 @@ public final class SoftChannel implements MidiChannel, ModelDirectedPlayer {
 
     public void noteOff(int noteNumber) {
         if(noteNumber < 0 || noteNumber > 127) return;
-        noteOff_internal(noteNumber, 64);
+        noteOff_internal(noteNumber);
     }
 
     public void setPolyPressure(int noteNumber, int pressure) {
