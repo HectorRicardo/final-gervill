@@ -24,10 +24,10 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.Random;
-
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.sampled.AudioFormat;
+
+import java.util.Random;
 
 /**
  * Emergency Soundbank generator.
@@ -168,7 +168,7 @@ public final class EmergencySoundbank {
         "Gunshot"
     };
 
-    public static SF2Soundbank createSoundbank() throws Exception {
+    public static SF2Soundbank createSoundbank() {
         SF2Soundbank sf2 = new SF2Soundbank();
         sf2.setName("Emergency GM sound set");
         sf2.setVendor("Generated");
@@ -291,8 +291,6 @@ public final class EmergencySoundbank {
         SF2Layer clarinet = new_clarinet(sf2);
         SF2Layer reverse_cymbal = new_reverse_cymbal(sf2);
 
-        SF2Layer defaultsound = piano1;
-
         newInstrument(sf2, "Piano", new Patch(0, 0), gpiano, gpiano_hammer);
         newInstrument(sf2, "Piano", new Patch(0, 1), gpiano2, gpiano_hammer);
         newInstrument(sf2, "Piano", new Patch(0, 2), piano1);
@@ -346,7 +344,7 @@ public final class EmergencySoundbank {
         newInstrument(sf2, "Solo String", new Patch(0, 42), string2, solostring);
         newInstrument(sf2, "Solo String", new Patch(0, 43), string2, solostring);
         newInstrument(sf2, "Solo String", new Patch(0, 44), string2, solostring);
-        newInstrument(sf2, "Def", new Patch(0, 45), defaultsound);
+        newInstrument(sf2, "Def", new Patch(0, 45), piano1);
         newInstrument(sf2, "Harp", new Patch(0, 46), bell);
         newInstrument(sf2, "Timpani", new Patch(0, 47), timpani);
         newInstrument(sf2, "Strings", new Patch(0, 48), string2);
@@ -403,7 +401,7 @@ public final class EmergencySoundbank {
         newInstrument(sf2, "Organ", new Patch(0, 87), organ);
         newInstrument(sf2, "Synth Strings", new Patch(0, 88), string2);
         newInstrument(sf2, "Organ", new Patch(0, 89), organ);
-        newInstrument(sf2, "Def", new Patch(0, 90), defaultsound);
+        newInstrument(sf2, "Def", new Patch(0, 90), piano1);
         newInstrument(sf2, "Choir", new Patch(0, 91), choir);
         newInstrument(sf2, "Organ", new Patch(0, 92), organ);
         newInstrument(sf2, "Organ", new Patch(0, 93), organ);
@@ -415,12 +413,12 @@ public final class EmergencySoundbank {
         newInstrument(sf2, "Organ", new Patch(0, 99), organ);
         newInstrument(sf2, "Organ", new Patch(0, 100), organ);
         newInstrument(sf2, "Organ", new Patch(0, 101), organ);
-        newInstrument(sf2, "Def", new Patch(0, 102), defaultsound);
+        newInstrument(sf2, "Def", new Patch(0, 102), piano1);
         newInstrument(sf2, "Synth Strings", new Patch(0, 103), string2);
-        newInstrument(sf2, "Def", new Patch(0, 104), defaultsound);
-        newInstrument(sf2, "Def", new Patch(0, 105), defaultsound);
-        newInstrument(sf2, "Def", new Patch(0, 106), defaultsound);
-        newInstrument(sf2, "Def", new Patch(0, 107), defaultsound);
+        newInstrument(sf2, "Def", new Patch(0, 104), piano1);
+        newInstrument(sf2, "Def", new Patch(0, 105), piano1);
+        newInstrument(sf2, "Def", new Patch(0, 106), piano1);
+        newInstrument(sf2, "Def", new Patch(0, 107), piano1);
         newInstrument(sf2, "Marimba", new Patch(0, 108), bell);
         newInstrument(sf2, "Sax", new Patch(0, 109), sax);
         newInstrument(sf2, "Solo String", new Patch(0, 110), string2, solostring);
@@ -434,7 +432,7 @@ public final class EmergencySoundbank {
         newInstrument(sf2, "Reverse Cymbal", new Patch(0, 118), reverse_cymbal);
         newInstrument(sf2, "Reverse Cymbal", new Patch(0, 119), reverse_cymbal);
         newInstrument(sf2, "Guitar", new Patch(0, 120), guitar);
-        newInstrument(sf2, "Def", new Patch(0, 121), defaultsound);
+        newInstrument(sf2, "Def", new Patch(0, 121), piano1);
         {
             SF2Instrument ins = newInstrument(sf2, "Seashore/Reverse Cymbal",
                     new Patch(0, 122), reverse_cymbal);
@@ -634,7 +632,7 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_guitar_pick(SF2Soundbank sf2) {
 
-        double datab[];
+        double[] datab;
 
         // Make treble part
         {
@@ -813,7 +811,7 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_piano_hammer(SF2Soundbank sf2) {
 
-        double datab[];
+        double[] datab;
 
         // Make treble part
         {
@@ -1140,24 +1138,13 @@ public final class EmergencySoundbank {
         double start_a = 0.2;
         double end_a = 0.01;
 
-        double[] aa = new double[18];
         double a = start_a;
         double a_step = Math.pow(end_a / start_a, 1.0 / 40.0);
-        for (int i = 0; i < aa.length; i++) {
+        for (int i = 0; i < 18; i++) {
             a *= a_step;
-            aa[i] = a;
         }
 
-        aa[0] *= 5;
-        aa[1] *= 5;
-        aa[2] *= 5;
-        aa[3] *= 4;
-        aa[4] *= 4;
-        aa[5] *= 3;
-        aa[6] *= 3;
-        aa[7] *= 2;
-
-        for (int i = 0; i < aa.length; i++) {
+        for (int i = 0; i < 18; i++) {
             double w = start_w + (end_w - start_w) * (i / 40.0);
             complexGaussianDist(data, base * (i + 1), w, a);
         }
@@ -1802,8 +1789,8 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_timpani(SF2Soundbank sf2) {
 
-        double datab[];
-        double datah[];
+        double[] datab;
+        double[] datah;
 
         // Make Bass Part
         {
@@ -1890,8 +1877,8 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_melodic_toms(SF2Soundbank sf2) {
 
-        double datab[];
-        double datah[];
+        double[] datab;
+        double[] datah;
 
         // Make Bass Part
         {
@@ -1968,7 +1955,7 @@ public final class EmergencySoundbank {
     }
 
     public static SF2Layer new_reverse_cymbal(SF2Soundbank sf2) {
-        double datah[];
+        double[] datah;
         {
             int fftlen = 4096 * 4;
             double[] data = new double[2 * fftlen];
@@ -2011,8 +1998,8 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_snare_drum(SF2Soundbank sf2) {
 
-        double datab[];
-        double datah[];
+        double[] datab;
+        double[] datah;
 
         // Make Bass Part
         {
@@ -2087,8 +2074,8 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_bass_drum(SF2Soundbank sf2) {
 
-        double datab[];
-        double datah[];
+        double[] datab;
+        double[] datah;
 
         // Make Bass Part
         {
@@ -2161,8 +2148,8 @@ public final class EmergencySoundbank {
 
     public static SF2Layer new_tom(SF2Soundbank sf2) {
 
-        double datab[];
-        double datah[];
+        double[] datab;
+        double[] datah;
 
         // Make Bass Part
         {
@@ -2239,7 +2226,7 @@ public final class EmergencySoundbank {
     }
 
     public static SF2Layer new_closed_hihat(SF2Soundbank sf2) {
-        double datah[];
+        double[] datah;
 
         // Make treble part
         {
@@ -2290,7 +2277,7 @@ public final class EmergencySoundbank {
     }
 
     public static SF2Layer new_open_hihat(SF2Soundbank sf2) {
-        double datah[];
+        double[] datah;
         {
             int fftlen = 4096 * 4;
             double[] data = new double[2 * fftlen];
@@ -2331,7 +2318,7 @@ public final class EmergencySoundbank {
     }
 
     public static SF2Layer new_crash_cymbal(SF2Soundbank sf2) {
-        double datah[];
+        double[] datah;
         {
             int fftlen = 4096 * 4;
             double[] data = new double[2 * fftlen];
@@ -2371,7 +2358,7 @@ public final class EmergencySoundbank {
     }
 
     public static SF2Layer new_side_stick(SF2Soundbank sf2) {
-        double datab[];
+        double[] datab;
 
         // Make treble part
         {
@@ -2555,9 +2542,9 @@ public final class EmergencySoundbank {
         /*
          * Create region for instrument.
          */
-        for (int i = 0; i < layers.length; i++) {
+        for (SF2Layer layer : layers) {
             SF2InstrumentRegion insregion = new SF2InstrumentRegion();
-            insregion.setLayer(layers[i]);
+            insregion.setLayer(layer);
             ins.getRegions().add(insregion);
         }
 
@@ -2600,11 +2587,11 @@ public final class EmergencySoundbank {
 
     static public void normalize(double[] data, double target) {
         double maxvalue = 0;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] > maxvalue)
-                maxvalue = data[i];
-            if (-data[i] > maxvalue)
-                maxvalue = -data[i];
+        for (double datum : data) {
+            if (datum > maxvalue)
+                maxvalue = datum;
+            if (-datum > maxvalue)
+                maxvalue = -datum;
         }
         if (maxvalue == 0)
             return;
@@ -2635,15 +2622,13 @@ public final class EmergencySoundbank {
     }
 
     static public void fadeUp(double[] data, int samples) {
-        double dsamples = samples;
         for (int i = 0; i < samples; i++)
-            data[i] *= i / dsamples;
+            data[i] *= i / (double) samples;
     }
 
     static public void fadeUp(float[] data, int samples) {
-        double dsamples = samples;
         for (int i = 0; i < samples; i++)
-            data[i] *= i / dsamples;
+            data[i] *= i / (double) samples;
     }
 
     static public float[] loopExtend(float[] data, int newsize) {

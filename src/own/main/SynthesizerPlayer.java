@@ -179,7 +179,6 @@ public class SynthesizerPlayer {
             System.out.println(channel.getPitchBend());
             System.out.println(channel.getPolyPressure(15));
             System.out.println(channel.getSolo());
-            System.out.println(channel.localControl(true));
 
             channel.noteOff(15);
             channel.noteOff(15, 30);

@@ -24,6 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
+import java.util.Arrays;
+
 /**
  * LFO control signal generator.
  *
@@ -46,9 +48,7 @@ public final class SoftLowFrequencyOscillator implements SoftProcess {
 
     public SoftLowFrequencyOscillator() {
         // If sin_step is 0 then sin_stepfreq must be -INF
-        for (int i = 0; i < sin_stepfreq.length; i++) {
-            sin_stepfreq[i] = Double.NEGATIVE_INFINITY;
-        }
+        Arrays.fill(sin_stepfreq, Double.NEGATIVE_INFINITY);
     }
 
     public void reset() {
@@ -66,8 +66,8 @@ public final class SoftLowFrequencyOscillator implements SoftProcess {
         used_count = 0;
     }
 
-    public void init(SoftSynthesizer synth) {
-        double control_time = 1.0 / synth.getControlRate();
+    public void init() {
+        double control_time = 1.0 / 147f;
         sin_factor = control_time * 2 * Math.PI;
         for (int i = 0; i < used_count; i++) {
             delay_counter[i] = (int)(Math.pow(2,

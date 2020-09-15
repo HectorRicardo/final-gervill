@@ -24,11 +24,7 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.Collection;
 
 /**
@@ -58,7 +54,7 @@ public final class ModelByteBuffer {
             left = capacity();
         }
 
-        public int available() throws IOException {
+        public int available() {
             if (left > Integer.MAX_VALUE)
                 return Integer.MAX_VALUE;
             return (int)left;
@@ -93,7 +89,7 @@ public final class ModelByteBuffer {
             return n;
         }
 
-        public int read(byte b[], int off, int len) throws IOException {
+        public int read(byte[] b, int off, int len) throws IOException {
             if (len > left)
                 len = (int)left;
             if (left == 0)

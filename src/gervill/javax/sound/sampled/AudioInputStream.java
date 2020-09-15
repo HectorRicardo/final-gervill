@@ -25,8 +25,8 @@
 
 package gervill.javax.sound.sampled;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 
 /**
@@ -63,17 +63,17 @@ public class AudioInputStream extends InputStream {
      * The <code>InputStream</code> from which this <code>AudioInputStream</code>
      * object was constructed.
      */
-    private InputStream stream;
+    private final InputStream stream;
 
     /**
      * The format of the audio data contained in the stream.
      */
-    protected AudioFormat format;
+    protected final AudioFormat format;
 
     /**
      * This stream's length, in sample frames.
      */
-    protected long frameLength;
+    protected final long frameLength;
 
     /**
      * The size of each frame, in bytes.
@@ -321,9 +321,7 @@ public class AudioInputStream extends InputStream {
             // Throw an IOException if we've skipped a fractional number of frames
             throw new IOException("Could not skip an integer number of frames.");
         }
-        if( temp >= 0 ) {
-            framePos += temp/frameSize;
-        }
+        framePos += temp/frameSize;
         return temp;
 
     }

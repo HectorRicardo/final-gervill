@@ -24,23 +24,18 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.midi.Soundbank;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioFormat.Encoding;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
 
 /**
  * A DLS Level 1 and Level 2 soundbank reader (from files/url/streams).
@@ -65,14 +60,14 @@ public final class DLSSoundbank implements Soundbank {
         private DLSID() {
         }
 
-        DLSID(long i1, int s1, int s2, int x1, int x2, int x3, int x4,
-                int x5, int x6, int x7, int x8) {
+        DLSID(long i1, int s1, int s2, int x1, int x2, int x4,
+              int x5, int x6, int x7, int x8) {
             this.i1 = i1;
             this.s1 = s1;
             this.s2 = s2;
             this.x1 = x1;
             this.x2 = x2;
-            this.x3 = x3;
+            this.x3 = 0;
             this.x4 = x4;
             this.x5 = x5;
             this.x6 = x6;
@@ -149,52 +144,46 @@ public final class DLSSoundbank implements Soundbank {
     private static final int DLS_CDL_QUERYSUPPORTED = 0x0012;
 
     private static final DLSID DLSID_GMInHardware = new DLSID(0x178f2f24,
-            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0x00, 0xf8, 0x75, 0xac, 0x12);
+            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0xf8, 0x75, 0xac, 0x12);
     private static final DLSID DLSID_GSInHardware = new DLSID(0x178f2f25,
-            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0x00, 0xf8, 0x75, 0xac, 0x12);
+            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0xf8, 0x75, 0xac, 0x12);
     private static final DLSID DLSID_XGInHardware = new DLSID(0x178f2f26,
-            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0x00, 0xf8, 0x75, 0xac, 0x12);
+            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0xf8, 0x75, 0xac, 0x12);
     private static final DLSID DLSID_SupportsDLS1 = new DLSID(0x178f2f27,
-            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0x00, 0xf8, 0x75, 0xac, 0x12);
+            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0xf8, 0x75, 0xac, 0x12);
     private static final DLSID DLSID_SupportsDLS2 = new DLSID(0xf14599e5,
-            0x4689, 0x11d2, 0xaf, 0xa6, 0x0, 0xaa, 0x0, 0x24, 0xd8, 0xb6);
+            0x4689, 0x11d2, 0xaf, 0xa6, 0xaa, 0x0, 0x24, 0xd8, 0xb6);
     private static final DLSID DLSID_SampleMemorySize = new DLSID(0x178f2f28,
-            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0x00, 0xf8, 0x75, 0xac, 0x12);
+            0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0xf8, 0x75, 0xac, 0x12);
     private static final DLSID DLSID_ManufacturersID = new DLSID(0xb03e1181,
-            0x8095, 0x11d2, 0xa1, 0xef, 0x0, 0x60, 0x8, 0x33, 0xdb, 0xd8);
+            0x8095, 0x11d2, 0xa1, 0xef, 0x60, 0x8, 0x33, 0xdb, 0xd8);
     private static final DLSID DLSID_ProductID = new DLSID(0xb03e1182,
-            0x8095, 0x11d2, 0xa1, 0xef, 0x0, 0x60, 0x8, 0x33, 0xdb, 0xd8);
+            0x8095, 0x11d2, 0xa1, 0xef, 0x60, 0x8, 0x33, 0xdb, 0xd8);
     private static final DLSID DLSID_SamplePlaybackRate = new DLSID(0x2a91f713,
-            0xa4bf, 0x11d2, 0xbb, 0xdf, 0x0, 0x60, 0x8, 0x33, 0xdb, 0xd8);
+            0xa4bf, 0x11d2, 0xbb, 0xdf, 0x60, 0x8, 0x33, 0xdb, 0xd8);
 
     private long major = -1;
     private long minor = -1;
 
     private final DLSInfo info = new DLSInfo();
 
-    private final List<DLSInstrument> instruments = new ArrayList<DLSInstrument>();
-    private final List<DLSSample> samples = new ArrayList<DLSSample>();
+    private final List<DLSInstrument> instruments = new ArrayList<>();
+    private final List<DLSSample> samples = new ArrayList<>();
 
     private boolean largeFormat = false;
     private File sampleFile;
 
     public DLSSoundbank(URL url) throws IOException {
-        InputStream is = url.openStream();
-        try {
+        try (InputStream is = url.openStream()) {
             readSoundbank(is);
-        } finally {
-            is.close();
         }
     }
 
     public DLSSoundbank(File file) throws IOException {
         largeFormat = true;
         sampleFile = file;
-        InputStream is = new FileInputStream(file);
-        try {
+        try (InputStream is = new FileInputStream(file)) {
             readSoundbank(is);
-        } finally {
-            is.close();
         }
     }
 
@@ -223,20 +212,16 @@ public final class DLSSoundbank implements Soundbank {
                     readWvplChunk(chunk);
             } else {
                 if (chunk.getFormat().equals("cdl ")) {
-                    if (!readCdlChunk(chunk)) {
+                    if (readCdlChunkInverted(chunk)) {
                         throw new RuntimeException(
                                 "DLS file isn't supported!");
                     }
                 }
-                if (chunk.getFormat().equals("colh")) {
-                    // skipped because we will load the entire bank into memory
-                    // long instrumentcount = chunk.readUnsignedInt();
-                    // System.out.println("instrumentcount = "+ instrumentcount);
-                }
-                if (chunk.getFormat().equals("ptbl")) {
-                    // Pool Table Chunk
-                    // skipped because we will load the entire bank into memory
-                }
+                // skipped because we will load the entire bank into memory
+                // long instrumentcount = chunk.readUnsignedInt();
+                // System.out.println("instrumentcount = "+ instrumentcount);
+                // Pool Table Chunk
+                // skipped because we will load the entire bank into memory
                 if (chunk.getFormat().equals("vers")) {
                     major = chunk.readUnsignedInt();
                     minor = chunk.readUnsignedInt();
@@ -288,93 +273,85 @@ public final class DLSSoundbank implements Soundbank {
 
     // Reading cdl-ck Chunk
     // "cdl " chunk can only appear inside : DLS,lart,lar2,rgn,rgn2
-    private boolean readCdlChunk(RIFFReader riff) throws IOException {
+    private boolean readCdlChunkInverted(RIFFReader riff) throws IOException {
 
         DLSID uuid;
         long x;
         long y;
-        Stack<Long> stack = new Stack<Long>();
+        Stack<Long> stack = new Stack<>();
 
         while (riff.available() != 0) {
             int opcode = riff.readUnsignedShort();
             switch (opcode) {
             case DLS_CDL_AND:
-                x = stack.pop();
+                case DLS_CDL_LOGICAL_AND:
+                    x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(((x != 0) && (y != 0)) ? 1 : 0));
+                stack.push((long) (((x != 0) && (y != 0)) ? 1 : 0));
                 break;
             case DLS_CDL_OR:
-                x = stack.pop();
+                case DLS_CDL_LOGICAL_OR:
+                    x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(((x != 0) || (y != 0)) ? 1 : 0));
+                stack.push((long) (((x != 0) || (y != 0)) ? 1 : 0));
                 break;
             case DLS_CDL_XOR:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(((x != 0) ^ (y != 0)) ? 1 : 0));
+                stack.push((long) (((x != 0) ^ (y != 0)) ? 1 : 0));
                 break;
             case DLS_CDL_ADD:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(x + y));
+                stack.push(x + y);
                 break;
             case DLS_CDL_SUBTRACT:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(x - y));
+                stack.push(x - y);
                 break;
             case DLS_CDL_MULTIPLY:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(x * y));
+                stack.push(x * y);
                 break;
             case DLS_CDL_DIVIDE:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(x / y));
+                stack.push(x / y);
                 break;
-            case DLS_CDL_LOGICAL_AND:
+                case DLS_CDL_LT:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf(((x != 0) && (y != 0)) ? 1 : 0));
-                break;
-            case DLS_CDL_LOGICAL_OR:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push(Long.valueOf(((x != 0) || (y != 0)) ? 1 : 0));
-                break;
-            case DLS_CDL_LT:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push(Long.valueOf((x < y) ? 1 : 0));
+                stack.push((long) ((x < y) ? 1 : 0));
                 break;
             case DLS_CDL_LE:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf((x <= y) ? 1 : 0));
+                stack.push((long) ((x <= y) ? 1 : 0));
                 break;
             case DLS_CDL_GT:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf((x > y) ? 1 : 0));
+                stack.push((long) ((x > y) ? 1 : 0));
                 break;
             case DLS_CDL_GE:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf((x >= y) ? 1 : 0));
+                stack.push((long) ((x >= y) ? 1 : 0));
                 break;
             case DLS_CDL_EQ:
                 x = stack.pop();
                 y = stack.pop();
-                stack.push(Long.valueOf((x == y) ? 1 : 0));
+                stack.push((long) ((x == y) ? 1 : 0));
                 break;
             case DLS_CDL_NOT:
                 x = stack.pop();
-                y = stack.pop();
-                stack.push(Long.valueOf((x == 0) ? 1 : 0));
+                stack.pop();
+                stack.push((long) ((x == 0) ? 1 : 0));
                 break;
             case DLS_CDL_CONST:
-                stack.push(Long.valueOf(riff.readUnsignedInt()));
+                stack.push(riff.readUnsignedInt());
                 break;
             case DLS_CDL_QUERY:
                 uuid = DLSID.read(riff);
@@ -382,16 +359,16 @@ public final class DLSSoundbank implements Soundbank {
                 break;
             case DLS_CDL_QUERYSUPPORTED:
                 uuid = DLSID.read(riff);
-                stack.push(Long.valueOf(cdlIsQuerySupported(uuid) ? 1 : 0));
+                stack.push((long) (cdlIsQuerySupported(uuid) ? 1 : 0));
                 break;
             default:
                 break;
             }
         }
         if (stack.isEmpty())
-            return false;
+            return true;
 
-        return stack.pop() == 1;
+        return stack.pop() != 1;
     }
 
     private void readInfoChunk(RIFFReader riff) throws IOException {
@@ -399,40 +376,33 @@ public final class DLSSoundbank implements Soundbank {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
-            if (format.equals("INAM"))
-                info.name = chunk.readString(chunk.available());
-            else if (format.equals("ICRD"))
-                chunk.readString(chunk.available());
-            else if (format.equals("IENG"))
-                info.engineers = chunk.readString(chunk.available());
-            else if (format.equals("IPRD"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ICOP"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ICMT"))
-                info.comments = chunk.readString(chunk.available());
-            else if (format.equals("ISFT"))
-                chunk.readString(chunk.available());
-            else if (format.equals("IARL"))
-                chunk.readString(chunk.available());
-            else if (format.equals("IART"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ICMS"))
-                chunk.readString(chunk.available());
-            else if (format.equals("IGNR"))
-                chunk.readString(chunk.available());
-            else if (format.equals("IKEY"))
-                chunk.readString(chunk.available());
-            else if (format.equals("IMED"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ISBJ"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ISRC"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ISRF"))
-                chunk.readString(chunk.available());
-            else if (format.equals("ITCH"))
-                chunk.readString(chunk.available());
+            switch (format) {
+                case "INAM":
+                    info.name = chunk.readString(chunk.available());
+                    break;
+                case "ICRD":
+                case "ITCH":
+                case "ISRF":
+                case "ISRC":
+                case "ISBJ":
+                case "IMED":
+                case "IKEY":
+                case "IGNR":
+                case "ICMS":
+                case "IART":
+                case "IARL":
+                case "ISFT":
+                case "ICOP":
+                case "IPRD":
+                    chunk.readString(chunk.available());
+                    break;
+                case "IENG":
+                    info.engineers = chunk.readString(chunk.available());
+                    break;
+                case "ICMT":
+                    info.comments = chunk.readString(chunk.available());
+                    break;
+            }
         }
     }
 
@@ -475,15 +445,9 @@ public final class DLSSoundbank implements Soundbank {
                     }
                 }
                 if (chunk.getType().equals("lart")) {
-                    List<DLSModulator> modlist = new ArrayList<DLSModulator>();
+                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
-                        if (chunk.getFormat().equals("cdl ")) {
-                            if (!readCdlChunk(chunk)) {
-                                modlist.clear();
-                                break;
-                            }
-                        }
                         if (subchunk.getFormat().equals("art1"))
                             readArt1Chunk(modlist, subchunk);
                     }
@@ -491,15 +455,9 @@ public final class DLSSoundbank implements Soundbank {
                 }
                 if (chunk.getType().equals("lar2")) {
                     // support for DLS level 2 ART
-                    List<DLSModulator> modlist = new ArrayList<DLSModulator>();
+                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
-                        if (chunk.getFormat().equals("cdl ")) {
-                            if (!readCdlChunk(chunk)) {
-                                modlist.clear();
-                                break;
-                            }
-                        }
                         if (subchunk.getFormat().equals("art2"))
                             readArt2Chunk(modlist, subchunk);
                     }
@@ -524,7 +482,7 @@ public final class DLSSoundbank implements Soundbank {
                     chunk.read(); // Read Reserved byte
 
                     instrument.bank = bank;
-                    instrument.preset = (int) id;
+                    instrument.preset = id;
                     instrument.druminstrument = (drumins & 128) > 0;
                     //System.out.println("bank="+bank+" drumkit="+drumkit
                     //        +" id="+id);
@@ -575,7 +533,7 @@ public final class DLSSoundbank implements Soundbank {
         }
     }
 
-    private Map<DLSRegion, Long> temp_rgnassign = new HashMap<DLSRegion, Long>();
+    private Map<DLSRegion, Long> temp_rgnassign = new HashMap<>();
 
     private boolean readRgnChunk(DLSRegion split, RIFFReader riff)
             throws IOException {
@@ -584,15 +542,9 @@ public final class DLSSoundbank implements Soundbank {
             String format = chunk.getFormat();
             if (format.equals("LIST")) {
                 if (chunk.getType().equals("lart")) {
-                    List<DLSModulator> modlist = new ArrayList<DLSModulator>();
+                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
-                        if (chunk.getFormat().equals("cdl ")) {
-                            if (!readCdlChunk(chunk)) {
-                                modlist.clear();
-                                break;
-                            }
-                        }
                         if (subchunk.getFormat().equals("art1"))
                             readArt1Chunk(modlist, subchunk);
                     }
@@ -600,15 +552,9 @@ public final class DLSSoundbank implements Soundbank {
                 }
                 if (chunk.getType().equals("lar2")) {
                     // support for DLS level 2 ART
-                    List<DLSModulator> modlist = new ArrayList<DLSModulator>();
+                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
-                        if (chunk.getFormat().equals("cdl ")) {
-                            if (!readCdlChunk(chunk)) {
-                                modlist.clear();
-                                break;
-                            }
-                        }
                         if (subchunk.getFormat().equals("art2"))
                             readArt2Chunk(modlist, subchunk);
                     }
@@ -617,7 +563,7 @@ public final class DLSSoundbank implements Soundbank {
             } else {
 
                 if (format.equals("cdl ")) {
-                    if (!readCdlChunk(chunk))
+                    if (readCdlChunkInverted(chunk))
                         return false;
                 }
                 if (format.equals("rgnh")) {
@@ -674,42 +620,34 @@ public final class DLSSoundbank implements Soundbank {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
-            if (format.equals("INAM")) {
-                dlsinstrument.info.name = chunk.readString(chunk.available());
-            } else if (format.equals("ICRD")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IENG")) {
-                dlsinstrument.info.engineers =
-                        chunk.readString(chunk.available());
-            } else if (format.equals("IPRD")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICOP")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICMT")) {
-                dlsinstrument.info.comments =
-                        chunk.readString(chunk.available());
-            } else if (format.equals("ISFT")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IARL")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IART")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICMS")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IGNR")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IKEY")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IMED")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ISBJ")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ISRC")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ISRF")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ITCH")) {
-                chunk.readString(chunk.available());
+            switch (format) {
+                case "INAM":
+                    dlsinstrument.info.name = chunk.readString(chunk.available());
+                    break;
+                case "ICRD":
+                case "ITCH":
+                case "ISRF":
+                case "ISRC":
+                case "ISBJ":
+                case "IMED":
+                case "IKEY":
+                case "IGNR":
+                case "ICMS":
+                case "IART":
+                case "IARL":
+                case "ISFT":
+                case "ICOP":
+                case "IPRD":
+                    chunk.readString(chunk.available());
+                    break;
+                case "IENG":
+                    dlsinstrument.info.engineers =
+                            chunk.readString(chunk.available());
+                    break;
+                case "ICMT":
+                    dlsinstrument.info.comments =
+                            chunk.readString(chunk.available());
+                    break;
             }
         }
     }
@@ -814,40 +752,32 @@ public final class DLSSoundbank implements Soundbank {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
-            if (format.equals("INAM")) {
-                dlssample.info.name = chunk.readString(chunk.available());
-            } else if (format.equals("ICRD")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IENG")) {
-                dlssample.info.engineers = chunk.readString(chunk.available());
-            } else if (format.equals("IPRD")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICOP")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICMT")) {
-                dlssample.info.comments = chunk.readString(chunk.available());
-            } else if (format.equals("ISFT")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IARL")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IART")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICMS")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IGNR")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IKEY")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IMED")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ISBJ")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ISRC")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ISRF")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ITCH")) {
-                chunk.readString(chunk.available());
+            switch (format) {
+                case "INAM":
+                    dlssample.info.name = chunk.readString(chunk.available());
+                    break;
+                case "ICRD":
+                case "ITCH":
+                case "ISRF":
+                case "ISRC":
+                case "ISBJ":
+                case "IMED":
+                case "IKEY":
+                case "IGNR":
+                case "ICMS":
+                case "IART":
+                case "IARL":
+                case "ISFT":
+                case "ICOP":
+                case "IPRD":
+                    chunk.readString(chunk.available());
+                    break;
+                case "IENG":
+                    dlssample.info.engineers = chunk.readString(chunk.available());
+                    break;
+                case "ICMT":
+                    dlssample.info.comments = chunk.readString(chunk.available());
+                    break;
             }
         }
     }
@@ -870,7 +800,7 @@ public final class DLSSoundbank implements Soundbank {
 
     public DLSInstrument[] getInstruments() {
         DLSInstrument[] inslist_array =
-                instruments.toArray(new DLSInstrument[instruments.size()]);
+                instruments.toArray(new DLSInstrument[0]);
         Arrays.sort(inslist_array, new ModelInstrumentComparator());
         return inslist_array;
     }

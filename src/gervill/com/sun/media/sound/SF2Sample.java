@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.io.InputStream;
-
 import gervill.javax.sound.midi.Soundbank;
 import gervill.javax.sound.midi.SoundbankResource;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
+
+import java.io.InputStream;
 
 /**
  * Soundfont sample storage.

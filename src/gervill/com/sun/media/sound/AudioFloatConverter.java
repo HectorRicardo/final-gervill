@@ -24,13 +24,13 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.sampled.AudioFormat;
+import gervill.javax.sound.sampled.AudioFormat.Encoding;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
-
-import gervill.javax.sound.sampled.AudioFormat;
-import gervill.javax.sound.sampled.AudioFormat.Encoding;
 
 /**
  * This class is used to convert between 8,16,24,32,32+ bit signed/unsigned
@@ -109,9 +109,8 @@ public abstract class AudioFloatConverter {
             for (int i = in_offset + offset; i < in_offset_end; i += stepsize) {
                 mask_buffer[i] = (byte) (mask_buffer[i] & mask);
             }
-            float[] ret = converter.toFloatArray(mask_buffer, in_offset,
+            return converter.toFloatArray(mask_buffer, in_offset,
                     out_buff, out_offset, out_len);
-            return ret;
         }
 
     }
@@ -620,22 +619,22 @@ public abstract class AudioFloatConverter {
     public abstract float[] toFloatArray(byte[] in_buff, int in_offset,
             float[] out_buff, int out_offset, int out_len);
 
-    public final float[] toFloatArray(byte[] in_buff, float[] out_buff,
-            int out_offset, int out_len) {
-        return toFloatArray(in_buff, 0, out_buff, out_offset, out_len);
+    public final void toFloatArray(byte[] in_buff, float[] out_buff,
+                                   int out_offset, int out_len) {
+        toFloatArray(in_buff, 0, out_buff, out_offset, out_len);
     }
 
     public abstract byte[] toByteArray(float[] in_buff, int in_offset,
             int in_len, byte[] out_buff, int out_offset);
 
-    public final byte[] toByteArray(float[] in_buff, int in_len,
-                                    byte[] out_buff, int out_offset) {
-        return toByteArray(in_buff, 0, in_len, out_buff, out_offset);
+    public final void toByteArray(float[] in_buff, int in_len,
+                                  byte[] out_buff, int out_offset) {
+        toByteArray(in_buff, 0, in_len, out_buff, out_offset);
     }
 
-    public final byte[] toByteArray(float[] in_buff, int in_len,
-                                    byte[] out_buff) {
-        return toByteArray(in_buff, 0, in_len, out_buff, 0);
+    public final void toByteArray(float[] in_buff, int in_len,
+                                  byte[] out_buff) {
+        toByteArray(in_buff, 0, in_len, out_buff, 0);
     }
 
     public final byte[] toByteArray(float[] in_buff, byte[] out_buff) {

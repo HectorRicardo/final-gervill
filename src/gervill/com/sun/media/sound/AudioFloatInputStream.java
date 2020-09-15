@@ -67,7 +67,7 @@ public abstract class AudioFloatInputStream {
             return format;
         }
 
-        public int read(float[] b, int off, int len) throws IOException {
+        public int read(float[] b, int off, int len) {
             if (b == null)
                 throw new NullPointerException();
             if (off < 0 || len < 0 || len > b.length - off)
@@ -84,25 +84,22 @@ public abstract class AudioFloatInputStream {
             return len;
         }
 
-        public long skip(long len) throws IOException {
-            if (pos >= buffer_len)
-                return -1;
-            if (len <= 0)
-                return 0;
+        public void skip(long len) {
+            if (pos >= buffer_len || len <= 0)
+                return;
             if (pos + len > buffer_len)
                 len = buffer_len - pos;
             pos += len;
-            return len;
         }
 
-        public void close() throws IOException {
+        public void close() {
         }
 
         public void mark(int readlimit) {
             markpos = pos;
         }
 
-        public void reset() throws IOException {
+        public void reset() {
             pos = markpos;
         }
     }
@@ -153,12 +150,9 @@ public abstract class AudioFloatInputStream {
             return ret / framesize_pc;
         }
 
-        public long skip(long len) throws IOException {
+        public void skip(long len) throws IOException {
             long b_len = len * framesize_pc;
-            long ret = stream.skip(b_len);
-            if (ret == -1)
-                return -1;
-            return ret / framesize_pc;
+            stream.skip(b_len);
         }
 
         public void close() throws IOException {
@@ -198,7 +192,7 @@ public abstract class AudioFloatInputStream {
 
     public abstract int read(float[] b, int off, int len) throws IOException;
 
-    public abstract long skip(long len) throws IOException;
+    public abstract void skip(long len) throws IOException;
 
     public abstract void close() throws IOException;
 

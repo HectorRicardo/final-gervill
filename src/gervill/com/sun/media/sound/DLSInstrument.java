@@ -43,9 +43,9 @@ public final class DLSInstrument extends ModelInstrument {
     int bank = 0;
     boolean druminstrument = false;
     byte[] guid = null;
-    DLSInfo info = new DLSInfo();
-    List<DLSRegion> regions = new ArrayList<DLSRegion>();
-    List<DLSModulator> modulators = new ArrayList<DLSModulator>();
+    final DLSInfo info = new DLSInfo();
+    final List<DLSRegion> regions = new ArrayList<>();
+    final List<DLSModulator> modulators = new ArrayList<>();
 
     public DLSInstrument(DLSSoundbank soundbank) {
         super(soundbank, null, null, null);
@@ -322,16 +322,16 @@ public final class DLSInstrument extends ModelInstrument {
     }
 
     public ModelPerformer[] getPerformers() {
-        List<ModelPerformer> performers = new ArrayList<ModelPerformer>();
+        List<ModelPerformer> performers = new ArrayList<>();
 
-        Map<String, DLSModulator> modmap = new HashMap<String, DLSModulator>();
+        Map<String, DLSModulator> modmap = new HashMap<>();
         for (DLSModulator mod: getModulators()) {
             modmap.put(mod.getSource() + "x" + mod.getControl() + "=" +
                     mod.getDestination(), mod);
         }
 
         Map<String, DLSModulator> insmodmap =
-                new HashMap<String, DLSModulator>();
+                new HashMap<>();
 
         for (DLSRegion zone: regions) {
             ModelPerformer performer = new ModelPerformer();
@@ -394,7 +394,7 @@ public final class DLSInstrument extends ModelInstrument {
 
         }
 
-        return performers.toArray(new ModelPerformer[performers.size()]);
+        return performers.toArray(new ModelPerformer[0]);
     }
 
 }

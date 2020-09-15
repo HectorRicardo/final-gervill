@@ -28,7 +28,6 @@ import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.MidiChannel;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.midi.Soundbank;
-import gervill.javax.sound.sampled.AudioFormat;
 
 /**
  * The model instrument class.

@@ -182,18 +182,12 @@ public class AudioSystem {
      * provided audio input stream.
      * @param targetFormat the desired audio format after conversion
      * @param sourceStream the stream to be converted
-     * @return an audio input stream of the indicated format
-     * throws IllegalArgumentException if the conversion is not supported
-     * #see #getTargetEncodings(AudioFormat)
-     * see #getTargetFormats(AudioFormat.Encoding, AudioFormat)
-     * see #isConversionSupported(AudioFormat, AudioFormat)
-     * see #getAudioInputStream(AudioFormat.Encoding, AudioInputStream)
      */
-    public static AudioInputStream getAudioInputStream(AudioFormat targetFormat,
-                                                       AudioInputStream sourceStream) {
+    public static void getAudioInputStream(AudioFormat targetFormat,
+                                           AudioInputStream sourceStream) {
 
         if (sourceStream.getFormat().matches(targetFormat)) {
-            return sourceStream;
+            return;
         }
 
         // we ran out of options...

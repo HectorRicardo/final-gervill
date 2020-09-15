@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.MidiChannel;
+import gervill.javax.sound.midi.Patch;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import gervill.javax.sound.midi.MidiChannel;
-import gervill.javax.sound.midi.Patch;
 
 /**
  * Software Synthesizer MIDI channel class.
@@ -38,10 +38,9 @@ import gervill.javax.sound.midi.Patch;
  */
 public final class SoftChannel implements MidiChannel {
 
-    private static boolean[] dontResetControls = new boolean[128];
+    private static final boolean[] dontResetControls = new boolean[128];
     static {
-        for (int i = 0; i < dontResetControls.length; i++)
-            dontResetControls[i] = false;
+        Arrays.fill(dontResetControls, false);
 
         dontResetControls[0] = true;   // Bank Select (MSB)
         dontResetControls[32] = true;  // Bank Select (LSB)
@@ -88,7 +87,7 @@ public final class SoftChannel implements MidiChannel {
     private int rpn_control = RPN_NULL_VALUE;
     private int nrpn_control = RPN_NULL_VALUE;
     double portamento_time = 1; // keyschanges per control buffer time
-    int[] portamento_lastnote = new int[128];
+    final int[] portamento_lastnote = new int[128];
     int portamento_lastnote_ix = 0;
     private boolean portamento = false;
     private boolean mono = false;
@@ -96,18 +95,18 @@ public final class SoftChannel implements MidiChannel {
     private boolean solo = false;
     private boolean solomute = false;
     private final Object control_mutex;
-    private int channel;
-    private SoftVoice[] voices;
+    private final int channel;
+    private final SoftVoice[] voices;
     private int bank;
     private int program;
-    private SoftSynthesizer synthesizer;
-    private SoftMainMixer mainmixer;
-    private int[] polypressure = new int[128];
+    private final SoftSynthesizer synthesizer;
+    private final SoftMainMixer mainmixer;
+    private final int[] polypressure = new int[128];
     private int channelpressure = 0;
-    private int[] controller = new int[128];
+    private final int[] controller = new int[128];
     private int pitchbend;
-    private double[] co_midi_pitch = new double[1];
-    private double[] co_midi_channel_pressure = new double[1];
+    private final double[] co_midi_pitch = new double[1];
+    private final double[] co_midi_channel_pressure = new double[1];
     SoftTuning tuning = new SoftTuning();
     int tuning_bank = 0;
     int tuning_program = 0;
@@ -119,9 +118,9 @@ public final class SoftChannel implements MidiChannel {
     double[][] keybasedcontroller_value = null;
 
     private class MidiControlObject implements SoftControl {
-        double[] pitch = co_midi_pitch;
-        double[] channel_pressure = co_midi_channel_pressure;
-        double[] poly_pressure = new double[1];
+        final double[] pitch = co_midi_pitch;
+        final double[] channel_pressure = co_midi_channel_pressure;
+        final double[] poly_pressure = new double[1];
 
         public double[] get(int instance, String name) {
             if (name == null)
@@ -136,67 +135,55 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
-    private SoftControl[] co_midi = new SoftControl[128];
+    private final SoftControl[] co_midi = new SoftControl[128];
     {
         for (int i = 0; i < co_midi.length; i++) {
             co_midi[i] = new MidiControlObject();
         }
     }
 
-    private double[][] co_midi_cc_cc = new double[128][1];
-    private SoftControl co_midi_cc = new SoftControl() {
-        double[][] cc = co_midi_cc_cc;
+    private final double[][] co_midi_cc_cc = new double[128][1];
+    private final SoftControl co_midi_cc = new SoftControl() {
+        final double[][] cc = co_midi_cc_cc;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
             return cc[Integer.parseInt(name)];
         }
     };
-    Map<Integer, int[]> co_midi_rpn_rpn_i = new HashMap<Integer, int[]>();
-    Map<Integer, double[]> co_midi_rpn_rpn = new HashMap<Integer, double[]>();
-    private SoftControl co_midi_rpn = new SoftControl() {
-        Map<Integer, double[]> rpn = co_midi_rpn_rpn;
+    final Map<Integer, int[]> co_midi_rpn_rpn_i = new HashMap<>();
+    final Map<Integer, double[]> co_midi_rpn_rpn = new HashMap<>();
+    private final SoftControl co_midi_rpn = new SoftControl() {
+        final Map<Integer, double[]> rpn = co_midi_rpn_rpn;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
             int iname = Integer.parseInt(name);
-            double[] v = rpn.get(iname);
-            if (v == null) {
-                v = new double[1];
-                rpn.put(iname, v);
-            }
-            return v;
+            return rpn.computeIfAbsent(iname, k -> new double[1]);
         }
     };
-    Map<Integer, int[]> co_midi_nrpn_nrpn_i = new HashMap<Integer, int[]>();
-    Map<Integer, double[]> co_midi_nrpn_nrpn = new HashMap<Integer, double[]>();
-    private SoftControl co_midi_nrpn = new SoftControl() {
-        Map<Integer, double[]> nrpn = co_midi_nrpn_nrpn;
+    final Map<Integer, int[]> co_midi_nrpn_nrpn_i = new HashMap<>();
+    final Map<Integer, double[]> co_midi_nrpn_nrpn = new HashMap<>();
+    private final SoftControl co_midi_nrpn = new SoftControl() {
+        final Map<Integer, double[]> nrpn = co_midi_nrpn_nrpn;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
             int iname = Integer.parseInt(name);
-            double[] v = nrpn.get(iname);
-            if (v == null) {
-                v = new double[1];
-                nrpn.put(iname, v);
-            }
-            return v;
+            return nrpn.computeIfAbsent(iname, k -> new double[1]);
         }
     };
 
     private static int restrict7Bit(int value)
     {
         if(value < 0) return 0;
-        if(value > 127) return 127;
-        return value;
+        return Math.min(value, 127);
     }
 
     private static int restrict14Bit(int value)
     {
         if(value < 0) return 0;
-        if(value > 16256) return 16256;
-        return value;
+        return Math.min(value, 16256);
     }
 
     public SoftChannel(SoftSynthesizer synth, int channel) {
@@ -231,14 +218,14 @@ public final class SoftChannel implements MidiChannel {
             //  * priority ( 10, 1-9, 11-16)
             // Search for channel to steal from
             int steal_channel = channel;
-            for (int j = 0; j < voices.length; j++) {
-                if (voices[j].stealer_channel == null) {
+            for (SoftVoice voice : voices) {
+                if (voice.stealer_channel == null) {
                     if (steal_channel == 9) {
-                        steal_channel = voices[j].channel;
+                        steal_channel = voice.channel;
                     } else {
-                        if (voices[j].channel != 9) {
-                            if (voices[j].channel > steal_channel)
-                                steal_channel = voices[j].channel;
+                        if (voice.channel != 9) {
+                            if (voice.channel > steal_channel)
+                                steal_channel = voice.channel;
                         }
                     }
                 }
@@ -339,9 +326,9 @@ public final class SoftChannel implements MidiChannel {
             voice.stealer_velocity = velocity;
             voice.stealer_extendedConnectionBlocks = connectionBlocks;
             voice.stealer_releaseTriggered = releaseTriggered;
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active && voices[i].voiceID == voice.voiceID)
-                    voices[i].soundOff();
+            for (SoftVoice softVoice : voices)
+                if (softVoice.active && softVoice.voiceID == voice.voiceID)
+                    softVoice.soundOff();
             return;
         }
 
@@ -396,19 +383,12 @@ public final class SoftChannel implements MidiChannel {
     }
 
     public void noteOn(int noteNumber, int velocity) {
-        noteOn(noteNumber, velocity, 0);
-    }
-
-    /* A special noteOn with delay parameter, which is used to
-     * start note within control buffers.
-     */
-    void noteOn(int noteNumber, int velocity, int delay) {
         noteNumber = restrict7Bit(noteNumber);
         velocity = restrict7Bit(velocity);
-        noteOn_internal(noteNumber, velocity, delay);
+        noteOn_internal(noteNumber, velocity);
     }
 
-    private void noteOn_internal(int noteNumber, int velocity, int delay) {
+    private void noteOn_internal(int noteNumber, int velocity) {
 
         if (velocity == 0) {
             noteOff_internal(noteNumber);
@@ -418,13 +398,13 @@ public final class SoftChannel implements MidiChannel {
         synchronized (control_mutex) {
             if (sustain) {
                 sustain = false;
-                for (int i = 0; i < voices.length; i++) {
-                    if ((voices[i].sustain || voices[i].on)
-                            && voices[i].channel == channel && voices[i].active
-                            && voices[i].note == noteNumber) {
-                        voices[i].sustain = false;
-                        voices[i].on = true;
-                        voices[i].noteOff();
+                for (SoftVoice voice : voices) {
+                    if ((voice.sustain || voice.on)
+                            && voice.channel == channel && voice.active
+                            && voice.note == noteNumber) {
+                        voice.sustain = false;
+                        voice.on = true;
+                        voice.noteOff();
                     }
                 }
                 sustain = true;
@@ -435,12 +415,12 @@ public final class SoftChannel implements MidiChannel {
             if (mono) {
                 if (portamento) {
                     boolean n_found = false;
-                    for (int i = 0; i < voices.length; i++) {
-                        if (voices[i].on && voices[i].channel == channel
-                                && voices[i].active
-                                && voices[i].releaseTriggered == false) {
-                            voices[i].portamento = true;
-                            voices[i].setNote(noteNumber);
+                    for (SoftVoice voice : voices) {
+                        if (voice.on && voice.channel == channel
+                                && voice.active
+                                && !voice.releaseTriggered) {
+                            voice.portamento = true;
+                            voice.setNote(noteNumber);
                             n_found = true;
                         }
                     }
@@ -452,13 +432,13 @@ public final class SoftChannel implements MidiChannel {
 
                 if (controller[84] != 0) {
                     boolean n_found = false;
-                    for (int i = 0; i < voices.length; i++) {
-                        if (voices[i].on && voices[i].channel == channel
-                                && voices[i].active
-                                && voices[i].note == controller[84]
-                                && voices[i].releaseTriggered == false) {
-                            voices[i].portamento = true;
-                            voices[i].setNote(noteNumber);
+                    for (SoftVoice voice : voices) {
+                        if (voice.on && voice.channel == channel
+                                && voice.active
+                                && voice.note == controller[84]
+                                && !voice.releaseTriggered) {
+                            voice.portamento = true;
+                            voice.setNote(noteNumber);
                             n_found = true;
                         }
                     }
@@ -485,7 +465,7 @@ public final class SoftChannel implements MidiChannel {
             int tunedKey = (int)(Math.round(tuning.getTuning(noteNumber)/100.0));
             play_noteNumber = noteNumber;
             play_velocity = velocity;
-            play_delay = delay;
+            play_delay = 0;
             play_releasetriggered = false;
             lastVelocity[noteNumber] = velocity;
             current_director.noteOn(tunedKey, velocity);
@@ -525,7 +505,6 @@ public final class SoftChannel implements MidiChannel {
 
     public void noteOff(int noteNumber, int velocity) {
         noteNumber = restrict7Bit(noteNumber);
-        velocity = restrict7Bit(velocity);
         noteOff_internal(noteNumber);
 
     }
@@ -543,22 +522,21 @@ public final class SoftChannel implements MidiChannel {
             }
 
             mainmixer.activity();
-            for (int i = 0; i < voices.length; i++) {
-                if (voices[i].on && voices[i].channel == channel
-                        && voices[i].note == noteNumber
-                        && voices[i].releaseTriggered == false) {
-                    voices[i].noteOff();
+            for (SoftVoice voice : voices) {
+                if (voice.on && voice.channel == channel
+                        && voice.note == noteNumber
+                        && !voice.releaseTriggered) {
+                    voice.noteOff();
                 }
                 // We must also check stolen voices
-                if (voices[i].stealer_channel == this && voices[i].stealer_noteNumber == noteNumber) {
-                    SoftVoice v = voices[i];
-                    v.stealer_releaseTriggered = false;
-                    v.stealer_channel = null;
-                    v.stealer_performer = null;
-                    v.stealer_voiceID = -1;
-                    v.stealer_noteNumber = 0;
-                    v.stealer_velocity = 0;
-                    v.stealer_extendedConnectionBlocks = null;
+                if (voice.stealer_channel == this && voice.stealer_noteNumber == noteNumber) {
+                    voice.stealer_releaseTriggered = false;
+                    voice.stealer_channel = null;
+                    voice.stealer_performer = null;
+                    voice.stealer_voiceID = -1;
+                    voice.stealer_noteNumber = 0;
+                    voice.stealer_velocity = 0;
+                    voice.stealer_extendedConnectionBlocks = null;
                 }
             }
 
@@ -580,11 +558,13 @@ public final class SoftChannel implements MidiChannel {
             play_velocity = lastVelocity[noteNumber];
             play_releasetriggered = true;
             play_delay = 0;
-            current_director.noteOff();
+            if (current_director == null) {
+                throw new NullPointerException("current_director");
+            }
 
         }
     }
-    private int[] lastVelocity = new int[128];
+    private final int[] lastVelocity = new int[128];
     private int prevVoiceID;
     private boolean firstVoice = true;
     private int voiceNo = 0;
@@ -606,11 +586,11 @@ public final class SoftChannel implements MidiChannel {
             firstVoice = false;
             if (p.exclusiveClass != 0) {
                 int x = p.exclusiveClass;
-                for (int j = 0; j < voices.length; j++) {
-                    if (voices[j].active && voices[j].channel == channel
-                            && voices[j].exclusiveClass == x) {
-                        if (!(p.selfNonExclusive && voices[j].note == noteNumber))
-                            voices[j].shutdown();
+                for (SoftVoice voice : voices) {
+                    if (voice.active && voice.channel == channel
+                            && voice.exclusiveClass == x) {
+                        if (!(p.selfNonExclusive && voice.note == noteNumber))
+                            voice.shutdown();
                     }
                 }
             }
@@ -638,9 +618,9 @@ public final class SoftChannel implements MidiChannel {
             mainmixer.activity();
             co_midi[noteNumber].get(0, "poly_pressure")[0] = pressure*(1.0/128.0);
             polypressure[noteNumber] = pressure;
-            for (int i = 0; i < voices.length; i++) {
-                if (voices[i].active && voices[i].note == noteNumber)
-                    voices[i].setPolyPressure();
+            for (SoftVoice voice : voices) {
+                if (voice.active && voice.note == noteNumber)
+                    voice.setPolyPressure();
             }
         }
     }
@@ -657,9 +637,9 @@ public final class SoftChannel implements MidiChannel {
             mainmixer.activity();
             co_midi_channel_pressure[0] = pressure * (1.0 / 128.0);
             channelpressure = pressure;
-            for (int i = 0; i < voices.length; i++) {
-                if (voices[i].active)
-                    voices[i].setChannelPressure();
+            for (SoftVoice voice : voices) {
+                if (voice.active)
+                    voice.setChannelPressure();
             }
         }
     }
@@ -711,17 +691,17 @@ public final class SoftChannel implements MidiChannel {
         }
 
         if (controller < 120) {
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active)
-                    voices[i].controlChange(controller);
+            for (SoftVoice voice : voices)
+                if (voice.active)
+                    voice.controlChange(controller);
         } else if (controller == 120) {
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active)
-                    voices[i].rpnChange(1);
+            for (SoftVoice voice : voices)
+                if (voice.active)
+                    voice.rpnChange(1);
         } else if (controller == 121) {
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active)
-                    voices[i].rpnChange(2);
+            for (SoftVoice voice : voices)
+                if (voice.active)
+                    voice.rpnChange(2);
         }
 
     }
@@ -747,7 +727,7 @@ public final class SoftChannel implements MidiChannel {
                 // Convert x from cent/msec to key/controlbuffertime
                 x = x / 100.0;                      // x is now keys/msec
                 x = x * 1000.0;                     // x is now keys/sec
-                x = x / synthesizer.getControlRate(); // x is now keys/controlbuffertime
+                x = x / 147f; // x is now keys/controlbuffertime
                 portamento_time = x;
                 break;
             case 6:
@@ -770,7 +750,7 @@ public final class SoftChannel implements MidiChannel {
                     val = (val & 127) + (value << 7);
                 else if (controller == 38)
                     val = (val & (127 << 7)) + value;
-                else if (controller == 96 || controller == 97) {
+                else {
                     int step = 1;
                     if (rpn_control == 2 || rpn_control == 3 || rpn_control == 4)
                         step = 128;
@@ -791,20 +771,20 @@ public final class SoftChannel implements MidiChannel {
                 if (sustain != on) {
                     sustain = on;
                     if (!on) {
-                        for (int i = 0; i < voices.length; i++) {
-                            if (voices[i].active && voices[i].sustain &&
-                                    voices[i].channel == channel) {
-                                voices[i].sustain = false;
-                                if (!voices[i].on) {
-                                    voices[i].on = true;
-                                    voices[i].noteOff();
+                        for (SoftVoice voice : voices) {
+                            if (voice.active && voice.sustain &&
+                                    voice.channel == channel) {
+                                voice.sustain = false;
+                                if (!voice.on) {
+                                    voice.on = true;
+                                    voice.noteOff();
                                 }
                             }
                         }
                     } else {
-                        for (int i = 0; i < voices.length; i++)
-                            if (voices[i].active && voices[i].channel == channel)
-                                voices[i].redamp();
+                        for (SoftVoice voice : voices)
+                            if (voice.active && voice.channel == channel)
+                                voice.redamp();
                     }
                 }
                 break;
@@ -821,21 +801,21 @@ public final class SoftChannel implements MidiChannel {
             case 66: // Sostenuto (cc#66)
                 on = value >= 64;
                 if (on) {
-                    for (int i = 0; i < voices.length; i++) {
-                        if (voices[i].active && voices[i].on &&
-                                voices[i].channel == channel) {
-                            voices[i].sostenuto = true;
+                    for (SoftVoice voice : voices) {
+                        if (voice.active && voice.on &&
+                                voice.channel == channel) {
+                            voice.sostenuto = true;
                         }
                     }
                 }
                 if (!on) {
-                    for (int i = 0; i < voices.length; i++) {
-                        if (voices[i].active && voices[i].sostenuto &&
-                                voices[i].channel == channel) {
-                            voices[i].sostenuto = false;
-                            if (!voices[i].on) {
-                                voices[i].on = true;
-                                voices[i].noteOff();
+                    for (SoftVoice voice : voices) {
+                        if (voice.active && voice.sostenuto &&
+                                voice.channel == channel) {
+                            voice.sostenuto = false;
+                            if (!voice.on) {
+                                voice.on = true;
+                                voice.noteOff();
                             }
                         }
                     }
@@ -862,9 +842,6 @@ public final class SoftChannel implements MidiChannel {
                 break;
             case 121:
                 resetAllControllers(value == 127);
-                break;
-            case 122:
-                localControl(value >= 64);
                 break;
             case 123:
                 allNotesOff();
@@ -903,9 +880,9 @@ public final class SoftChannel implements MidiChannel {
             if(controller < 0x20)
                 this.controller[controller + 0x20] = 0;
 
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active)
-                    voices[i].controlChange(controller);
+            for (SoftVoice voice : voices)
+                if (voice.active)
+                    voice.controlChange(controller);
 
         }
     }
@@ -954,9 +931,9 @@ public final class SoftChannel implements MidiChannel {
             mainmixer.activity();
             co_midi_pitch[0] = bend * (1.0 / 16384.0);
             pitchbend = bend;
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active)
-                    voices[i].setPitchBend();
+            for (SoftVoice voice : voices)
+                if (voice.active)
+                    voice.setPitchBend();
         }
     }
 
@@ -1019,9 +996,9 @@ public final class SoftChannel implements MidiChannel {
         val_i[0] = value;
         val_d[0] = val_i[0] * (1.0 / 16384.0);
 
-        for (int i = 0; i < voices.length; i++)
-            if (voices[i].active)
-                voices[i].nrpnChange(controller);
+        for (SoftVoice voice : voices)
+            if (voice.active)
+                voice.nrpnChange(controller);
 
     }
 
@@ -1056,9 +1033,9 @@ public final class SoftChannel implements MidiChannel {
         val_i[0] = value;
         val_d[0] = val_i[0] * (1.0 / 16384.0);
 
-        for (int i = 0; i < voices.length; i++)
-            if (voices[i].active)
-                voices[i].rpnChange(controller);
+        for (SoftVoice voice : voices)
+            if (voice.active)
+                voice.rpnChange(controller);
     }
 
     public void resetAllControllers() {
@@ -1128,24 +1105,20 @@ public final class SoftChannel implements MidiChannel {
 
     public void allNotesOff() {
         synchronized (control_mutex) {
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].on && voices[i].channel == channel
-                        && voices[i].releaseTriggered == false) {
-                    voices[i].noteOff();
+            for (SoftVoice voice : voices)
+                if (voice.on && voice.channel == channel
+                        && !voice.releaseTriggered) {
+                    voice.noteOff();
                 }
         }
     }
 
     public void allSoundOff() {
         synchronized (control_mutex) {
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].on && voices[i].channel == channel)
-                    voices[i].soundOff();
+            for (SoftVoice voice : voices)
+                if (voice.on && voice.channel == channel)
+                    voice.soundOff();
         }
-    }
-
-    public boolean localControl(boolean on) {
-        return false;
     }
 
     public void setMono(boolean on) {
@@ -1173,9 +1146,9 @@ public final class SoftChannel implements MidiChannel {
     public void setMute(boolean mute) {
         synchronized (control_mutex) {
             this.mute = mute;
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active && voices[i].channel == channel)
-                    voices[i].setMute(mute);
+            for (SoftVoice voice : voices)
+                if (voice.active && voice.channel == channel)
+                    voice.setMute(mute);
         }
     }
 
@@ -1216,9 +1189,9 @@ public final class SoftChannel implements MidiChannel {
             if (solomute == mute)
                 return;
             this.solomute = mute;
-            for (int i = 0; i < voices.length; i++)
-                if (voices[i].active && voices[i].channel == channel)
-                    voices[i].setSoloMute(solomute);
+            for (SoftVoice voice : voices)
+                if (voice.active && voice.channel == channel)
+                    voice.setSoloMute(solomute);
         }
     }
 

@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.VoiceStatus;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import gervill.javax.sound.midi.VoiceStatus;
 
 /**
  * Software synthesizer voice class.
@@ -58,9 +58,9 @@ public final class SoftVoice extends VoiceStatus {
     private final SoftFilter filter_right;
     private final SoftProcess eg = new SoftEnvelopeGenerator();
     private final SoftProcess lfo = new SoftLowFrequencyOscillator();
-    Map<String, SoftControl> objects =
-            new HashMap<String, SoftControl>();
-    SoftSynthesizer synthesizer;
+    final Map<String, SoftControl> objects =
+            new HashMap<>();
+    final SoftSynthesizer synthesizer;
     SoftPerformer performer;
     SoftChannel softchannel = null;
     boolean on = false;
@@ -94,13 +94,13 @@ public final class SoftVoice extends VoiceStatus {
     private boolean soundoff = false;
     private float lastMuteValue = 0;
     private float lastSoloMuteValue = 0;
-    double[] co_noteon_keynumber = new double[1];
-    double[] co_noteon_velocity = new double[1];
-    double[] co_noteon_on = new double[1];
+    final double[] co_noteon_keynumber = new double[1];
+    final double[] co_noteon_velocity = new double[1];
+    final double[] co_noteon_on = new double[1];
     private final SoftControl co_noteon = new SoftControl() {
-        double[] keynumber = co_noteon_keynumber;
-        double[] velocity = co_noteon_velocity;
-        double[] on = co_noteon_on;
+        final double[] keynumber = co_noteon_keynumber;
+        final double[] velocity = co_noteon_velocity;
+        final double[] on = co_noteon_on;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -120,12 +120,12 @@ public final class SoftVoice extends VoiceStatus {
     private final double[] co_mixer_reverb = new double[1];
     private final double[] co_mixer_chorus = new double[1];
     private final SoftControl co_mixer = new SoftControl() {
-        double[] active = co_mixer_active;
-        double[] gain = co_mixer_gain;
-        double[] pan = co_mixer_pan;
-        double[] balance = co_mixer_balance;
-        double[] reverb = co_mixer_reverb;
-        double[] chorus = co_mixer_chorus;
+        final double[] active = co_mixer_active;
+        final double[] gain = co_mixer_gain;
+        final double[] pan = co_mixer_pan;
+        final double[] balance = co_mixer_balance;
+        final double[] reverb = co_mixer_reverb;
+        final double[] chorus = co_mixer_chorus;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -146,7 +146,7 @@ public final class SoftVoice extends VoiceStatus {
     };
     private final double[] co_osc_pitch = new double[1];
     private final SoftControl co_osc = new SoftControl() {
-        double[] pitch = co_osc_pitch;
+        final double[] pitch = co_osc_pitch;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -159,9 +159,9 @@ public final class SoftVoice extends VoiceStatus {
     private final double[] co_filter_type = new double[1];
     private final double[] co_filter_q = new double[1];
     private final SoftControl co_filter = new SoftControl() {
-        double[] freq = co_filter_freq;
-        double[] ftype = co_filter_type;
-        double[] q = co_filter_q;
+        final double[] freq = co_filter_freq;
+        final double[] ftype = co_filter_type;
+        final double[] q = co_filter_q;
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -347,20 +347,18 @@ public final class SoftVoice extends VoiceStatus {
         for (int i = 0; i < connections.length; i++) {
             ModelConnectionBlock conn = connections[i];
             connections_last[i] = 0;
-            if (conn.getSources() != null) {
-                ModelSource[] srcs = conn.getSources();
-                if (connections_src[i] == null
-                        || connections_src[i].length < srcs.length) {
-                    connections_src[i] = new double[srcs.length][];
-                    connections_src_kc[i] = new int[srcs.length];
-                }
-                double[][] src = connections_src[i];
-                int[] src_kc = connections_src_kc[i];
-                connections_src[i] = src;
-                for (int j = 0; j < srcs.length; j++) {
-                    src_kc[j] = getValueKC(srcs[j].getIdentifier());
-                    src[j] = getValue(srcs[j].getIdentifier());
-                }
+            ModelSource[] srcs = conn.getSources();
+            if (connections_src[i] == null
+                    || connections_src[i].length < srcs.length) {
+                connections_src[i] = new double[srcs.length][];
+                connections_src_kc[i] = new int[srcs.length];
+            }
+            double[][] src = connections_src[i];
+            int[] src_kc = connections_src_kc[i];
+            connections_src[i] = src;
+            for (int j = 0; j < srcs.length; j++) {
+                src_kc[j] = getValueKC(srcs[j].getIdentifier());
+                src[j] = getValue(srcs[j].getIdentifier());
             }
 
             if (conn.getDestination() != null)
@@ -407,8 +405,8 @@ public final class SoftVoice extends VoiceStatus {
             }
         }
 
-        eg.init(synthesizer);
-        lfo.init(synthesizer);
+        eg.init();
+        lfo.init();
 
     }
 
@@ -418,8 +416,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_connections[2];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void setChannelPressure() {
@@ -428,8 +425,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_connections[1];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void controlChange(int controller) {
@@ -438,8 +434,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_ctrl_connections[controller];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void nrpnChange(int controller) {
@@ -448,8 +443,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_nrpn_connections.get(controller);
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void rpnChange(int controller) {
@@ -458,8 +452,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_rpn_connections.get(controller);
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void setPitchBend() {
@@ -468,8 +461,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_connections[0];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void setMute(boolean mute) {
@@ -496,8 +488,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_connections[3];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void soundOff() {
@@ -524,8 +515,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_connections[3];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void redamp() {
@@ -542,8 +532,7 @@ public final class SoftVoice extends VoiceStatus {
         int[] c = performer.midi_connections[3];
         if (c == null)
             return;
-        for (int i = 0; i < c.length; i++)
-            processConnection(c[i]);
+        for (int j : c) processConnection(j);
     }
 
     void processControlLogic() {
@@ -590,19 +579,14 @@ public final class SoftVoice extends VoiceStatus {
                     //e.printStackTrace();
                 }
             } else {
-                osc_stream = osc.open();
+                throw new NullPointerException("osc");
             }
             osc_attenuation = osc.getAttenuation();
             osc_stream_nrofchannels = osc.getChannels();
             if (osc_buff == null || osc_buff.length < osc_stream_nrofchannels)
                 osc_buff = new float[osc_stream_nrofchannels][];
-
-            if (osc_stream != null)
-                osc_stream.noteOn(
-                );
-
-
         }
+
         if (audiostarted) {
             if (portamento) {
                 double note_delta = tunedKey - (co_noteon_keynumber[0] * 128);
@@ -620,8 +604,7 @@ public final class SoftVoice extends VoiceStatus {
                 int[] c = performer.midi_connections[4];
                 if (c == null)
                     return;
-                for (int i = 0; i < c.length; i++)
-                    processConnection(c[i]);
+                for (int j : c) processConnection(j);
             }
 
             eg.processControlLogic();

@@ -112,12 +112,6 @@ public final class SoftChannelProxy implements MidiChannel {
         return channel.getSolo();
     }
 
-    public boolean localControl(boolean on) {
-        if (channel == null)
-            return false;
-        return channel.localControl(on);
-    }
-
     public void noteOff(int noteNumber) {
         if (channel == null)
             return;

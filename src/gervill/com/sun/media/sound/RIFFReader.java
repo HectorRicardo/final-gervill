@@ -27,6 +27,7 @@ package gervill.com.sun.media.sound;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Resource Interchange File Format (RIFF) stream decoder.
@@ -40,11 +41,11 @@ public final class RIFFReader extends InputStream {
     private final String fourcc;
     private String riff_type = null;
     private InputStream stream;
-    private long avail = Integer.MAX_VALUE;
+    private long avail;
     private RIFFReader lastiterator = null;
 
     public RIFFReader(InputStream stream) throws IOException {
-
+        avail = Integer.MAX_VALUE;
         if (stream instanceof RIFFReader) {
             root = ((RIFFReader) stream).root;
         } else {
@@ -55,7 +56,7 @@ public final class RIFFReader extends InputStream {
 
         // Check for RIFF null paddings,
         int b;
-        while (true) {
+        do {
             b = read();
             if (b == -1) {
                 fourcc = ""; // don't put null value into fourcc,
@@ -65,14 +66,12 @@ public final class RIFFReader extends InputStream {
                 avail = 0;
                 return;
             }
-            if (b != 0)
-                break;
-        }
+        } while (b == 0);
 
         byte[] fourcc = new byte[4];
         fourcc[0] = (byte) b;
         readFully(fourcc, 1, 3);
-        this.fourcc = new String(fourcc, "ascii");
+        this.fourcc = new String(fourcc, StandardCharsets.US_ASCII);
         avail = readUnsignedInt();
 
         if (getFormat().equals("RIFF") || getFormat().equals("LIST")) {
@@ -81,11 +80,11 @@ public final class RIFFReader extends InputStream {
             }
             byte[] format = new byte[4];
             readFully(format);
-            this.riff_type = new String(format, "ascii");
+            this.riff_type = new String(format, StandardCharsets.US_ASCII);
         }
     }
 
-    public long getFilePointer() throws IOException {
+    public long getFilePointer() {
         return root.filepointer;
     }
 
@@ -148,11 +147,11 @@ public final class RIFFReader extends InputStream {
         }
     }
 
-    public final void readFully(byte b[]) throws IOException {
+    public final void readFully(byte[] b) throws IOException {
         readFully(b, 0, b.length);
     }
 
-    public final void readFully(byte b[], int off, int len) throws IOException {
+    public final void readFully(byte[] b, int off, int len) throws IOException {
         if (len < 0)
             throw new IndexOutOfBoundsException();
         while (len > 0) {
@@ -215,10 +214,10 @@ public final class RIFFReader extends InputStream {
         readFully(buff);
         for (int i = 0; i < buff.length; i++) {
             if (buff[i] == 0) {
-                return new String(buff, 0, i, "ascii");
+                return new String(buff, 0, i, StandardCharsets.US_ASCII);
             }
         }
-        return new String(buff, "ascii");
+        return new String(buff, StandardCharsets.US_ASCII);
     }
 
     // Read 8 bit signed integer from stream

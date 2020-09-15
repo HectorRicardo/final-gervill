@@ -24,10 +24,10 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.io.IOException;
-
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.SourceDataLine;
+
+import java.io.IOException;
 
 /**
  * This is a processor object that writes into SourceDataLine
@@ -37,7 +37,7 @@ import gervill.javax.sound.sampled.SourceDataLine;
 public final class SoftAudioPusher implements Runnable {
 
     private volatile boolean active = false;
-    private SourceDataLine sourceDataLine = null;
+    private final SourceDataLine sourceDataLine;
     private Thread audiothread;
     private final AudioInputStream ais;
     private final byte[] buffer;

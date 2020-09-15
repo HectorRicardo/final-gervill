@@ -24,6 +24,11 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.Instrument;
+import gervill.javax.sound.midi.Patch;
+import gervill.javax.sound.midi.Soundbank;
+import gervill.javax.sound.midi.SoundbankResource;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,11 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import gervill.javax.sound.midi.Instrument;
-import gervill.javax.sound.midi.Patch;
-import gervill.javax.sound.midi.Soundbank;
-import gervill.javax.sound.midi.SoundbankResource;
 
 /**
  * A SoundFont 2.04 soundbank reader.
@@ -64,31 +64,25 @@ public final class SF2Soundbank implements Soundbank {
     private ModelByteBuffer sampleData24 = null;
     private File sampleFile = null;
     private boolean largeFormat = false;
-    private final List<SF2Instrument> instruments = new ArrayList<SF2Instrument>();
-    private final List<SF2Layer> layers = new ArrayList<SF2Layer>();
-    private final List<SF2Sample> samples = new ArrayList<SF2Sample>();
+    private final List<SF2Instrument> instruments = new ArrayList<>();
+    private final List<SF2Layer> layers = new ArrayList<>();
+    private final List<SF2Sample> samples = new ArrayList<>();
 
     public SF2Soundbank() {
     }
 
     public SF2Soundbank(URL url) throws IOException {
 
-        InputStream is = url.openStream();
-        try {
+        try (InputStream is = url.openStream()) {
             readSoundbank(is);
-        } finally {
-            is.close();
         }
     }
 
     public SF2Soundbank(File file) throws IOException {
         largeFormat = true;
         sampleFile = file;
-        InputStream is = new FileInputStream(file);
-        try {
+        try (InputStream is = new FileInputStream(file)) {
             readSoundbank(is);
-        } finally {
-            is.close();
         }
     }
 
@@ -123,30 +117,32 @@ public final class SF2Soundbank implements Soundbank {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
-            if (format.equals("ifil")) {
-                major = chunk.readUnsignedShort();
-                minor = chunk.readUnsignedShort();
-            } else if (format.equals("isng")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("INAM")) {
-                this.name = chunk.readString(chunk.available());
-            } else if (format.equals("irom")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("iver")) {
-                chunk.readUnsignedShort();
-                chunk.readUnsignedShort();
-            } else if (format.equals("ICRD")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("IENG")) {
-                this.engineers = chunk.readString(chunk.available());
-            } else if (format.equals("IPRD")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICOP")) {
-                chunk.readString(chunk.available());
-            } else if (format.equals("ICMT")) {
-                this.comments = chunk.readString(chunk.available());
-            } else if (format.equals("ISFT")) {
-                chunk.readString(chunk.available());
+            switch (format) {
+                case "ifil":
+                    major = chunk.readUnsignedShort();
+                    minor = chunk.readUnsignedShort();
+                    break;
+                case "isng":
+                case "ISFT":
+                case "ICOP":
+                case "IPRD":
+                case "ICRD":
+                case "irom":
+                    chunk.readString(chunk.available());
+                    break;
+                case "INAM":
+                    this.name = chunk.readString(chunk.available());
+                    break;
+                case "iver":
+                    chunk.readUnsignedShort();
+                    chunk.readUnsignedShort();
+                    break;
+                case "IENG":
+                    this.engineers = chunk.readString(chunk.available());
+                    break;
+                case "ICMT":
+                    this.comments = chunk.readString(chunk.available());
+                    break;
             }
 
         }
@@ -207,219 +203,227 @@ public final class SF2Soundbank implements Soundbank {
 
     private void readPdtaChunk(RIFFReader riff) throws IOException {
 
-        List<SF2Instrument> presets = new ArrayList<SF2Instrument>();
-        List<Integer> presets_bagNdx = new ArrayList<Integer>();
+        List<SF2Instrument> presets = new ArrayList<>();
+        List<Integer> presets_bagNdx = new ArrayList<>();
         List<SF2InstrumentRegion> presets_splits_gen
-                = new ArrayList<SF2InstrumentRegion>();
+                = new ArrayList<>();
         List<SF2InstrumentRegion> presets_splits_mod
-                = new ArrayList<SF2InstrumentRegion>();
+                = new ArrayList<>();
 
-        List<SF2Layer> instruments = new ArrayList<SF2Layer>();
-        List<Integer> instruments_bagNdx = new ArrayList<Integer>();
+        List<Integer> instruments_bagNdx = new ArrayList<>();
         List<SF2LayerRegion> instruments_splits_gen
-                = new ArrayList<SF2LayerRegion>();
+                = new ArrayList<>();
         List<SF2LayerRegion> instruments_splits_mod
-                = new ArrayList<SF2LayerRegion>();
+                = new ArrayList<>();
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
-            if (format.equals("phdr")) {
-                // Preset Header / Instrument
-                if (chunk.available() % 38 != 0)
-                    throw new RuntimeException();
-                int count = chunk.available() / 38;
-                for (int i = 0; i < count; i++) {
-                    SF2Instrument preset = new SF2Instrument(this);
-                    preset.name = chunk.readString(20);
-                    preset.preset = chunk.readUnsignedShort();
-                    preset.bank = chunk.readUnsignedShort();
-                    presets_bagNdx.add(chunk.readUnsignedShort());
-                    chunk.readUnsignedInt();
-                    chunk.readUnsignedInt();
-                    chunk.readUnsignedInt();
-                    presets.add(preset);
-                    if (i != count - 1)
-                        this.instruments.add(preset);
-                }
-            } else if (format.equals("pbag")) {
-                // Preset Zones / Instruments splits
-                if (chunk.available() % 4 != 0)
-                    throw new RuntimeException();
-                int count = chunk.available() / 4;
-
-                // Skip first record
-                {
-                    int gencount = chunk.readUnsignedShort();
-                    int modcount = chunk.readUnsignedShort();
-                    while (presets_splits_gen.size() < gencount)
-                        presets_splits_gen.add(null);
-                    while (presets_splits_mod.size() < modcount)
-                        presets_splits_mod.add(null);
-                    count--;
-                }
-
-                if (presets_bagNdx.isEmpty()) {
-                    throw new RuntimeException();
-                }
-                int offset = presets_bagNdx.get(0);
-                // Offset should be 0 (but just case)
-                for (int i = 0; i < offset; i++) {
-                    if (count == 0)
+            switch (format) {
+                case "phdr": {
+                    // Preset Header / Instrument
+                    if (chunk.available() % 38 != 0)
                         throw new RuntimeException();
-                    int gencount = chunk.readUnsignedShort();
-                    int modcount = chunk.readUnsignedShort();
-                    while (presets_splits_gen.size() < gencount)
-                        presets_splits_gen.add(null);
-                    while (presets_splits_mod.size() < modcount)
-                        presets_splits_mod.add(null);
-                    count--;
+                    int count = chunk.available() / 38;
+                    for (int i = 0; i < count; i++) {
+                        SF2Instrument preset = new SF2Instrument(this);
+                        preset.name = chunk.readString(20);
+                        preset.preset = chunk.readUnsignedShort();
+                        preset.bank = chunk.readUnsignedShort();
+                        presets_bagNdx.add(chunk.readUnsignedShort());
+                        chunk.readUnsignedInt();
+                        chunk.readUnsignedInt();
+                        chunk.readUnsignedInt();
+                        presets.add(preset);
+                        if (i != count - 1)
+                            this.instruments.add(preset);
+                    }
+                    break;
                 }
+                case "pbag": {
+                    // Preset Zones / Instruments splits
+                    if (chunk.available() % 4 != 0)
+                        throw new RuntimeException();
+                    int count = chunk.available() / 4;
 
-                for (int i = 0; i < presets_bagNdx.size() - 1; i++) {
-                    int zone_count = presets_bagNdx.get(i + 1)
-                                     - presets_bagNdx.get(i);
-                    SF2Instrument preset = presets.get(i);
-                    for (int ii = 0; ii < zone_count; ii++) {
-                        if (count == 0)
-                            throw new RuntimeException();
+                    // Skip first record
+                    {
                         int gencount = chunk.readUnsignedShort();
                         int modcount = chunk.readUnsignedShort();
-                        SF2InstrumentRegion split = new SF2InstrumentRegion();
-                        preset.regions.add(split);
                         while (presets_splits_gen.size() < gencount)
-                            presets_splits_gen.add(split);
+                            presets_splits_gen.add(null);
                         while (presets_splits_mod.size() < modcount)
-                            presets_splits_mod.add(split);
+                            presets_splits_mod.add(null);
                         count--;
                     }
-                }
-            } else if (format.equals("pmod")) {
-                // Preset Modulators / Split Modulators
-                for (int i = 0; i < presets_splits_mod.size(); i++) {
-                    SF2Modulator modulator = new SF2Modulator();
-                    modulator.sourceOperator = chunk.readUnsignedShort();
-                    modulator.destinationOperator = chunk.readUnsignedShort();
-                    modulator.amount = chunk.readShort();
-                    modulator.amountSourceOperator = chunk.readUnsignedShort();
-                    modulator.transportOperator = chunk.readUnsignedShort();
-                    SF2InstrumentRegion split = presets_splits_mod.get(i);
-                    if (split != null)
-                        split.modulators.add(modulator);
-                }
-            } else if (format.equals("pgen")) {
-                // Preset Generators / Split Generators
-                for (int i = 0; i < presets_splits_gen.size(); i++) {
-                    int operator = chunk.readUnsignedShort();
-                    short amount = chunk.readShort();
-                    SF2InstrumentRegion split = presets_splits_gen.get(i);
-                    if (split != null)
-                        split.generators.put(operator, amount);
-                }
-            } else if (format.equals("inst")) {
-                // Instrument Header / Layers
-                if (chunk.available() % 22 != 0)
-                    throw new RuntimeException();
-                int count = chunk.available() / 22;
-                for (int i = 0; i < count; i++) {
-                    SF2Layer layer = new SF2Layer(this);
-                    layer.name = chunk.readString(20);
-                    instruments_bagNdx.add(chunk.readUnsignedShort());
-                    instruments.add(layer);
-                    if (i != count - 1)
-                        this.layers.add(layer);
-                }
-            } else if (format.equals("ibag")) {
-                // Instrument Zones / Layer splits
-                if (chunk.available() % 4 != 0)
-                    throw new RuntimeException();
-                int count = chunk.available() / 4;
 
-                // Skip first record
-                {
-                    int gencount = chunk.readUnsignedShort();
-                    int modcount = chunk.readUnsignedShort();
-                    while (instruments_splits_gen.size() < gencount)
-                        instruments_splits_gen.add(null);
-                    while (instruments_splits_mod.size() < modcount)
-                        instruments_splits_mod.add(null);
-                    count--;
-                }
-
-                if (instruments_bagNdx.isEmpty()) {
-                    throw new RuntimeException();
-                }
-                int offset = instruments_bagNdx.get(0);
-                // Offset should be 0 (but just case)
-                for (int i = 0; i < offset; i++) {
-                    if (count == 0)
+                    if (presets_bagNdx.isEmpty()) {
                         throw new RuntimeException();
-                    int gencount = chunk.readUnsignedShort();
-                    int modcount = chunk.readUnsignedShort();
-                    while (instruments_splits_gen.size() < gencount)
-                        instruments_splits_gen.add(null);
-                    while (instruments_splits_mod.size() < modcount)
-                        instruments_splits_mod.add(null);
-                    count--;
-                }
-
-                for (int i = 0; i < instruments_bagNdx.size() - 1; i++) {
-                    int zone_count = instruments_bagNdx.get(i + 1) - instruments_bagNdx.get(i);
-                    SF2Layer layer = layers.get(i);
-                    for (int ii = 0; ii < zone_count; ii++) {
+                    }
+                    int offset = presets_bagNdx.get(0);
+                    // Offset should be 0 (but just case)
+                    for (int i = 0; i < offset; i++) {
                         if (count == 0)
                             throw new RuntimeException();
                         int gencount = chunk.readUnsignedShort();
                         int modcount = chunk.readUnsignedShort();
-                        SF2LayerRegion split = new SF2LayerRegion();
-                        layer.regions.add(split);
-                        while (instruments_splits_gen.size() < gencount)
-                            instruments_splits_gen.add(split);
-                        while (instruments_splits_mod.size() < modcount)
-                            instruments_splits_mod.add(split);
+                        while (presets_splits_gen.size() < gencount)
+                            presets_splits_gen.add(null);
+                        while (presets_splits_mod.size() < modcount)
+                            presets_splits_mod.add(null);
                         count--;
                     }
-                }
 
-            } else if (format.equals("imod")) {
-                // Instrument Modulators / Split Modulators
-                for (int i = 0; i < instruments_splits_mod.size(); i++) {
-                    SF2Modulator modulator = new SF2Modulator();
-                    modulator.sourceOperator = chunk.readUnsignedShort();
-                    modulator.destinationOperator = chunk.readUnsignedShort();
-                    modulator.amount = chunk.readShort();
-                    modulator.amountSourceOperator = chunk.readUnsignedShort();
-                    modulator.transportOperator = chunk.readUnsignedShort();
-                    if (i < 0 || i >= instruments_splits_gen.size()) {
+                    for (int i = 0; i < presets_bagNdx.size() - 1; i++) {
+                        int zone_count = presets_bagNdx.get(i + 1)
+                                - presets_bagNdx.get(i);
+                        SF2Instrument preset = presets.get(i);
+                        for (int ii = 0; ii < zone_count; ii++) {
+                            if (count == 0)
+                                throw new RuntimeException();
+                            int gencount = chunk.readUnsignedShort();
+                            int modcount = chunk.readUnsignedShort();
+                            SF2InstrumentRegion split = new SF2InstrumentRegion();
+                            preset.regions.add(split);
+                            while (presets_splits_gen.size() < gencount)
+                                presets_splits_gen.add(split);
+                            while (presets_splits_mod.size() < modcount)
+                                presets_splits_mod.add(split);
+                            count--;
+                        }
+                    }
+                    break;
+                }
+                case "pmod":
+                    // Preset Modulators / Split Modulators
+                    for (SF2InstrumentRegion sf2InstrumentRegion : presets_splits_mod) {
+                        SF2Modulator modulator = new SF2Modulator();
+                        modulator.sourceOperator = chunk.readUnsignedShort();
+                        modulator.destinationOperator = chunk.readUnsignedShort();
+                        modulator.amount = chunk.readShort();
+                        modulator.amountSourceOperator = chunk.readUnsignedShort();
+                        modulator.transportOperator = chunk.readUnsignedShort();
+                        if (sf2InstrumentRegion != null)
+                            sf2InstrumentRegion.modulators.add(modulator);
+                    }
+                    break;
+                case "pgen":
+                    // Preset Generators / Split Generators
+                    for (SF2InstrumentRegion sf2InstrumentRegion : presets_splits_gen) {
+                        int operator = chunk.readUnsignedShort();
+                        short amount = chunk.readShort();
+                        if (sf2InstrumentRegion != null)
+                            sf2InstrumentRegion.generators.put(operator, amount);
+                    }
+                    break;
+                case "inst": {
+                    // Instrument Header / Layers
+                    if (chunk.available() % 22 != 0)
+                        throw new RuntimeException();
+                    int count = chunk.available() / 22;
+                    for (int i = 0; i < count; i++) {
+                        SF2Layer layer = new SF2Layer(this);
+                        layer.name = chunk.readString(20);
+                        instruments_bagNdx.add(chunk.readUnsignedShort());
+                        if (i != count - 1)
+                            this.layers.add(layer);
+                    }
+                    break;
+                }
+                case "ibag": {
+                    // Instrument Zones / Layer splits
+                    if (chunk.available() % 4 != 0)
+                        throw new RuntimeException();
+                    int count = chunk.available() / 4;
+
+                    // Skip first record
+                    {
+                        int gencount = chunk.readUnsignedShort();
+                        int modcount = chunk.readUnsignedShort();
+                        while (instruments_splits_gen.size() < gencount)
+                            instruments_splits_gen.add(null);
+                        while (instruments_splits_mod.size() < modcount)
+                            instruments_splits_mod.add(null);
+                        count--;
+                    }
+
+                    if (instruments_bagNdx.isEmpty()) {
                         throw new RuntimeException();
                     }
-                    SF2LayerRegion split = instruments_splits_gen.get(i);
-                    if (split != null)
-                        split.modulators.add(modulator);
+                    int offset = instruments_bagNdx.get(0);
+                    // Offset should be 0 (but just case)
+                    for (int i = 0; i < offset; i++) {
+                        if (count == 0)
+                            throw new RuntimeException();
+                        int gencount = chunk.readUnsignedShort();
+                        int modcount = chunk.readUnsignedShort();
+                        while (instruments_splits_gen.size() < gencount)
+                            instruments_splits_gen.add(null);
+                        while (instruments_splits_mod.size() < modcount)
+                            instruments_splits_mod.add(null);
+                        count--;
+                    }
+
+                    for (int i = 0; i < instruments_bagNdx.size() - 1; i++) {
+                        int zone_count = instruments_bagNdx.get(i + 1) - instruments_bagNdx.get(i);
+                        SF2Layer layer = layers.get(i);
+                        for (int ii = 0; ii < zone_count; ii++) {
+                            if (count == 0)
+                                throw new RuntimeException();
+                            int gencount = chunk.readUnsignedShort();
+                            int modcount = chunk.readUnsignedShort();
+                            SF2LayerRegion split = new SF2LayerRegion();
+                            layer.regions.add(split);
+                            while (instruments_splits_gen.size() < gencount)
+                                instruments_splits_gen.add(split);
+                            while (instruments_splits_mod.size() < modcount)
+                                instruments_splits_mod.add(split);
+                            count--;
+                        }
+                    }
+
+                    break;
                 }
-            } else if (format.equals("igen")) {
-                // Instrument Generators / Split Generators
-                for (int i = 0; i < instruments_splits_gen.size(); i++) {
-                    int operator = chunk.readUnsignedShort();
-                    short amount = chunk.readShort();
-                    SF2LayerRegion split = instruments_splits_gen.get(i);
-                    if (split != null)
-                        split.generators.put(operator, amount);
-                }
-            } else if (format.equals("shdr")) {
-                // Sample Headers
-                if (chunk.available() % 46 != 0)
-                    throw new RuntimeException();
-                int count = chunk.available() / 46;
-                for (int i = 0; i < count; i++) {
-                    SF2Sample sample = new SF2Sample(this);
-                    sample.name = chunk.readString(20);
-                    long start = chunk.readUnsignedInt();
-                    long end = chunk.readUnsignedInt();
-                    if (sampleData != null)
-                        sample.data = sampleData.subbuffer(start * 2, end * 2, true);
-                    if (sampleData24 != null)
-                        sample.data24 = sampleData24.subbuffer(start, end, true);
+                case "imod":
+                    // Instrument Modulators / Split Modulators
+                    for (int i = 0; i < instruments_splits_mod.size(); i++) {
+                        SF2Modulator modulator = new SF2Modulator();
+                        modulator.sourceOperator = chunk.readUnsignedShort();
+                        modulator.destinationOperator = chunk.readUnsignedShort();
+                        modulator.amount = chunk.readShort();
+                        modulator.amountSourceOperator = chunk.readUnsignedShort();
+                        modulator.transportOperator = chunk.readUnsignedShort();
+                        if (i >= instruments_splits_gen.size()) {
+                            throw new RuntimeException();
+                        }
+                        SF2LayerRegion split = instruments_splits_gen.get(i);
+                        if (split != null)
+                            split.modulators.add(modulator);
+                    }
+                    break;
+                case "igen":
+                    // Instrument Generators / Split Generators
+                    for (SF2LayerRegion sf2LayerRegion : instruments_splits_gen) {
+                        int operator = chunk.readUnsignedShort();
+                        short amount = chunk.readShort();
+                        if (sf2LayerRegion != null)
+                            sf2LayerRegion.generators.put(operator, amount);
+                    }
+                    break;
+                case "shdr": {
+                    // Sample Headers
+                    if (chunk.available() % 46 != 0)
+                        throw new RuntimeException();
+                    int count = chunk.available() / 46;
+                    for (int i = 0; i < count; i++) {
+                        SF2Sample sample = new SF2Sample(this);
+                        sample.name = chunk.readString(20);
+                        long start = chunk.readUnsignedInt();
+                        long end = chunk.readUnsignedInt();
+                        if (sampleData != null)
+                            sample.data = sampleData.subbuffer(start * 2, end * 2, true);
+                        if (sampleData24 != null)
+                            sample.data24 = sampleData24.subbuffer(start, end, true);
                     /*
                     sample.data = new ModelByteBuffer(sampleData, (int)(start*2),
                             (int)((end - start)*2));
@@ -427,26 +431,26 @@ public final class SF2Soundbank implements Soundbank {
                         sample.data24 = new ModelByteBuffer(sampleData24,
                                 (int)start, (int)(end - start));
                      */
-                    sample.startLoop = chunk.readUnsignedInt() - start;
-                    sample.endLoop = chunk.readUnsignedInt() - start;
-                    if (sample.startLoop < 0)
-                        sample.startLoop = -1;
-                    if (sample.endLoop < 0)
-                        sample.endLoop = -1;
-                    sample.sampleRate = chunk.readUnsignedInt();
-                    sample.originalPitch = chunk.readUnsignedByte();
-                    sample.pitchCorrection = chunk.readByte();
-                    chunk.readUnsignedShort();
-                    chunk.readUnsignedShort();
-                    if (i != count - 1)
-                        this.samples.add(sample);
+                        sample.startLoop = chunk.readUnsignedInt() - start;
+                        sample.endLoop = chunk.readUnsignedInt() - start;
+                        if (sample.startLoop < 0)
+                            sample.startLoop = -1;
+                        if (sample.endLoop < 0)
+                            sample.endLoop = -1;
+                        sample.sampleRate = chunk.readUnsignedInt();
+                        sample.originalPitch = chunk.readUnsignedByte();
+                        sample.pitchCorrection = chunk.readByte();
+                        chunk.readUnsignedShort();
+                        chunk.readUnsignedShort();
+                        if (i != count - 1)
+                            this.samples.add(sample);
+                    }
+                    break;
                 }
             }
         }
 
-        Iterator<SF2Layer> liter = this.layers.iterator();
-        while (liter.hasNext()) {
-            SF2Layer layer = liter.next();
+        for (SF2Layer layer : this.layers) {
             Iterator<SF2LayerRegion> siter = layer.regions.iterator();
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
@@ -473,9 +477,7 @@ public final class SF2Soundbank implements Soundbank {
         }
 
 
-        Iterator<SF2Instrument> iiter = this.instruments.iterator();
-        while (iiter.hasNext()) {
-            SF2Instrument instrument = iiter.next();
+        for (SF2Instrument instrument : this.instruments) {
             Iterator<SF2InstrumentRegion> siter = instrument.regions.iterator();
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
@@ -534,7 +536,7 @@ public final class SF2Soundbank implements Soundbank {
 
     public SF2Instrument[] getInstruments() {
         SF2Instrument[] inslist_array
-                = instruments.toArray(new SF2Instrument[instruments.size()]);
+                = instruments.toArray(new SF2Instrument[0]);
         Arrays.sort(inslist_array, new ModelInstrumentComparator());
         return inslist_array;
     }

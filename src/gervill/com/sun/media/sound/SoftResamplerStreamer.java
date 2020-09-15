@@ -33,16 +33,14 @@ import java.io.IOException;
  */
 public interface SoftResamplerStreamer {
 
-    public void setPitch(float pitch); // Pitch is in cents!
+    void setPitch(float pitch); // Pitch is in cents!
 
-    public void noteOn();
+    void noteOff();
 
-    public void noteOff();
+    int read(float[][] buffer, int offset, int len) throws IOException;
 
-    public int read(float[][] buffer, int offset, int len) throws IOException;
+    void close() throws IOException;
 
-    public void close() throws IOException;
-
-    public void open(ModelByteBufferWavetable osc, float outputsamplerate)
+    void open(ModelByteBufferWavetable osc, float outputsamplerate)
             throws IOException;
 }

@@ -206,7 +206,6 @@ public class SourceDataLine implements AutoCloseable {
      * @param len the length, in bytes, of the valid data in the array
      * (in other words, the requested amount of data to write, in bytes)
      * @param off the offset from the beginning of the array, in bytes
-     * @return the number of bytes actually written
      * throws IllegalArgumentException if the requested number of bytes does
      * not represent an integral number of sample frames,
      * or if <code>len</code> is negative
@@ -217,7 +216,7 @@ public class SourceDataLine implements AutoCloseable {
      * see TargetDataLine#read
      * see DataLine#available
      */
-    public int write(byte[] b, int off, int len) {
-        return realLine.write(b, off, len);
+    public void write(byte[] b, int off, int len) {
+        realLine.write(b, off, len);
     }
 }

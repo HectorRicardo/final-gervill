@@ -129,8 +129,7 @@ public final class SoftChorus implements SoftAudioProcessor {
         }
 
         public void setRate(double rate) {
-            double g = (Math.PI * 2) * (rate / controlrate);
-            phase_step = g;
+            phase_step = (Math.PI * 2) * (rate / controlrate);
         }
 
         public void setPhase(double phase) {

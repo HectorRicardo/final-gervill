@@ -40,7 +40,7 @@ public final class SoftEnvelopeGenerator implements SoftProcess {
     public final static int EG_RELEASE = 6;
     public final static int EG_SHUTDOWN = 7;
     public final static int EG_END = 8;
-    int max_count = 10;
+    final int max_count = 10;
     int used_count = 0;
     private final int[] stage = new int[max_count];
     private final int[] stage_ix = new int[max_count];
@@ -80,8 +80,8 @@ public final class SoftEnvelopeGenerator implements SoftProcess {
         used_count = 0;
     }
 
-    public void init(SoftSynthesizer synth) {
-        control_time = 1.0 / synth.getControlRate();
+    public void init() {
+        control_time = 1.0 / 147f;
         processControlLogic();
     }
 
@@ -181,7 +181,6 @@ public final class SoftEnvelopeGenerator implements SoftProcess {
                         stage[i] = EG_HOLD;
                         stage_count[i] = (int)(Math.pow(2,
                                 this.hold[i][0] / 1200.0) / control_time);
-                        stage_ix[i] = 0;
                     } else {
                         stage[i] = EG_ATTACK;
                         stage_count[i] = (int)(Math.pow(2,
@@ -189,8 +188,8 @@ public final class SoftEnvelopeGenerator implements SoftProcess {
                         stage_count[i] += (int)(attack2 / (control_time * 1000));
                         if (stage_count[i] < 0)
                             stage_count[i] = 0;
-                        stage_ix[i] = 0;
                     }
+                    stage_ix[i] = 0;
                 } else
                     stage_ix[i]--;
                 break;
@@ -238,9 +237,7 @@ public final class SoftEnvelopeGenerator implements SoftProcess {
                     out[i][0] = (1 - m) + sustain * m;
                 }
                 break;
-            case EG_SUSTAIN:
-                break;
-            case EG_RELEASE:
+                case EG_RELEASE:
                 stage_ix[i]++;
                 if (stage_ix[i] >= stage_count[i]) {
                     out[i][0] = 0;

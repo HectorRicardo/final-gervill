@@ -25,8 +25,6 @@
 
 package gervill.javax.sound.midi;
 
-import java.net.URL;
-
 
 /**
  * A <code>Soundbank</code> contains a set of <code>Instruments</code>
@@ -76,26 +74,26 @@ public interface Soundbank {
      * Obtains the name of the sound bank.
      * @return a <code>String</code> naming the sound bank
      */
-    public String getName();
+    String getName();
 
     /**
      * Obtains the version string for the sound bank.
      * @return a <code>String</code> that indicates the sound bank's version
      */
-    public String getVersion();
+    String getVersion();
 
     /**
      * Obtains a <code>string</code> naming the company that provides the
      * sound bank
      * @return the vendor string
      */
-    public String getVendor();
+    String getVendor();
 
     /**
      * Obtains a textual description of the sound bank, suitable for display.
      * @return a <code>String</code> that describes the sound bank
      */
-    public String getDescription();
+    String getDescription();
 
 
     /**
@@ -107,7 +105,7 @@ public interface Soundbank {
      * see Synthesizer#getLoadedInstruments
      * see #getInstrument(Patch)
      */
-    public Instrument[] getInstruments();
+    Instrument[] getInstruments();
 
     /**
      * Obtains an <code>Instrument</code> from the given <code>Patch</code>.
@@ -119,7 +117,7 @@ public interface Soundbank {
      * see #getInstruments
      * see Synthesizer#loadInstruments(Soundbank, Patch[])
      */
-    public Instrument getInstrument(Patch patch);
+    Instrument getInstrument(Patch patch);
 
 
 }

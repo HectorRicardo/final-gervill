@@ -54,7 +54,7 @@ public final class ModelSource {
     public static final ModelIdentifier SOURCE_MIDI_POLY_PRESSURE =
             new ModelIdentifier("midi", "poly_pressure", 0);    // (0..127)
     private ModelIdentifier source = SOURCE_NONE;
-    private ModelTransform transform;
+    private final ModelTransform transform;
 
     public ModelSource() {
         this.transform = new ModelStandardTransform();

@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.sampled.AudioFormat;
+import gervill.javax.sound.sampled.AudioInputStream;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-
-import gervill.javax.sound.sampled.AudioFormat;
-import gervill.javax.sound.sampled.AudioInputStream;
 
 /**
  * A jitter corrector to be used with SoftAudioPusher.
@@ -40,10 +40,10 @@ public final class SoftJitterCorrector extends AudioInputStream {
 
     private static class JitterStream extends InputStream {
 
-        static int MAX_BUFFER_SIZE = 1048576;
+        static final int MAX_BUFFER_SIZE = 1048576;
         boolean active = true;
-        Thread thread;
-        AudioInputStream stream;
+        final Thread thread;
+        final AudioInputStream stream;
         // Cyclic buffer
         int writepos = 0;
         int readpos = 0;
@@ -51,14 +51,14 @@ public final class SoftJitterCorrector extends AudioInputStream {
         private final Object buffers_mutex = new Object();
 
         // Adapative Drift Statistics
-        int w_count = 1000;
-        int w_min_tol = 2;
-        int w_max_tol = 10;
+        int w_count;
+        final int w_min_tol = 2;
+        final int w_max_tol = 10;
         int w = 0;
         int w_min = -1;
         // Current read buffer
         int bbuffer_pos = 0;
-        int bbuffer_max = 0;
+        final int bbuffer_max;
         byte[] bbuffer = null;
 
         public byte[] nextReadBuffer() {
@@ -123,95 +123,91 @@ public final class SoftJitterCorrector extends AudioInputStream {
             this.stream = s;
 
 
-            Runnable runnable = new Runnable() {
-
-                public void run() {
-                    AudioFormat format = stream.getFormat();
-                    int bufflen = buffers[0].length;
-                    int frames = bufflen / format.getFrameSize();
-                    long nanos = (long) (frames * 1000000000.0
-                                            / format.getSampleRate());
-                    long now = System.nanoTime();
-                    long next = now + nanos;
-                    int correction = 0;
-                    while (true) {
+            Runnable runnable = () -> {
+                AudioFormat format = stream.getFormat();
+                int bufflen = buffers[0].length;
+                int frames = bufflen / format.getFrameSize();
+                long nanos = (long) (frames * 1000000000.0
+                                        / format.getSampleRate());
+                long now = System.nanoTime();
+                long next = now + nanos;
+                int correction = 0;
+                while (true) {
+                    synchronized (JitterStream.this) {
+                        if (!active)
+                            break;
+                    }
+                    int curbuffsize;
+                    synchronized (buffers) {
+                        curbuffsize = writepos - readpos;
+                        if (correction == 0) {
+                            w++;
+                            if (w_min != Integer.MAX_VALUE) {
+                                if (w == w_count) {
+                                    if (w_min < w_min_tol) {
+                                        correction = (w_min_tol + w_max_tol)
+                                                        / 2 - w_min;
+                                    }
+                                    if (w_min > w_max_tol) {
+                                        correction = (w_min_tol + w_max_tol)
+                                                        / 2 - w_min;
+                                    }
+                                    w = 0;
+                                    w_min = Integer.MAX_VALUE;
+                                }
+                            }
+                        }
+                    }
+                    while (curbuffsize > bbuffer_max) {
+                        synchronized (buffers) {
+                            curbuffsize = writepos - readpos;
+                        }
                         synchronized (JitterStream.this) {
                             if (!active)
                                 break;
                         }
-                        int curbuffsize;
-                        synchronized (buffers) {
-                            curbuffsize = writepos - readpos;
-                            if (correction == 0) {
-                                w++;
-                                if (w_min != Integer.MAX_VALUE) {
-                                    if (w == w_count) {
-                                        correction = 0;
-                                        if (w_min < w_min_tol) {
-                                            correction = (w_min_tol + w_max_tol)
-                                                            / 2 - w_min;
-                                        }
-                                        if (w_min > w_max_tol) {
-                                            correction = (w_min_tol + w_max_tol)
-                                                            / 2 - w_min;
-                                        }
-                                        w = 0;
-                                        w_min = Integer.MAX_VALUE;
-                                    }
-                                }
-                            }
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            //e.printStackTrace();
                         }
-                        while (curbuffsize > bbuffer_max) {
-                            synchronized (buffers) {
-                                curbuffsize = writepos - readpos;
-                            }
-                            synchronized (JitterStream.this) {
-                                if (!active)
-                                    break;
-                            }
-                            try {
-                                Thread.sleep(1);
-                            } catch (InterruptedException e) {
-                                //e.printStackTrace();
-                            }
-                        }
-
-                        if (correction < 0)
-                            correction++;
-                        else {
-                            byte[] buff = nextWriteBuffer();
-                            try {
-                                int n = 0;
-                                while (n != buff.length) {
-                                    int s = stream.read(buff, n, buff.length
-                                            - n);
-                                    if (s < 0)
-                                        throw new EOFException();
-                                    if (s == 0)
-                                        Thread.yield();
-                                    n += s;
-                                }
-                            } catch (IOException e1) {
-                                //e1.printStackTrace();
-                            }
-                            commit();
-                        }
-
-                        if (correction > 0) {
-                            correction--;
-                            next = System.nanoTime() + nanos;
-                            continue;
-                        }
-                        long wait = next - System.nanoTime();
-                        if (wait > 0) {
-                            try {
-                                Thread.sleep(wait / 1000000L);
-                            } catch (InterruptedException e) {
-                                //e.printStackTrace();
-                            }
-                        }
-                        next += nanos;
                     }
+
+                    if (correction < 0)
+                        correction++;
+                    else {
+                        byte[] buff = nextWriteBuffer();
+                        try {
+                            int n = 0;
+                            while (n != buff.length) {
+                                int s1 = stream.read(buff, n, buff.length
+                                        - n);
+                                if (s1 < 0)
+                                    throw new EOFException();
+                                if (s1 == 0)
+                                    Thread.yield();
+                                n += s1;
+                            }
+                        } catch (IOException e1) {
+                            //e1.printStackTrace();
+                        }
+                        commit();
+                    }
+
+                    if (correction > 0) {
+                        correction--;
+                        next = System.nanoTime() + nanos;
+                        continue;
+                    }
+                    long wait = next - System.nanoTime();
+                    if (wait > 0) {
+                        try {
+                            Thread.sleep(wait / 1000000L);
+                        } catch (InterruptedException e) {
+                            //e.printStackTrace();
+                        }
+                    }
+                    next += nanos;
                 }
             };
 

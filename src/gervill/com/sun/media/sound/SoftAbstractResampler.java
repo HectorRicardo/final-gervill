@@ -43,11 +43,11 @@ public abstract class SoftAbstractResampler {
         float loopstart;
         float looplen;
         float target_pitch;
-        float[] current_pitch = new float[1];
+        final float[] current_pitch = new float[1];
         boolean started;
         boolean eof;
         int sector_pos = 0;
-        int sector_size = 400;
+        final int sector_size = 400;
         int sector_loopstart = -1;
         boolean markset = false;
         int marklimit = 0;
@@ -57,21 +57,17 @@ public abstract class SoftAbstractResampler {
         float[][] ibuffer;
         boolean ibuffer_order = true;
         float[] sbuffer;
-        int pad;
-        int pad2;
-        float[] ix = new float[1];
-        int[] ox = new int[1];
+        final int pad;
+        final int pad2;
+        final float[] ix = new float[1];
+        final int[] ox = new int[1];
         float samplerateconv = 1;
         float pitchcorrection = 0;
 
         ModelAbstractResamplerStream() {
-            pad = getPadding();
-            pad2 = getPadding() * 2;
+            pad = 2;
+            pad2 = 4;
             ibuffer = new float[2][sector_size + pad2];
-            ibuffer_order = true;
-        }
-
-        public void noteOn() {
         }
 
         public void noteOff() {
@@ -190,8 +186,7 @@ public abstract class SoftAbstractResampler {
 
                 for (int c = 0; c < nrofchannels; c++) {
                     float[] cbuffer = ibuffer[c];
-                    for (int i = 0; i < pad2; i++)
-                        cbuffer[i] = cbuffer[i + sector_size];
+                    if (pad2 >= 0) System.arraycopy(cbuffer, 400, cbuffer, 0, pad2);
                 }
 
                 int ret;
@@ -219,7 +214,6 @@ public abstract class SoftAbstractResampler {
                 }
 
                 if (ret == -1) {
-                    ret = 0;
                     stream_eof = true;
                     for (int i = 0; i < nrofchannels; i++)
                         Arrays.fill(ibuffer[i], pad2, pad2 + sector_size, 0f);
@@ -295,7 +289,7 @@ public abstract class SoftAbstractResampler {
                         }
                     }
 
-                    if (ibuffer_order != loopdirection)
+                    if (ibuffer_order)
                         reverseBuffers();
 
                     ix[0] = (sector_size + pad2) - ix[0];
@@ -343,7 +337,7 @@ public abstract class SoftAbstractResampler {
                     }
                 }
 
-                if (ibuffer_order != loopdirection)
+                if (!ibuffer_order)
                     reverseBuffers();
 
                 float bak_ix = ix[0];
@@ -373,8 +367,6 @@ public abstract class SoftAbstractResampler {
             stream.close();
         }
     }
-
-    public abstract int getPadding();
 
     public abstract void interpolate(float[] in, float[] in_offset,
             float in_end, float[] pitch, float pitchstep, float[] out,

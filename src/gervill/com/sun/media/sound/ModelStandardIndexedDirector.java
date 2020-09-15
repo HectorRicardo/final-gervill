@@ -66,8 +66,7 @@ public final class ModelStandardIndexedDirector {
 
     private int restrict(int value) {
         if(value < 0) return 0;
-        if(value > 127) return 127;
-        return value;
+        return Math.min(value, 127);
     }
 
     private void buildindex() {
@@ -140,8 +139,7 @@ public final class ModelStandardIndexedDirector {
                     } else {
                         int[] mnew = new int[mprev.length + 1];
                         mnew[mnew.length - 1] = ix;
-                        for (int k = 0; k < mprev.length; k++)
-                            mnew[k] = mprev[k];
+                        System.arraycopy(mprev, 0, mnew, 0, mprev.length);
                         mat[i] = mnew;
                     }
                     i++;
@@ -149,9 +147,6 @@ public final class ModelStandardIndexedDirector {
             }
             ix++;
         }
-    }
-
-    public void noteOff() {
     }
 
     public void noteOn(int noteNumber, int velocity) {

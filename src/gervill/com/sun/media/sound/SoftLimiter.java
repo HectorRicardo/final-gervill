@@ -106,8 +106,6 @@ public final class SoftLimiter implements SoftAudioProcessor {
         float newgain = 1;
         if (max > 0.99f)
             newgain = 0.99f / max;
-        else
-            newgain = 1;
 
         if (newgain > gain)
             newgain = (newgain + gain * 9) / 10f;
@@ -128,6 +126,4 @@ public final class SoftLimiter implements SoftAudioProcessor {
         gain = newgain;
     }
 
-    public void processControlLogic() {
-    }
 }

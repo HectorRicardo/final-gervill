@@ -39,7 +39,7 @@ import java.util.List;
 public final class DLSRegion {
 
     public final static int OPTION_SELFNONEXCLUSIVE = 0x0001;
-    List<DLSModulator> modulators = new ArrayList<DLSModulator>();
+    final List<DLSModulator> modulators = new ArrayList<>();
     int keyfrom;
     int keyto;
     int velfrom;

@@ -84,7 +84,7 @@ public final class SoftReverb implements SoftAudioProcessor {
             this.feedback = feedback;
         }
 
-        public void processReplace(float inout[]) {
+        public void processReplace(float[] inout) {
             int len = inout.length;
             int delaybuffersize = this.delaybuffersize;
             int rovepos = this.rovepos;
@@ -116,7 +116,7 @@ public final class SoftReverb implements SoftAudioProcessor {
             delaybuffersize = size;
         }
 
-        public void processMix(float in[], float out[]) {
+        public void processMix(float[] in, float[] out) {
             int len = in.length;
             int delaybuffersize = this.delaybuffersize;
             int rovepos = this.rovepos;
@@ -137,7 +137,7 @@ public final class SoftReverb implements SoftAudioProcessor {
             this.rovepos = rovepos;
         }
 
-        public void processReplace(float in[], float out[]) {
+        public void processReplace(float[] in, float[] out) {
             int len = in.length;
             int delaybuffersize = this.delaybuffersize;
             int rovepos = this.rovepos;
@@ -169,7 +169,6 @@ public final class SoftReverb implements SoftAudioProcessor {
     private Comb[] combL;
     private Comb[] combR;
     private AllPass[] allpassL;
-    private AllPass[] allpassR;
     private float[] input;
     private float[] pre1;
     private float[] pre2;
@@ -215,7 +214,7 @@ public final class SoftReverb implements SoftAudioProcessor {
         combR[7] = new Comb((int) (freqscale * (1617 + stereospread)));
 
         allpassL = new AllPass[4];
-        allpassR = new AllPass[4];
+        AllPass[] allpassR = new AllPass[4];
         allpassL[0] = new AllPass((int) (freqscale * (556)));
         allpassR[0] = new AllPass((int) (freqscale * (556 + stereospread)));
         allpassL[1] = new AllPass((int) (freqscale * (441)));
@@ -285,8 +284,7 @@ public final class SoftReverb implements SoftAudioProcessor {
             pre3 = new float[numsamples];
         }
 
-        for (int i = 0; i < allpassL.length; i++)
-            allpassL[i].processReplace(input);
+        for (AllPass allPass : allpassL) allPass.processReplace(input);
 
         combL[0].processReplace(input, pre3);
         combL[1].processReplace(input, pre3);
@@ -295,7 +293,7 @@ public final class SoftReverb implements SoftAudioProcessor {
         for (int i = 4; i < combL.length-2; i+=2)
             combL[i].processMix(input, pre1);
 
-        combL[3].processReplace(input, pre2);;
+        combL[3].processReplace(input, pre2);
         for (int i = 5; i < combL.length-2; i+=2)
             combL[i].processMix(input, pre2);
 

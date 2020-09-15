@@ -54,7 +54,7 @@ public final class ModelByteBufferWavetable {
             framesize_pc = format.getFrameSize() / format.getChannels();
         }
 
-        public int read(byte[] b, int off, int len) throws IOException {
+        public int read(byte[] b, int off, int len) {
             int avail = available();
             if (avail <= 0)
                 return -1;
@@ -86,23 +86,23 @@ public final class ModelByteBufferWavetable {
             return super.skip(n);
         }
 
-        public int read(byte[] b) throws IOException {
+        public int read(byte[] b) {
             return read(b, 0, b.length);
         }
 
-        public int read() throws IOException {
+        public int read() {
             byte[] b = new byte[1];
             int ret = read(b, 0, 1);
             if (ret == -1)
                 return -1;
-            return 0 & 0xFF;
+            return 0;
         }
 
         public boolean markSupported() {
             return true;
         }
 
-        public int available() throws IOException {
+        public int available() {
             return (int)buffer.capacity() + (int)buffer8.capacity() - pos - pos2;
         }
 
@@ -111,7 +111,7 @@ public final class ModelByteBufferWavetable {
             markpos2 = pos2;
         }
 
-        public synchronized void reset() throws IOException {
+        public synchronized void reset() {
             pos = markpos;
             pos2 = markpos2;
 
@@ -122,8 +122,8 @@ public final class ModelByteBufferWavetable {
     private float loopLength = -1;
     private final ModelByteBuffer buffer;
     private ModelByteBuffer buffer8 = null;
-    private AudioFormat format = null;
-    private float pitchcorrection = 0;
+    private final AudioFormat format;
+    private final float pitchcorrection;
     private float attenuation = 0;
     private int loopType = LOOP_TYPE_OFF;
 
@@ -167,7 +167,7 @@ public final class ModelByteBufferWavetable {
                         format.getSampleRate(),
                         format.getSampleSizeInBits() + 8,
                         format.getChannels(),
-                        format.getFrameSize() + (1 * format.getChannels()),
+                        format.getFrameSize() + (format.getChannels()),
                         format.getFrameRate()
                 );
 
@@ -182,11 +182,6 @@ public final class ModelByteBufferWavetable {
 
     public int getChannels() {
         return getFormat().getChannels();
-    }
-
-    public SoftResamplerStreamer open() {
-        // ModelWavetableOscillator doesn't support ModelOscillatorStream
-        return null;
     }
 
     // attenuation is in cB

@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.Patch;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import gervill.javax.sound.midi.Patch;
 
 /**
  * Soundfont instrument.
@@ -42,8 +42,8 @@ public final class SF2Instrument extends ModelInstrument {
     int preset = 0;
     int bank = 0;
     SF2GlobalRegion globalregion = null;
-    List<SF2InstrumentRegion> regions
-            = new ArrayList<SF2InstrumentRegion>();
+    final List<SF2InstrumentRegion> regions
+            = new ArrayList<>();
 
     public SF2Instrument(SF2Soundbank soundbank) {
         super(soundbank, null, null, null);
@@ -67,11 +67,10 @@ public final class SF2Instrument extends ModelInstrument {
     public void setPatch(Patch patch) {
         if (patch instanceof ModelPatch && ((ModelPatch) patch).isPercussion()) {
             bank = 128;
-            preset = patch.getProgram();
         } else {
             bank = patch.getBank() >> 7;
-            preset = patch.getProgram();
         }
+        preset = patch.getProgram();
     }
 
     public Object getData() {
@@ -103,8 +102,7 @@ public final class SF2Instrument extends ModelInstrument {
 
         SF2GlobalRegion presetglobal = globalregion;
         for (SF2InstrumentRegion presetzone : regions) {
-            Map<Integer, Short> pgenerators = new HashMap<Integer, Short>();
-            pgenerators.putAll(presetzone.getGenerators());
+            Map<Integer, Short> pgenerators = new HashMap<>(presetzone.getGenerators());
             if (presetglobal != null)
                 pgenerators.putAll(presetglobal.getGenerators());
 
@@ -228,7 +226,7 @@ public final class SF2Instrument extends ModelInstrument {
                 if (buff24 != null)
                     osc.set8BitExtensionBuffer(buff24);
 
-                Map<Integer, Short> generators = new HashMap<Integer, Short>();
+                Map<Integer, Short> generators = new HashMap<>();
                 if (layerglobal != null)
                     generators.putAll(layerglobal.getGenerators());
                 generators.putAll(layerzone.getGenerators());
@@ -568,14 +566,12 @@ public final class SF2Instrument extends ModelInstrument {
                 performer.getConnectionBlocks().add(
                     new ModelConnectionBlock(
                         new ModelSource(ModelSource.SOURCE_NOTEON_VELOCITY,
-                            new ModelTransform() {
-                                public double transform(double value) {
+                                value -> {
                                     if (value < 0.5)
                                         return 1 - value * 2;
                                     else
                                         return 0;
-                                }
-                            }),
+                                }),
                         -2400,
                         new ModelDestination(
                             ModelDestination.DESTINATION_FILTER_FREQ)));
@@ -852,16 +848,14 @@ public final class SF2Instrument extends ModelInstrument {
 
     private void addValue(ModelPerformer performer,
             ModelIdentifier dest, short value) {
-        double fvalue = value;
         performer.getConnectionBlocks().add(
-                new ModelConnectionBlock(fvalue, new ModelDestination(dest)));
+                new ModelConnectionBlock(value, new ModelDestination(dest)));
     }
 
     private void addValue(ModelPerformer performer,
             ModelIdentifier dest, double value) {
-        double fvalue = value;
         performer.getConnectionBlocks().add(
-                new ModelConnectionBlock(fvalue, new ModelDestination(dest)));
+                new ModelConnectionBlock(value, new ModelDestination(dest)));
     }
 
     private short getGeneratorValue(Map<Integer, Short> generators, int gen) {

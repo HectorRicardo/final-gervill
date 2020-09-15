@@ -24,9 +24,10 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.Comparator;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
+
+import java.util.Comparator;
 
 /**
  * Instrument comparator class.

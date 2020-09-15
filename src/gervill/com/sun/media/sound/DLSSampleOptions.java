@@ -38,7 +38,7 @@ public final class DLSSampleOptions {
 
     int unitynote;
     short finetune;
-    List<DLSSampleLoop> loops = new ArrayList<DLSSampleLoop>();
+    final List<DLSSampleLoop> loops = new ArrayList<>();
 
     public List<DLSSampleLoop> getLoops() {
         return loops;

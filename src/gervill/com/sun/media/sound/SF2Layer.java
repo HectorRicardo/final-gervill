@@ -24,10 +24,10 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.SoundbankResource;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import gervill.javax.sound.midi.SoundbankResource;
 
 /**
  * Soundfont layer.
@@ -38,7 +38,7 @@ public final class SF2Layer extends SoundbankResource {
 
     String name = "";
     SF2GlobalRegion globalregion = null;
-    List<SF2LayerRegion> regions = new ArrayList<SF2LayerRegion>();
+    final List<SF2LayerRegion> regions = new ArrayList<>();
 
     public SF2Layer(SF2Soundbank soundBank) {
         super(soundBank, null, null);

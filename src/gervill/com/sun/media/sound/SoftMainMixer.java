@@ -52,28 +52,28 @@ public final class SoftMainMixer {
     public final static int CHANNEL_RIGHT_DRY = 11;
     private boolean pusher_silent = false;
     private int pusher_silent_count = 0;
-    boolean readfully = true;
+    final boolean readfully = true;
     private final Object control_mutex;
-    private SoftSynthesizer synth;
-    private SoftVoice[] voicestatus = null;
-    private SoftAudioBuffer[] buffers;
+    private final SoftSynthesizer synth;
+    private final SoftVoice[] voicestatus;
+    private final SoftAudioBuffer[] buffers;
     private final SoftReverb reverb;
     private final SoftChorus chorus;
     private final SoftLimiter agc;
-    TreeMap<Long, Object> midimessages = new TreeMap<Long, Object>();
+    final TreeMap<Long, Object> midimessages = new TreeMap<>();
     double last_volume_left = 1.0;
     double last_volume_right = 1.0;
-    private double[] co_master_balance = new double[1];
-    private double[] co_master_volume = new double[1];
-    private double[] co_master_coarse_tuning = new double[1];
-    private double[] co_master_fine_tuning = new double[1];
-    private AudioInputStream ais;
-    SoftControl co_master = new SoftControl() {
+    private final double[] co_master_balance = new double[1];
+    private final double[] co_master_volume = new double[1];
+    private final double[] co_master_coarse_tuning = new double[1];
+    private final double[] co_master_fine_tuning = new double[1];
+    private final AudioInputStream ais;
+    final SoftControl co_master = new SoftControl() {
 
-        double[] balance = co_master_balance;
-        double[] volume = co_master_volume;
-        double[] coarse_tuning = co_master_coarse_tuning;
-        double[] fine_tuning = co_master_fine_tuning;
+        final double[] balance = co_master_balance;
+        final double[] volume = co_master_volume;
+        final double[] coarse_tuning = co_master_coarse_tuning;
+        final double[] fine_tuning = co_master_fine_tuning;
 
         public double[] get(int instance, String name) {
             if (name == null)
@@ -92,9 +92,9 @@ public final class SoftMainMixer {
 
     void processAudioBuffers() {
 
-        if(synth.weakstream != null && synth.weakstream.silent_samples != 0)
+        if(synth.weakstream != null && synth.weakstream.silent_samples.get() != 0)
         {
-            synth.weakstream.silent_samples = 0;
+            synth.weakstream.silent_samples.set(0);
         }
 
         for (int i = 0; i < buffers.length; i++) {
@@ -133,9 +133,9 @@ public final class SoftMainMixer {
         // perform control logic
         synchronized (control_mutex) {
 
-            for (int i = 0; i < voicestatus.length; i++)
-                if (voicestatus[i].active)
-                    voicestatus[i].processControlLogic();
+            for (SoftVoice softVoice : voicestatus)
+                if (softVoice.active)
+                    softVoice.processControlLogic();
 
             double volume = co_master_volume[0];
             volume_left = volume;
@@ -149,13 +149,12 @@ public final class SoftMainMixer {
 
             chorus.processControlLogic();
             reverb.processControlLogic();
-            agc.processControlLogic();
 
         }
 
-        for (int i = 0; i < voicestatus.length; i++)
-            if (voicestatus[i].active)
-                voicestatus[i].processAudioLogic(buffers);
+        for (SoftVoice softVoice : voicestatus)
+            if (softVoice.active)
+                softVoice.processAudioLogic(buffers);
 
         if(!buffers[CHANNEL_MONO].isSilent())
         {
@@ -269,7 +268,7 @@ public final class SoftMainMixer {
         co_master_fine_tuning[0] = 0.5;
 
         int buffersize = (int) (synth.getFormat().getSampleRate()
-                                / synth.getControlRate());
+                                / 147f);
 
         control_mutex = synth.control_mutex;
         buffers = new SoftAudioBuffer[14];
@@ -283,7 +282,7 @@ public final class SoftMainMixer {
         agc = new SoftLimiter();
 
         float samplerate = synth.getFormat().getSampleRate();
-        float controlrate = synth.getControlRate();
+        float controlrate = 147f;
         reverb.init(samplerate);
         chorus.init(samplerate, controlrate);
         agc.init(controlrate);
@@ -372,6 +371,4 @@ public final class SoftMainMixer {
         return ais;
     }
 
-    public void close() {
-    }
 }

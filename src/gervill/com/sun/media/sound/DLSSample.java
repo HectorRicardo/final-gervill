@@ -24,12 +24,12 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.io.InputStream;
-
 import gervill.javax.sound.midi.Soundbank;
 import gervill.javax.sound.midi.SoundbankResource;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
+
+import java.io.InputStream;
 
 /**
  * This class is used to store the sample data itself.
@@ -43,7 +43,7 @@ import gervill.javax.sound.sampled.AudioInputStream;
 public final class DLSSample extends SoundbankResource {
 
     byte[] guid = null;
-    DLSInfo info = new DLSInfo();
+    final DLSInfo info = new DLSInfo();
     DLSSampleOptions sampleoptions;
     ModelByteBuffer data;
     AudioFormat format;

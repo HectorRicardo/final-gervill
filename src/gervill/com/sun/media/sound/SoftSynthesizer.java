@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The software synthesizer class.
@@ -49,12 +50,12 @@ public final class SoftSynthesizer implements AutoCloseable {
         public SoftAudioPusher pusher = null;
         public AudioInputStream jitter_stream = null;
         public SourceDataLine sourceDataLine = null;
-        public volatile long silent_samples = 0;
-        private int framesize = 0;
-        private WeakReference<AudioInputStream> weak_stream_link;
-        private AudioFloatConverter converter;
+        public final AtomicLong silent_samples = new AtomicLong(0);
+        private final int framesize;
+        private final WeakReference<AudioInputStream> weak_stream_link;
+        private final AudioFloatConverter converter;
         private float[] silentbuffer = null;
-        private int samplesize;
+        private final int samplesize;
 
         public void setInputStream(AudioInputStream stream)
         {
@@ -86,16 +87,16 @@ public final class SoftSynthesizer implements AutoCloseable {
                      silentbuffer = new float[flen];
                  converter.toByteArray(silentbuffer, flen, b, off);
 
-                 silent_samples += (long)((len / framesize));
+                 silent_samples.addAndGet(len / framesize);
 
                  if(pusher != null)
                  if(weak_stream_link.get() == null)
                  {
                      Runnable runnable = new Runnable()
                      {
-                         SoftAudioPusher _pusher = pusher;
-                         AudioInputStream _jitter_stream = jitter_stream;
-                         SourceDataLine _sourceDataLine = sourceDataLine;
+                         final SoftAudioPusher _pusher = pusher;
+                         final AudioInputStream _jitter_stream = jitter_stream;
+                         final SourceDataLine _sourceDataLine = sourceDataLine;
                          public void run()
                          {
                              _pusher.stop();
@@ -120,7 +121,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
         public WeakAudioStream(AudioInputStream stream) {
             this.stream = stream;
-            weak_stream_link = new WeakReference<AudioInputStream>(stream);
+            weak_stream_link = new WeakReference<>(stream);
             converter = AudioFloatConverter.getConverter(stream.getFormat());
             samplesize = stream.getFormat().getFrameSize() / stream.getFormat().getChannels();
             framesize = stream.getFormat().getFrameSize();
@@ -151,9 +152,9 @@ public final class SoftSynthesizer implements AutoCloseable {
     // 1: DLS Voice Allocation
     int voice_allocation_mode = 0;
 
-    boolean reverb_on = true;
-    boolean chorus_on = true;
-    boolean agc_on = true;
+    final boolean reverb_on = true;
+    final boolean chorus_on = true;
+    final boolean agc_on = true;
 
     public static final int NUMBER_OF_CHANNELS = 16;
     SoftChannel[] channels;
@@ -186,12 +187,12 @@ public final class SoftSynthesizer implements AutoCloseable {
     private SoftMainMixer mainmixer;
     private SoftVoice[] voices;
 
-    private Map<String, SoftTuning> tunings
-            = new HashMap<String, SoftTuning>();
-    private Map<String, SoftInstrument> inslist
-            = new HashMap<String, SoftInstrument>();
-    private Map<String, ModelInstrument> loadedlist
-            = new HashMap<String, ModelInstrument>();
+    private final Map<String, SoftTuning> tunings
+            = new HashMap<>();
+    private final Map<String, SoftInstrument> inslist
+            = new HashMap<>();
+    private final Map<String, ModelInstrument> loadedlist
+            = new HashMap<>();
 
     private void getBuffers(ModelInstrument instrument,
             List<ModelByteBuffer> buffers) {
@@ -212,7 +213,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     private boolean loadSamples(List<ModelInstrument> instruments) {
-        List<ModelByteBuffer> buffers = new ArrayList<ModelByteBuffer>();
+        List<ModelByteBuffer> buffers = new ArrayList<>();
         for (ModelInstrument instrument : instruments)
             getBuffers(instrument, buffers);
         try {
@@ -295,9 +296,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                 return current_instrument;
             // Instrument not found fallback to MSB:0, LSB:0, program=0
             current_instrument = inslist.get(p_plaf + program + "0.0");
-            if (current_instrument != null)
-                return current_instrument;
-            return null;
+            return current_instrument;
         }
 
         // Channel 10 uses percussion instruments
@@ -317,9 +316,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             return current_instrument;
         // Instrument not found fallback to MSB:0, LSB:0, program=0
         current_instrument = inslist.get(p_plaf + "0.0");
-        if (current_instrument != null)
-            return current_instrument;
-        return null;
+        return current_instrument;
     }
 
     int getVoiceAllocationMode() {
@@ -328,10 +325,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     int getGeneralMidiMode() {
         return gmmode;
-    }
-
-    float getControlRate() {
-        return 147f;
     }
 
     SoftVoice[] getVoices() {
@@ -415,17 +408,17 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     public boolean loadInstrument(Instrument instrument) {
-        if (instrument == null || (!(instrument instanceof ModelInstrument))) {
+        if ((!(instrument instanceof ModelInstrument))) {
             throw new IllegalArgumentException("Unsupported instrument: " +
                     instrument);
         }
-        List<ModelInstrument> instruments = new ArrayList<ModelInstrument>();
+        List<ModelInstrument> instruments = new ArrayList<>();
         instruments.add((ModelInstrument)instrument);
         return loadInstruments(instruments);
     }
 
     public void unloadInstrument(Instrument instrument) {
-        if (instrument == null || (!(instrument instanceof ModelInstrument))) {
+        if ((!(instrument instanceof ModelInstrument))) {
             throw new IllegalArgumentException("Unsupported instrument: " +
                     instrument);
         }
@@ -438,8 +431,8 @@ public final class SoftSynthesizer implements AutoCloseable {
                 c.current_instrument = null;
             inslist.remove(pat);
             loadedlist.remove(pat);
-            for (int i = 0; i < channels.length; i++) {
-                channels[i].allSoundOff();
+            for (SoftChannel channel : channels) {
+                channel.allSoundOff();
             }
         }
     }
@@ -481,7 +474,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                  * Generate emergency soundbank
                  */
                 defaultSoundBank = EmergencySoundbank.createSoundbank();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return defaultSoundBank;
@@ -510,9 +503,9 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     public boolean loadAllInstruments(Soundbank soundbank) {
-        List<ModelInstrument> instruments = new ArrayList<ModelInstrument>();
+        List<ModelInstrument> instruments = new ArrayList<>();
         for (Instrument ins: soundbank.getInstruments()) {
-            if (ins == null || !(ins instanceof ModelInstrument)) {
+            if (!(ins instanceof ModelInstrument)) {
                 throw new IllegalArgumentException(
                         "Unsupported instrument: " + ins);
             }
@@ -536,10 +529,10 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        List<ModelInstrument> instruments = new ArrayList<ModelInstrument>();
+        List<ModelInstrument> instruments = new ArrayList<>();
         for (Patch patch: patchList) {
             Instrument ins = soundbank.getInstrument(patch);
-            if (ins == null || !(ins instanceof ModelInstrument)) {
+            if (!(ins instanceof ModelInstrument)) {
                 throw new IllegalArgumentException(
                         "Unsupported instrument: " + ins);
             }
@@ -590,7 +583,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                 int controlbuffersize = 512;
                 try {
                     controlbuffersize = ais.available();
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
 
                 // Tell mixer not fill read buffers fully.
@@ -690,9 +683,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
 
         synchronized (control_mutex) {
-
-            if (mainmixer != null)
-                mainmixer.close();
             open = false;
             mainmixer = null;
             voices = null;

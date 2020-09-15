@@ -36,8 +36,8 @@ import java.util.List;
 public final class ModelPerformer {
 
     private final List<ModelByteBufferWavetable> oscillators = new ArrayList<>();
-    private List<ModelConnectionBlock> connectionBlocks
-            = new ArrayList<ModelConnectionBlock>();
+    private final List<ModelConnectionBlock> connectionBlocks
+            = new ArrayList<>();
     private int keyFrom = 0;
     private int keyTo = 127;
     private int velFrom = 0;

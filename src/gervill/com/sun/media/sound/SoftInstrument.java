@@ -44,7 +44,7 @@ public final class SoftInstrument extends Instrument {
                 ins.getDataClass());
         data = ins.getData();
         this.ins = ins;
-        initPerformers(((ModelInstrument)ins).getPerformers());
+        initPerformers(ins.getPerformers());
     }
 
     private void initPerformers(ModelPerformer[] modelperformers) {
