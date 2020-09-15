@@ -50,7 +50,7 @@ public final class DLSInstrument extends ModelInstrument {
     final List<DLSModulator> modulators = new ArrayList<>();
 
     public DLSInstrument(DLSSoundbank soundbank) {
-        super(soundbank, null, null, null);
+        super(soundbank, null, null);
     }
 
     public String getName() {
@@ -59,10 +59,6 @@ public final class DLSInstrument extends ModelInstrument {
 
     public Patch getPatch() {
         return new Patch(bank, preset, druminstrument);
-    }
-
-    public Object getData() {
-        return null;
     }
 
     public List<DLSRegion> getRegions() {

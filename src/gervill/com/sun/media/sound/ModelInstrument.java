@@ -48,9 +48,8 @@ import gervill.javax.sound.midi.Soundbank;
  */
 public abstract class ModelInstrument extends Instrument {
 
-    protected ModelInstrument(Soundbank soundbank, Patch patch, String name,
-            Class<?> dataClass) {
-        super(soundbank, patch, name, dataClass);
+    protected ModelInstrument(Soundbank soundbank, Patch patch, String name) {
+        super(soundbank, patch, name);
     }
 
     public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers,

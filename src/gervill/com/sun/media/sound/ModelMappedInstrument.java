@@ -37,12 +37,8 @@ public final class ModelMappedInstrument extends ModelInstrument {
     private final ModelInstrument ins;
 
     public ModelMappedInstrument(ModelInstrument ins, Patch patch) {
-        super(ins.getSoundbank(), patch, ins.getName(), ins.getDataClass());
+        super(ins.getSoundbank(), patch, ins.getName());
         this.ins = ins;
-    }
-
-    public Object getData() {
-        return ins.getData();
     }
 
     public ModelPerformer[] getPerformers() {

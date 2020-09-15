@@ -81,32 +81,21 @@ public abstract class SoundbankResource {
 
 
     /**
-     * The class used to represent the sample's data.
-     */
-    private final Class<?> dataClass;
-
-
-    //private final int index;
-
-
-    /**
      * Constructs a new <code>SoundbankResource</code> from the given sound bank
      * and wavetable index.  (Setting the <code>SoundbankResource's</code> name,
      * sampled audio data, and instruments is a subclass responsibility.)
      * @param soundBank the sound bank containing this <code>SoundbankResource</code>
      * @param name the name of the sample
-     * @param dataClass the class used to represent the sample's data
      *
      * see #getSoundbank
      * see #getName
      * see #getDataClass
      * see #getData
      */
-    protected SoundbankResource(Soundbank soundBank, String name, Class<?> dataClass) {
+    protected SoundbankResource(Soundbank soundBank, String name) {
 
         this.soundBank = soundBank;
         this.name = name;
-        this.dataClass = dataClass;
     }
 
 
@@ -127,35 +116,4 @@ public abstract class SoundbankResource {
     public String getName() {
         return name;
     }
-
-
-    /**
-     * Obtains the class used by this sample to represent its data.
-     * The object returned by <code>getData</code> will be of this
-     * class.  If this <code>SoundbankResource</code> object does not support
-     * direct access to its data, returns <code>null</code>.
-     * @return the class used to represent the sample's data, or
-     * null if the data is not accessible
-     */
-    public Class<?> getDataClass() {
-        return dataClass;
-    }
-
-
-    /**
-     * Obtains the sampled audio that is stored in this <code>SoundbankResource</code>.
-     * The type of object returned depends on the implementation of the
-     * concrete class, and may be queried using <code>getDataClass</code>.
-     * @return an object containing the sampled audio data
-     * see #getDataClass
-     */
-    public abstract Object getData();
-
-
-    //public int getIndex() {
-    //  return index;
-    //}
-
-
-    //public abstract Instrument[] getInstruments();
 }

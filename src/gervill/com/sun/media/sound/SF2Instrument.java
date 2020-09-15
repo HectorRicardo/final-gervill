@@ -46,7 +46,7 @@ public final class SF2Instrument extends ModelInstrument {
             = new ArrayList<>();
 
     public SF2Instrument(SF2Soundbank soundbank) {
-        super(soundbank, null, null, null);
+        super(soundbank, null, null);
     }
 
     public String getName() {
@@ -64,10 +64,6 @@ public final class SF2Instrument extends ModelInstrument {
     public void setPatch(Patch patch) {
         bank = patch.isPercussion() ? 128 : patch.getBank() >> 7;
         preset = patch.getProgram();
-    }
-
-    public Object getData() {
-        return null;
     }
 
     public List<SF2InstrumentRegion> getRegions() {

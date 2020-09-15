@@ -49,16 +49,7 @@ public final class DLSSample extends SoundbankResource {
     AudioFormat format;
 
     public DLSSample(Soundbank soundBank) {
-        super(soundBank, null, AudioInputStream.class);
-    }
-
-    public Object getData() {
-        AudioFormat format = getFormat();
-
-        InputStream is = data.getInputStream();
-        if (is == null)
-            return null;
-        return new AudioInputStream(is, format, data.capacity());
+        super(soundBank, null);
     }
 
     public ModelByteBuffer getDataBuffer() {

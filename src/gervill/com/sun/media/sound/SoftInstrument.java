@@ -36,13 +36,10 @@ public final class SoftInstrument extends Instrument {
 
     private SoftPerformer[] performers;
     private ModelPerformer[] modelperformers;
-    private final Object data;
     private final ModelInstrument ins;
 
     public SoftInstrument(ModelInstrument ins) {
-        super(ins.getSoundbank(), ins.getPatch(), ins.getName(),
-                ins.getDataClass());
-        data = ins.getData();
+        super(ins.getSoundbank(), ins.getPatch(), ins.getName());
         this.ins = ins;
         initPerformers(ins.getPerformers());
     }
@@ -57,10 +54,6 @@ public final class SoftInstrument extends Instrument {
     public ModelStandardIndexedDirector getDirector(MidiChannel channel,
             SoftChannel player) {
         return ins.getDirector(modelperformers, channel, player);
-    }
-
-    public Object getData() {
-        return data;
     }
 
     /* am: currently getPerformers() is not used (replaced with getPerformer(int))
