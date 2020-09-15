@@ -86,12 +86,22 @@ public final class DLSModulator {
     public static final int CONN_SRC_CC91 = 0x0DB; // linear 0..1
     public static final int CONN_SRC_CC93 = 0x0DD; // linear 0..1
     public static final int CONN_TRN_CONCAVE = 0x001;
-    int source;
-    int control;
-    int destination;
-    int transform;
-    int scale;
-    int version = 1;
+
+    private final int source;
+    private final int control;
+    private final int destination;
+    private final int transform;
+    private final int scale;
+    private final int version;
+
+    public DLSModulator(int source, int control, int destination, int transform, int scale, int version) {
+        this.source = source;
+        this.control = control;
+        this.destination = destination;
+        this.transform = transform;
+        this.scale = scale;
+        this.version = version;
+    }
 
     public int getControl() {
         return control;

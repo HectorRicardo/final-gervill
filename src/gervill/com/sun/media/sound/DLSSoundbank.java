@@ -445,7 +445,7 @@ public final class DLSSoundbank implements Soundbank {
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art1"))
-                            readArt1Chunk(modlist, subchunk);
+                            readArtChunk(modlist, subchunk, 1);
                     }
                     instrument.getModulators().addAll(modlist);
                 }
@@ -455,7 +455,7 @@ public final class DLSSoundbank implements Soundbank {
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art2"))
-                            readArt2Chunk(modlist, subchunk);
+                            readArtChunk(modlist, subchunk, 2);
                     }
                     instrument.getModulators().addAll(modlist);
                 }
@@ -489,7 +489,7 @@ public final class DLSSoundbank implements Soundbank {
         instruments.add(instrument);
     }
 
-    private void readArt1Chunk(List<DLSModulator> modulators, RIFFReader riff)
+    private void readArtChunk(List<DLSModulator> modulators, RIFFReader riff, int version)
             throws IOException {
         long size = riff.readUnsignedInt();
         long count = riff.readUnsignedInt();
@@ -498,34 +498,12 @@ public final class DLSSoundbank implements Soundbank {
             riff.skip(size - 8);
 
         for (int i = 0; i < count; i++) {
-            DLSModulator modulator = new DLSModulator();
-            modulator.version = 1;
-            modulator.source = riff.readUnsignedShort();
-            modulator.control = riff.readUnsignedShort();
-            modulator.destination = riff.readUnsignedShort();
-            modulator.transform = riff.readUnsignedShort();
-            modulator.scale = riff.readInt();
-            modulators.add(modulator);
-        }
-    }
-
-    private void readArt2Chunk(List<DLSModulator> modulators, RIFFReader riff)
-            throws IOException {
-        long size = riff.readUnsignedInt();
-        long count = riff.readUnsignedInt();
-
-        if (size - 8 != 0)
-            riff.skip(size - 8);
-
-        for (int i = 0; i < count; i++) {
-            DLSModulator modulator = new DLSModulator();
-            modulator.version = 2;
-            modulator.source = riff.readUnsignedShort();
-            modulator.control = riff.readUnsignedShort();
-            modulator.destination = riff.readUnsignedShort();
-            modulator.transform = riff.readUnsignedShort();
-            modulator.scale = riff.readInt();
-            modulators.add(modulator);
+            int source = riff.readUnsignedShort();
+            int control = riff.readUnsignedShort();
+            int destination = riff.readUnsignedShort();
+            int transform = riff.readUnsignedShort();
+            int scale = riff.readInt();
+            modulators.add(new DLSModulator(source, control, destination, transform, scale, version));
         }
     }
 
@@ -542,7 +520,7 @@ public final class DLSSoundbank implements Soundbank {
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art1"))
-                            readArt1Chunk(modlist, subchunk);
+                            readArtChunk(modlist, subchunk, 1);
                     }
                     split.getModulators().addAll(modlist);
                 }
@@ -552,7 +530,7 @@ public final class DLSSoundbank implements Soundbank {
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art2"))
-                            readArt2Chunk(modlist, subchunk);
+                            readArtChunk(modlist, subchunk, 2);
                     }
                     split.getModulators().addAll(modlist);
                 }
