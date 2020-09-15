@@ -118,13 +118,6 @@ public final class ModelIdentifier {
         return variable;
     }
 
-    public int hashCode() {
-        int hashcode = instance;
-        if(object != null) hashcode |= object.hashCode();
-        if(variable != null) hashcode |= variable.hashCode();
-        return  hashcode;
-    }
-
     public boolean equals(Object obj) {
         if (!(obj instanceof ModelIdentifier))
             return false;

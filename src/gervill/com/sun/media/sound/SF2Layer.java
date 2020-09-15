@@ -68,7 +68,4 @@ public final class SF2Layer extends SoundbankResource {
         globalregion = zone;
     }
 
-    public String toString() {
-        return "Layer: " + name;
-    }
 }

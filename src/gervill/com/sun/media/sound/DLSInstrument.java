@@ -71,15 +71,6 @@ public final class DLSInstrument extends ModelInstrument {
         return modulators;
     }
 
-    public String toString() {
-        if (druminstrument)
-            return "Drumkit: " + info.name
-                    + " bank #" + bank + " preset #" + preset;
-        else
-            return "Instrument: " + info.name
-                    + " bank #" + bank + " preset #" + preset;
-    }
-
     private ModelIdentifier convertToModelDest(int dest) {
         if (dest == DLSModulator.CONN_DST_NONE)
             return null;

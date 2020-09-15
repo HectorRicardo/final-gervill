@@ -85,8 +85,4 @@ public final class DLSSample extends SoundbankResource {
         return sampleoptions;
     }
 
-    public String toString() {
-        return "Sample: " + info.name;
-    }
-
 }

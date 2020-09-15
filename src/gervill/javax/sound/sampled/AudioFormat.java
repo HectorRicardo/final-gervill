@@ -348,81 +348,6 @@ public class AudioFormat {
 
 
     /**
-     * Returns a string that describes the format, such as:
-     * "PCM SIGNED 22050 Hz 16 bit mono big-endian".  The contents of the string
-     * may vary between implementations of Java Sound.
-     *
-     * @return a string that describes the format parameters
-     */
-    public String toString() {
-        String sEncoding = "";
-        if (getEncoding() != null) {
-            sEncoding = getEncoding().toString() + " ";
-        }
-
-        String sSampleRate;
-        if (getSampleRate() == (float) AudioSystem.NOT_SPECIFIED) {
-            sSampleRate = "unknown sample rate, ";
-        } else {
-            sSampleRate = "" + getSampleRate() + " Hz, ";
-        }
-
-        String sSampleSizeInBits;
-        if (getSampleSizeInBits() == (float) AudioSystem.NOT_SPECIFIED) {
-            sSampleSizeInBits = "unknown bits per sample, ";
-        } else {
-            sSampleSizeInBits = "" + getSampleSizeInBits() + " bit, ";
-        }
-
-        String sChannels;
-        if (getChannels() == 1) {
-            sChannels = "mono, ";
-        } else
-            if (getChannels() == 2) {
-                sChannels = "stereo, ";
-            } else {
-                if (getChannels() == AudioSystem.NOT_SPECIFIED) {
-                    sChannels = " unknown number of channels, ";
-                } else {
-                    sChannels = ""+getChannels()+" channels, ";
-                }
-            }
-
-        String sFrameSize;
-        if (getFrameSize() == (float) AudioSystem.NOT_SPECIFIED) {
-            sFrameSize = "unknown frame size, ";
-        } else {
-            sFrameSize = "" + getFrameSize()+ " bytes/frame, ";
-        }
-
-        String sFrameRate = "";
-        if (Math.abs(getSampleRate() - getFrameRate()) > 0.00001) {
-            if (getFrameRate() == (float) AudioSystem.NOT_SPECIFIED) {
-                sFrameRate = "unknown frame rate, ";
-            } else {
-                sFrameRate = getFrameRate() + " frames/second, ";
-            }
-        }
-
-        String sEndian = "";
-        if ((getEncoding().equals(Encoding.PCM_SIGNED)
-             || getEncoding().equals(Encoding.PCM_UNSIGNED))
-            && ((getSampleSizeInBits() > 8)
-                || (getSampleSizeInBits() == AudioSystem.NOT_SPECIFIED))) {
-            sEndian = "little-endian";
-        }
-
-        return sEncoding
-            + sSampleRate
-            + sSampleSizeInBits
-            + sChannels
-            + sFrameSize
-            + sFrameRate
-            + sEndian;
-
-    }
-
-    /**
      * The <code>Encoding</code> class  names the  specific type of data representation
      * used for an audio stream.   The encoding includes aspects of the
      * sound format other than the number of channels, sample rate, sample size,
@@ -502,35 +427,7 @@ public class AudioFormat {
          * Finalizes the equals method
          */
         public final boolean equals(Object obj) {
-            if (toString() == null) {
-                return (obj != null) && (obj.toString() == null);
-            }
-            if (obj instanceof Encoding) {
-                return toString().equals(obj.toString());
-            }
-            return false;
-        }
-
-        /**
-         * Finalizes the hashCode method
-         */
-        public final int hashCode() {
-            if (toString() == null) {
-                return 0;
-            }
-            return toString().hashCode();
-        }
-
-        /**
-         * Provides the <code>String</code> representation of the encoding.  This <code>String</code> is
-         * the same name that was passed to the constructor.  For the predefined encodings, the name
-         * is similar to the encoding's variable (field) name.  For example, <code>PCM_SIGNED.toString()</code> returns
-         * the name "pcm_signed".
-         *
-         * @return the encoding name
-         */
-        public final String toString() {
-            return name;
+            return obj instanceof Encoding && name.equals(((Encoding)obj).name);
         }
 
     } // class Encoding

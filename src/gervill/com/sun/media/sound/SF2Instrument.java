@@ -85,14 +85,6 @@ public final class SF2Instrument extends ModelInstrument {
         globalregion = zone;
     }
 
-    public String toString() {
-        if (bank == 128)
-            return "Drumkit: " + name + " preset #" + preset;
-        else
-            return "Instrument: " + name + " bank #" + bank
-                    + " preset #" + preset;
-    }
-
     public ModelPerformer[] getPerformers() {
         int performercount = 0;
         for (SF2InstrumentRegion presetzone : regions)

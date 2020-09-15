@@ -148,7 +148,4 @@ public final class SF2Sample extends SoundbankResource {
         this.startLoop = startLoop;
     }
 
-    public String toString() {
-        return "Sample: " + name;
-    }
 }
