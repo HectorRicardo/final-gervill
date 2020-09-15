@@ -120,6 +120,12 @@ package gervill.javax.sound.sampled;
  */
 public class AudioFormat {
 
+    public enum Encoding {
+        PCM_SIGNED,
+        PCM_UNSIGNED,
+        PCM_FLOAT
+    }
+
     /**
      * The audio encoding technique used by this format.
      */
@@ -345,90 +351,4 @@ public class AudioFormat {
                 && (format.getFrameSize() == AudioSystem.NOT_SPECIFIED
                 || format.getFrameSize() == getFrameSize());
     }
-
-
-    /**
-     * The <code>Encoding</code> class  names the  specific type of data representation
-     * used for an audio stream.   The encoding includes aspects of the
-     * sound format other than the number of channels, sample rate, sample size,
-     * frame rate, frame size, and byte order.
-     * <p>
-     * One ubiquitous type of audio encoding is pulse-code modulation (PCM),
-     * which is simply a linear (proportional) representation of the sound
-     * waveform.  With PCM, the number stored in each sample is proportional
-     * to the instantaneous amplitude of the sound pressure at that point in
-     * time.  The numbers may be signed or unsigned integers or floats.
-     * Besides PCM, other encodings include mu-law and a-law, which are nonlinear
-     * mappings of the sound amplitude that are often used for recording speech.
-     * <p>
-     * You can use a predefined encoding by referring to one of the static
-     * objects created by this class, such as PCM_SIGNED or
-     * PCM_UNSIGNED.  Service providers can create new encodings, such as
-     * compressed audio formats, and make
-     * these available through the <code> AudioSystem</code> class.
-     * <p>
-     * The <code>Encoding</code> class is static, so that all
-     * <code>AudioFormat</code> objects that have the same encoding will refer
-     * to the same object (rather than different instances of the same class).
-     * This allows matches to be made by checking that two format's encodings
-     * are equal.
-     *
-     * see AudioFormat
-     * see gervill.javax.sound.sampled.spi.FormatConversionProvider
-     *
-     * @author Kara Kytle
-     * @since 1.3
-     */
-    public static class Encoding {
-
-
-        // ENCODING DEFINES
-
-        /**
-         * Specifies signed, linear PCM data.
-         */
-        public static final Encoding PCM_SIGNED = new Encoding("PCM_SIGNED");
-
-        /**
-         * Specifies unsigned, linear PCM data.
-         */
-        public static final Encoding PCM_UNSIGNED = new Encoding("PCM_UNSIGNED");
-
-        /**
-         * Specifies floating-point PCM data.
-         *
-         * @since 1.7
-         */
-        public static final Encoding PCM_FLOAT = new Encoding("PCM_FLOAT");
-
-
-        // INSTANCE VARIABLES
-
-        /**
-         * Encoding name.
-         */
-        private final String name;
-
-
-        // CONSTRUCTOR
-
-        /**
-         * Constructs a new encoding.
-         * @param name  the name of the new type of encoding
-         */
-        public Encoding(String name) {
-            this.name = name;
-        }
-
-
-        // METHODS
-
-        /**
-         * Finalizes the equals method
-         */
-        public final boolean equals(Object obj) {
-            return obj instanceof Encoding && name.equals(((Encoding)obj).name);
-        }
-
-    } // class Encoding
 }
