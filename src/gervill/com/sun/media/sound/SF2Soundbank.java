@@ -203,7 +203,6 @@ public final class SF2Soundbank implements Soundbank {
 
     private void readPdtaChunk(RIFFReader riff) throws IOException {
 
-        List<SF2Instrument> presets = new ArrayList<>();
         List<Integer> presets_bagNdx = new ArrayList<>();
         List<SF2InstrumentRegion> presets_splits_gen
                 = new ArrayList<>();
@@ -226,17 +225,17 @@ public final class SF2Soundbank implements Soundbank {
                         throw new RuntimeException();
                     int count = chunk.available() / 38;
                     for (int i = 0; i < count; i++) {
-                        SF2Instrument preset = new SF2Instrument(this);
-                        preset.name = chunk.readString(20);
-                        preset.preset = chunk.readUnsignedShort();
-                        preset.bank = chunk.readUnsignedShort();
+                        String name = chunk.readString(20);
+                        int program = chunk.readUnsignedShort();
+                        int bank = chunk.readUnsignedShort();
                         presets_bagNdx.add(chunk.readUnsignedShort());
                         chunk.readUnsignedInt();
                         chunk.readUnsignedInt();
                         chunk.readUnsignedInt();
-                        presets.add(preset);
-                        if (i != count - 1)
-                            this.instruments.add(preset);
+                        if (i != count - 1) {
+                            Patch patch = bank == 128 ? new Patch(0, program, true) : new Patch(bank << 7, program, false);
+                            this.instruments.add(new SF2Instrument(this, name, patch));
+                        }
                     }
                     break;
                 }
@@ -277,14 +276,14 @@ public final class SF2Soundbank implements Soundbank {
                     for (int i = 0; i < presets_bagNdx.size() - 1; i++) {
                         int zone_count = presets_bagNdx.get(i + 1)
                                 - presets_bagNdx.get(i);
-                        SF2Instrument preset = presets.get(i);
+                        SF2Instrument preset = (SF2Instrument) this.instruments.get(i);
                         for (int ii = 0; ii < zone_count; ii++) {
                             if (count == 0)
                                 throw new RuntimeException();
                             int gencount = chunk.readUnsignedShort();
                             int modcount = chunk.readUnsignedShort();
                             SF2InstrumentRegion split = new SF2InstrumentRegion();
-                            preset.regions.add(split);
+                            preset.getRegions().add(split);
                             while (presets_splits_gen.size() < gencount)
                                 presets_splits_gen.add(split);
                             while (presets_splits_mod.size() < modcount)
@@ -464,7 +463,7 @@ public final class SF2Soundbank implements Soundbank {
 
 
         for (SF2Instrument instrument : this.instruments) {
-            Iterator<SF2InstrumentRegion> siter = instrument.regions.iterator();
+            Iterator<SF2InstrumentRegion> siter = instrument.getRegions().iterator();
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
                 SF2InstrumentRegion split = siter.next();

@@ -38,32 +38,17 @@ import java.util.Map;
  */
 public final class SF2Instrument extends ModelInstrument {
 
-    String name = "";
-    int preset = 0;
-    int bank = 0;
-    SF2Region globalregion = null;
-    final List<SF2InstrumentRegion> regions
-            = new ArrayList<>();
+    private SF2Region globalregion;
+    private final List<SF2InstrumentRegion> regions;
 
-    public SF2Instrument(SF2Soundbank soundbank) {
-        super(soundbank, null, null);
+    public SF2Instrument(SF2Soundbank soundbank, String name, Patch patch) {
+        super(soundbank, patch, name);
+        regions = new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Patch getPatch() {
-        return bank == 128 ? new Patch(0, preset, true) : new Patch(bank << 7, preset, false);
-    }
-
-    public void setPatch(Patch patch) {
-        bank = patch.isPercussion() ? 128 : patch.getBank() >> 7;
-        preset = patch.getProgram();
+    public SF2Instrument(SF2Soundbank soundbank, String name, Patch patch, List<SF2InstrumentRegion> regions) {
+        super(soundbank, patch, name);
+        this.regions = regions;
     }
 
     public List<SF2InstrumentRegion> getRegions() {

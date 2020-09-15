@@ -237,20 +237,19 @@ public final class EmergencySoundbank {
         drums[80] = side_stick;
         drums[81] = side_stick;
 
-
-        SF2Instrument drum_instrument = new SF2Instrument(sf2);
-        drum_instrument.setName("Standard Kit");
-        drum_instrument.setPatch(new Patch(0, 0, true));
-        sf2.addInstrument(drum_instrument);
+        List<SF2InstrumentRegion> regions = new ArrayList<>();
         for (int i = 0; i < drums.length; i++) {
             if (drums[i] != null) {
                 byte iB = (byte) i;
                 SF2InstrumentRegion region = new SF2InstrumentRegion(drums[i], new HashMap<Integer, Short>() {{
                     put(SF2InstrumentRegion.GENERATOR_KEYRANGE, (short) (iB + (iB << 8)));
                 }});
-                drum_instrument.getRegions().add(region);
+                regions.add(region);
             }
         }
+
+        SF2Instrument drum_instrument = new SF2Instrument(sf2, "Standard Kit", new Patch(0, 0, true), regions);
+        sf2.addInstrument(drum_instrument);
 
 
         /*
@@ -291,168 +290,161 @@ public final class EmergencySoundbank {
         SF2Layer clarinet = new_clarinet(sf2);
         SF2Layer reverse_cymbal = new_reverse_cymbal(sf2);
 
-        newInstrument(sf2, "Piano", new Patch(0, 0), gpiano, gpiano_hammer);
-        newInstrument(sf2, "Piano", new Patch(0, 1), gpiano2, gpiano_hammer);
-        newInstrument(sf2, "Piano", new Patch(0, 2), piano1);
-        newInstrument(sf2, "Honky-tonk Piano", new Patch(0, 3), piano1, new HashMap<Integer, Short>() {{
+        newInstrument(sf2, new Patch(0, 0), gpiano, gpiano_hammer);
+        newInstrument(sf2, new Patch(0, 1), gpiano2, gpiano_hammer);
+        newInstrument(sf2, new Patch(0, 2), piano1);
+        newInstrument(sf2, new Patch(0, 3), piano1, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 80);
             put(SF2Region.GENERATOR_FINETUNE, (short) 30);
         }}, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 30);
         }});
-        newInstrument(sf2, "Rhodes", new Patch(0, 4), epiano2);
-        newInstrument(sf2, "Rhodes", new Patch(0, 5), epiano2);
-        newInstrument(sf2, "Clavinet", new Patch(0, 6), epiano1);
-        newInstrument(sf2, "Clavinet", new Patch(0, 7), epiano1);
-        newInstrument(sf2, "Rhodes", new Patch(0, 8), epiano2);
-        newInstrument(sf2, "Bell", new Patch(0, 9), bell);
-        newInstrument(sf2, "Bell", new Patch(0, 10), bell);
-        newInstrument(sf2, "Vibraphone", new Patch(0, 11), bell);
-        newInstrument(sf2, "Marimba", new Patch(0, 12), bell);
-        newInstrument(sf2, "Marimba", new Patch(0, 13), bell);
-        newInstrument(sf2, "Bell", new Patch(0, 14), bell);
-        newInstrument(sf2, "Rock Organ", new Patch(0, 15), organ);
-        newInstrument(sf2, "Rock Organ", new Patch(0, 16), organ);
-        newInstrument(sf2, "Perc Organ", new Patch(0, 17), organ);
-        newInstrument(sf2, "Rock Organ", new Patch(0, 18), organ);
-        newInstrument(sf2, "Church Organ", new Patch(0, 19), ch_organ);
-        newInstrument(sf2, "Accordion", new Patch(0, 20), organ);
-        newInstrument(sf2, "Accordion", new Patch(0, 21), organ);
-        newInstrument(sf2, "Accordion", new Patch(0, 22), organ);
-        newInstrument(sf2, "Accordion", new Patch(0, 23), organ);
-        newInstrument(sf2, "Guitar", new Patch(0, 24), guitar, guitar_pick);
-        newInstrument(sf2, "Guitar", new Patch(0, 25), guitar, guitar_pick);
-        newInstrument(sf2, "Guitar", new Patch(0, 26), guitar, guitar_pick);
-        newInstrument(sf2, "Guitar", new Patch(0, 27), guitar, guitar_pick);
-        newInstrument(sf2, "Guitar", new Patch(0, 28), guitar, guitar_pick);
-        newInstrument(sf2, "Distorted Guitar", new Patch(0, 29), guitar_dist);
-        newInstrument(sf2, "Distorted Guitar", new Patch(0, 30), guitar_dist);
-        newInstrument(sf2, "Guitar", new Patch(0, 31), guitar, guitar_pick);
-        newInstrument(sf2, "Finger Bass", new Patch(0, 32), bass1);
-        newInstrument(sf2, "Finger Bass", new Patch(0, 33), bass1);
-        newInstrument(sf2, "Finger Bass", new Patch(0, 34), bass1);
-        newInstrument(sf2, "Frettless Bass", new Patch(0, 35), bass2);
-        newInstrument(sf2, "Frettless Bass", new Patch(0, 36), bass2);
-        newInstrument(sf2, "Frettless Bass", new Patch(0, 37), bass2);
-        newInstrument(sf2, "Synth Bass1", new Patch(0, 38), synthbass);
-        newInstrument(sf2, "Synth Bass2", new Patch(0, 39), synthbass);
-        newInstrument(sf2, "Solo String", new Patch(0, 40), string2, solostring);
-        newInstrument(sf2, "Solo String", new Patch(0, 41), string2, solostring);
-        newInstrument(sf2, "Solo String", new Patch(0, 42), string2, solostring);
-        newInstrument(sf2, "Solo String", new Patch(0, 43), string2, solostring);
-        newInstrument(sf2, "Solo String", new Patch(0, 44), string2, solostring);
-        newInstrument(sf2, "Def", new Patch(0, 45), piano1);
-        newInstrument(sf2, "Harp", new Patch(0, 46), bell);
-        newInstrument(sf2, "Timpani", new Patch(0, 47), timpani);
-        newInstrument(sf2, "Strings", new Patch(0, 48), string2);
-        newInstrument(sf2, "Slow Strings", new Patch(0, 49), string2, new HashMap<Integer, Short>() {{
+        newInstrument(sf2, new Patch(0, 4), epiano2);
+        newInstrument(sf2, new Patch(0, 5), epiano2);
+        newInstrument(sf2, new Patch(0, 6), epiano1);
+        newInstrument(sf2, new Patch(0, 7), epiano1);
+        newInstrument(sf2, new Patch(0, 8), epiano2);
+        newInstrument(sf2, new Patch(0, 9), bell);
+        newInstrument(sf2, new Patch(0, 10), bell);
+        newInstrument(sf2, new Patch(0, 11), bell);
+        newInstrument(sf2, new Patch(0, 12), bell);
+        newInstrument(sf2, new Patch(0, 13), bell);
+        newInstrument(sf2, new Patch(0, 14), bell);
+        newInstrument(sf2, new Patch(0, 15), organ);
+        newInstrument(sf2, new Patch(0, 16), organ);
+        newInstrument(sf2, new Patch(0, 17), organ);
+        newInstrument(sf2, new Patch(0, 18), organ);
+        newInstrument(sf2, new Patch(0, 19), ch_organ);
+        newInstrument(sf2, new Patch(0, 20), organ);
+        newInstrument(sf2, new Patch(0, 21), organ);
+        newInstrument(sf2, new Patch(0, 22), organ);
+        newInstrument(sf2, new Patch(0, 23), organ);
+        newInstrument(sf2, new Patch(0, 24), guitar, guitar_pick);
+        newInstrument(sf2, new Patch(0, 25), guitar, guitar_pick);
+        newInstrument(sf2, new Patch(0, 26), guitar, guitar_pick);
+        newInstrument(sf2, new Patch(0, 27), guitar, guitar_pick);
+        newInstrument(sf2, new Patch(0, 28), guitar, guitar_pick);
+        newInstrument(sf2, new Patch(0, 29), guitar_dist);
+        newInstrument(sf2, new Patch(0, 30), guitar_dist);
+        newInstrument(sf2, new Patch(0, 31), guitar, guitar_pick);
+        newInstrument(sf2, new Patch(0, 32), bass1);
+        newInstrument(sf2, new Patch(0, 33), bass1);
+        newInstrument(sf2, new Patch(0, 34), bass1);
+        newInstrument(sf2, new Patch(0, 35), bass2);
+        newInstrument(sf2, new Patch(0, 36), bass2);
+        newInstrument(sf2, new Patch(0, 37), bass2);
+        newInstrument(sf2, new Patch(0, 38), synthbass);
+        newInstrument(sf2, new Patch(0, 39), synthbass);
+        newInstrument(sf2, new Patch(0, 40), string2, solostring);
+        newInstrument(sf2, new Patch(0, 41), string2, solostring);
+        newInstrument(sf2, new Patch(0, 42), string2, solostring);
+        newInstrument(sf2, new Patch(0, 43), string2, solostring);
+        newInstrument(sf2, new Patch(0, 44), string2, solostring);
+        newInstrument(sf2, new Patch(0, 45), piano1);
+        newInstrument(sf2, new Patch(0, 46), bell);
+        newInstrument(sf2, new Patch(0, 47), timpani);
+        newInstrument(sf2, new Patch(0, 48), string2);
+        newInstrument(sf2, new Patch(0, 49), string2, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) 2500);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 2000);
         }});
-        newInstrument(sf2, "Synth Strings", new Patch(0, 50), string2);
-        newInstrument(sf2, "Synth Strings", new Patch(0, 51), string2);
+        newInstrument(sf2, new Patch(0, 50), string2);
+        newInstrument(sf2, new Patch(0, 51), string2);
 
 
-        newInstrument(sf2, "Choir", new Patch(0, 52), choir);
-        newInstrument(sf2, "Choir", new Patch(0, 53), choir);
-        newInstrument(sf2, "Choir", new Patch(0, 54), choir);
-        newInstrument(sf2, "Orch Hit", new Patch(0, 55), orchhit, timpani, new HashMap<Integer, Short>() {{
+        newInstrument(sf2, new Patch(0, 52), choir);
+        newInstrument(sf2, new Patch(0, 53), choir);
+        newInstrument(sf2, new Patch(0, 54), choir);
+        newInstrument(sf2, new Patch(0, 55), orchhit, timpani, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_COARSETUNE, (short) -12);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        newInstrument(sf2, "Trumpet", new Patch(0, 56), trumpet);
-        newInstrument(sf2, "Trombone", new Patch(0, 57), trombone);
-        newInstrument(sf2, "Trombone", new Patch(0, 58), trombone);
-        newInstrument(sf2, "Trumpet", new Patch(0, 59), trumpet);
-        newInstrument(sf2, "Horn", new Patch(0, 60), horn);
-        newInstrument(sf2, "Brass Section", new Patch(0, 61), brass_section);
-        newInstrument(sf2, "Brass Section", new Patch(0, 62), brass_section);
-        newInstrument(sf2, "Brass Section", new Patch(0, 63), brass_section);
-        newInstrument(sf2, "Sax", new Patch(0, 64), sax);
-        newInstrument(sf2, "Sax", new Patch(0, 65), sax);
-        newInstrument(sf2, "Sax", new Patch(0, 66), sax);
-        newInstrument(sf2, "Sax", new Patch(0, 67), sax);
-        newInstrument(sf2, "Oboe", new Patch(0, 68), oboe);
-        newInstrument(sf2, "Horn", new Patch(0, 69), horn);
-        newInstrument(sf2, "Bassoon", new Patch(0, 70), bassoon);
-        newInstrument(sf2, "Clarinet", new Patch(0, 71), clarinet);
-        newInstrument(sf2, "Flute", new Patch(0, 72), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 73), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 74), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 75), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 76), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 77), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 78), flute);
-        newInstrument(sf2, "Flute", new Patch(0, 79), flute);
-        newInstrument(sf2, "Organ", new Patch(0, 80), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 81), organ);
-        newInstrument(sf2, "Flute", new Patch(0, 82), flute);
-        newInstrument(sf2, "Organ", new Patch(0, 83), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 84), organ);
-        newInstrument(sf2, "Choir", new Patch(0, 85), choir);
-        newInstrument(sf2, "Organ", new Patch(0, 86), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 87), organ);
-        newInstrument(sf2, "Synth Strings", new Patch(0, 88), string2);
-        newInstrument(sf2, "Organ", new Patch(0, 89), organ);
-        newInstrument(sf2, "Def", new Patch(0, 90), piano1);
-        newInstrument(sf2, "Choir", new Patch(0, 91), choir);
-        newInstrument(sf2, "Organ", new Patch(0, 92), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 93), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 94), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 95), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 96), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 97), organ);
-        newInstrument(sf2, "Bell", new Patch(0, 98), bell);
-        newInstrument(sf2, "Organ", new Patch(0, 99), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 100), organ);
-        newInstrument(sf2, "Organ", new Patch(0, 101), organ);
-        newInstrument(sf2, "Def", new Patch(0, 102), piano1);
-        newInstrument(sf2, "Synth Strings", new Patch(0, 103), string2);
-        newInstrument(sf2, "Def", new Patch(0, 104), piano1);
-        newInstrument(sf2, "Def", new Patch(0, 105), piano1);
-        newInstrument(sf2, "Def", new Patch(0, 106), piano1);
-        newInstrument(sf2, "Def", new Patch(0, 107), piano1);
-        newInstrument(sf2, "Marimba", new Patch(0, 108), bell);
-        newInstrument(sf2, "Sax", new Patch(0, 109), sax);
-        newInstrument(sf2, "Solo String", new Patch(0, 110), string2, solostring);
-        newInstrument(sf2, "Oboe", new Patch(0, 111), oboe);
-        newInstrument(sf2, "Bell", new Patch(0, 112), bell);
-        newInstrument(sf2, "Melodic Toms", new Patch(0, 113), melodic_toms);
-        newInstrument(sf2, "Marimba", new Patch(0, 114), bell);
-        newInstrument(sf2, "Melodic Toms", new Patch(0, 115), melodic_toms);
-        newInstrument(sf2, "Melodic Toms", new Patch(0, 116), melodic_toms);
-        newInstrument(sf2, "Melodic Toms", new Patch(0, 117), melodic_toms);
-        newInstrument(sf2, "Reverse Cymbal", new Patch(0, 118), reverse_cymbal);
-        newInstrument(sf2, "Reverse Cymbal", new Patch(0, 119), reverse_cymbal);
-        newInstrument(sf2, "Guitar", new Patch(0, 120), guitar);
-        newInstrument(sf2, "Def", new Patch(0, 121), piano1);
-        newInstrument(sf2, "Seashore/Reverse Cymbal", new Patch(0, 122), reverse_cymbal, new HashMap<Integer, Short>() {{
+        newInstrument(sf2, new Patch(0, 56), trumpet);
+        newInstrument(sf2, new Patch(0, 57), trombone);
+        newInstrument(sf2, new Patch(0, 58), trombone);
+        newInstrument(sf2, new Patch(0, 59), trumpet);
+        newInstrument(sf2, new Patch(0, 60), horn);
+        newInstrument(sf2, new Patch(0, 61), brass_section);
+        newInstrument(sf2, new Patch(0, 62), brass_section);
+        newInstrument(sf2, new Patch(0, 63), brass_section);
+        newInstrument(sf2, new Patch(0, 64), sax);
+        newInstrument(sf2, new Patch(0, 65), sax);
+        newInstrument(sf2, new Patch(0, 66), sax);
+        newInstrument(sf2, new Patch(0, 67), sax);
+        newInstrument(sf2, new Patch(0, 68), oboe);
+        newInstrument(sf2, new Patch(0, 69), horn);
+        newInstrument(sf2, new Patch(0, 70), bassoon);
+        newInstrument(sf2, new Patch(0, 71), clarinet);
+        newInstrument(sf2, new Patch(0, 72), flute);
+        newInstrument(sf2, new Patch(0, 73), flute);
+        newInstrument(sf2, new Patch(0, 74), flute);
+        newInstrument(sf2, new Patch(0, 75), flute);
+        newInstrument(sf2, new Patch(0, 76), flute);
+        newInstrument(sf2, new Patch(0, 77), flute);
+        newInstrument(sf2, new Patch(0, 78), flute);
+        newInstrument(sf2, new Patch(0, 79), flute);
+        newInstrument(sf2, new Patch(0, 80), organ);
+        newInstrument(sf2, new Patch(0, 81), organ);
+        newInstrument(sf2, new Patch(0, 82), flute);
+        newInstrument(sf2, new Patch(0, 83), organ);
+        newInstrument(sf2, new Patch(0, 84), organ);
+        newInstrument(sf2, new Patch(0, 85), choir);
+        newInstrument(sf2, new Patch(0, 86), organ);
+        newInstrument(sf2, new Patch(0, 87), organ);
+        newInstrument(sf2, new Patch(0, 88), string2);
+        newInstrument(sf2, new Patch(0, 89), organ);
+        newInstrument(sf2, new Patch(0, 90), piano1);
+        newInstrument(sf2, new Patch(0, 91), choir);
+        newInstrument(sf2, new Patch(0, 92), organ);
+        newInstrument(sf2, new Patch(0, 93), organ);
+        newInstrument(sf2, new Patch(0, 94), organ);
+        newInstrument(sf2, new Patch(0, 95), organ);
+        newInstrument(sf2, new Patch(0, 96), organ);
+        newInstrument(sf2, new Patch(0, 97), organ);
+        newInstrument(sf2, new Patch(0, 98), bell);
+        newInstrument(sf2, new Patch(0, 99), organ);
+        newInstrument(sf2, new Patch(0, 100), organ);
+        newInstrument(sf2, new Patch(0, 101), organ);
+        newInstrument(sf2, new Patch(0, 102), piano1);
+        newInstrument(sf2, new Patch(0, 103), string2);
+        newInstrument(sf2, new Patch(0, 104), piano1);
+        newInstrument(sf2, new Patch(0, 105), piano1);
+        newInstrument(sf2, new Patch(0, 106), piano1);
+        newInstrument(sf2, new Patch(0, 107), piano1);
+        newInstrument(sf2, new Patch(0, 108), bell);
+        newInstrument(sf2, new Patch(0, 109), sax);
+        newInstrument(sf2, new Patch(0, 110), string2, solostring);
+        newInstrument(sf2, new Patch(0, 111), oboe);
+        newInstrument(sf2, new Patch(0, 112), bell);
+        newInstrument(sf2, new Patch(0, 113), melodic_toms);
+        newInstrument(sf2, new Patch(0, 114), bell);
+        newInstrument(sf2, new Patch(0, 115), melodic_toms);
+        newInstrument(sf2, new Patch(0, 116), melodic_toms);
+        newInstrument(sf2, new Patch(0, 117), melodic_toms);
+        newInstrument(sf2, new Patch(0, 118), reverse_cymbal);
+        newInstrument(sf2, new Patch(0, 119), reverse_cymbal);
+        newInstrument(sf2, new Patch(0, 120), guitar);
+        newInstrument(sf2, new Patch(0, 121), piano1);
+        newInstrument(sf2, new Patch(0, 122), reverse_cymbal, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 18500);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 4500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) -4500);
         }});
-        newInstrument(sf2, "Bird/Flute", new Patch(0, 123), flute, new HashMap<Integer, Short>() {{
+        newInstrument(sf2, new Patch(0, 123), flute, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_COARSETUNE, (short) 24);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) -3000);
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
         }});
-        newInstrument(sf2, "Def", new Patch(0, 124), side_stick);
-        newInstrument(sf2, "Seashore/Reverse Cymbal", new Patch(0, 125), reverse_cymbal, new HashMap<Integer, Short>() {{
+        newInstrument(sf2, new Patch(0, 124), side_stick);
+        newInstrument(sf2, new Patch(0, 125), reverse_cymbal, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 18500);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 4500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) -4500);
         }});
-        newInstrument(sf2, "Applause/crash_cymbal", new Patch(0, 126), crash_cymbal);
-        newInstrument(sf2, "Gunshot/side_stick", new Patch(0, 127), side_stick);
-
-        for (SF2Instrument instrument : sf2.getInstruments()) {
-            Patch patch = instrument.getPatch();
-            if (patch.isPercussion())
-                continue;
-            instrument.setName(general_midi_instruments[patch.getProgram()]);
-        }
+        newInstrument(sf2, new Patch(0, 126), crash_cymbal);
+        newInstrument(sf2, new Patch(0, 127), side_stick);
 
         return sf2;
 
@@ -2312,51 +2304,30 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static void newInstrument(SF2Soundbank sf2, String name,
-                                     Patch patch, SF2Layer... layers) {
-
-        /*
-         * Create SoundFont2 instrument.
-         */
-        SF2Instrument ins = new SF2Instrument(sf2);
-        ins.setPatch(patch);
-        ins.setName(name);
-        sf2.addInstrument(ins);
-
-        /*
-         * Create region for instrument.
-         */
+    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer... layers) {
+        List<SF2InstrumentRegion> regions = new ArrayList<>(layers.length);
         for (SF2Layer layer : layers) {
-            ins.getRegions().add(new SF2InstrumentRegion(layer));
+            regions.add(new SF2InstrumentRegion(layer));
         }
-
+        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, regions);
+        sf2.addInstrument(ins);
     }
 
-    public static void newInstrument(SF2Soundbank sf2, String name, Patch patch, SF2Layer layer, Map<Integer, Short> generators) {
-        SF2Instrument ins = new SF2Instrument(sf2);
-        ins.setPatch(patch);
-        ins.setName(name);
+    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer, Map<Integer, Short> generators) {
+        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, Collections.singletonList(new SF2InstrumentRegion(layer, generators)));
         sf2.addInstrument(ins);
-        ins.getRegions().add(new SF2InstrumentRegion(layer, generators));
     }
 
-    public static void newInstrument(SF2Soundbank sf2, String name, Patch patch, SF2Layer layer1, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
-        SF2Instrument ins = new SF2Instrument(sf2);
-        ins.setPatch(patch);
-        ins.setName(name);
+    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
+        List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer, generators1), new SF2InstrumentRegion(layer, generators2));
+        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, regions);
         sf2.addInstrument(ins);
-        ins.getRegions().add(new SF2InstrumentRegion(layer1, generators1));
-        ins.getRegions().add(new SF2InstrumentRegion(layer1, generators2));
     }
 
-    public static void newInstrument(SF2Soundbank sf2, String name, Patch patch, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
-        SF2Instrument ins = new SF2Instrument(sf2);
-        ins.setPatch(patch);
-        ins.setName(name);
+    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
+        List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer1, generators), new SF2InstrumentRegion(layer1), new SF2InstrumentRegion(layer2));
+        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, regions);
         sf2.addInstrument(ins);
-        ins.getRegions().add(new SF2InstrumentRegion(layer1, generators));
-        ins.getRegions().add(new SF2InstrumentRegion(layer1));
-        ins.getRegions().add(new SF2InstrumentRegion(layer2));
     }
 
     static public void ifft(double[] data) {
