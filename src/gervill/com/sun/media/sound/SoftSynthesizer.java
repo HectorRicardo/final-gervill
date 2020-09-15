@@ -179,7 +179,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     private boolean open = false;
 
-    private final SoftAbstractResampler resampler = new SoftLinearResampler2();
+    private final SoftLinearResampler2 resampler = new SoftLinearResampler2();
 
     private final int maxpoly = 64;
     private final long latency = 120000L;

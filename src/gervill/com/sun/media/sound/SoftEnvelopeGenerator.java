@@ -29,7 +29,7 @@ package gervill.com.sun.media.sound;
  *
  * @author Karl Helgason
  */
-public final class SoftEnvelopeGenerator implements SoftProcess {
+public final class SoftEnvelopeGenerator implements SoftControl {
 
     public final static int EG_OFF = 0;
     public final static int EG_DELAY = 1;

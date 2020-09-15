@@ -41,7 +41,7 @@ public final class SF2Instrument extends ModelInstrument {
     String name = "";
     int preset = 0;
     int bank = 0;
-    SF2GlobalRegion globalregion = null;
+    SF2Region globalregion = null;
     final List<SF2InstrumentRegion> regions
             = new ArrayList<>();
 
@@ -81,7 +81,7 @@ public final class SF2Instrument extends ModelInstrument {
         return regions;
     }
 
-    public void setGlobalZone(SF2GlobalRegion zone) {
+    public void setGlobalZone(SF2Region zone) {
         globalregion = zone;
     }
 
@@ -92,14 +92,14 @@ public final class SF2Instrument extends ModelInstrument {
         ModelPerformer[] performers = new ModelPerformer[performercount];
         int pi = 0;
 
-        SF2GlobalRegion presetglobal = globalregion;
+        SF2Region presetglobal = globalregion;
         for (SF2InstrumentRegion presetzone : regions) {
             Map<Integer, Short> pgenerators = new HashMap<>(presetzone.getGenerators());
             if (presetglobal != null)
                 pgenerators.putAll(presetglobal.getGenerators());
 
             SF2Layer layer = presetzone.getLayer();
-            SF2GlobalRegion layerglobal = layer.getGlobalRegion();
+            SF2Region layerglobal = layer.getGlobalRegion();
             for (SF2LayerRegion layerzone : layer.getRegions()) {
                 ModelPerformer performer = new ModelPerformer();
 

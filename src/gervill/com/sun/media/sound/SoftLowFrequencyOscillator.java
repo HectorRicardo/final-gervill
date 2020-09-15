@@ -31,7 +31,7 @@ import java.util.Arrays;
  *
  * @author Karl Helgason
  */
-public final class SoftLowFrequencyOscillator implements SoftProcess {
+public final class SoftLowFrequencyOscillator implements SoftControl {
 
     private final int max_count = 10;
     private int used_count = 0;

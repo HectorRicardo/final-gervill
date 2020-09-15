@@ -469,7 +469,7 @@ public final class SF2Soundbank implements Soundbank {
             }
             if (globalsplit != null) {
                 layer.getRegions().remove(globalsplit);
-                SF2GlobalRegion gsplit = new SF2GlobalRegion();
+                SF2Region gsplit = new SF2Region();
                 gsplit.generators = globalsplit.generators;
                 gsplit.modulators = globalsplit.modulators;
                 layer.setGlobalZone(gsplit);
@@ -497,7 +497,7 @@ public final class SF2Soundbank implements Soundbank {
 
             if (globalsplit != null) {
                 instrument.getRegions().remove(globalsplit);
-                SF2GlobalRegion gsplit = new SF2GlobalRegion();
+                SF2Region gsplit = new SF2Region();
                 gsplit.generators = globalsplit.generators;
                 gsplit.modulators = globalsplit.modulators;
                 instrument.setGlobalZone(gsplit);

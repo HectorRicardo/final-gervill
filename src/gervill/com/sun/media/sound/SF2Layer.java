@@ -37,7 +37,7 @@ import java.util.List;
 public final class SF2Layer extends SoundbankResource {
 
     String name = "";
-    SF2GlobalRegion globalregion = null;
+    SF2Region globalregion = null;
     final List<SF2LayerRegion> regions = new ArrayList<>();
 
     public SF2Layer(SF2Soundbank soundBank) {
@@ -60,11 +60,11 @@ public final class SF2Layer extends SoundbankResource {
         return regions;
     }
 
-    public SF2GlobalRegion getGlobalRegion() {
+    public SF2Region getGlobalRegion() {
         return globalregion;
     }
 
-    public void setGlobalZone(SF2GlobalRegion zone) {
+    public void setGlobalZone(SF2Region zone) {
         globalregion = zone;
     }
 

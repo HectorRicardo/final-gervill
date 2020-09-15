@@ -669,7 +669,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Guitar Noise");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -846,7 +846,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Piano Hammer");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -1862,7 +1862,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Timpani");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -1940,7 +1940,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Melodic Toms");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -1980,7 +1980,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Reverse Cymbal");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2058,7 +2058,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Snare Drum");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2132,7 +2132,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Bass Drum");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2211,7 +2211,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Tom");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2262,7 +2262,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Closed Hi-Hat");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2300,7 +2300,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Open Hi-Hat");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2341,7 +2341,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Crash Cymbal");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 
@@ -2399,7 +2399,7 @@ public final class EmergencySoundbank {
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Side Stick");
 
-        SF2GlobalRegion global = new SF2GlobalRegion();
+        SF2Region global = new SF2Region();
         layer.setGlobalZone(global);
         sf2.addResource(layer);
 

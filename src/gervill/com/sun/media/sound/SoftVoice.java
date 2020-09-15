@@ -56,8 +56,8 @@ public final class SoftVoice extends VoiceStatus {
     boolean portamento = false;
     private final SoftFilter filter_left;
     private final SoftFilter filter_right;
-    private final SoftProcess eg = new SoftEnvelopeGenerator();
-    private final SoftProcess lfo = new SoftLowFrequencyOscillator();
+    private final SoftEnvelopeGenerator eg = new SoftEnvelopeGenerator();
+    private final SoftLowFrequencyOscillator lfo = new SoftLowFrequencyOscillator();
     final Map<String, SoftControl> objects =
             new HashMap<>();
     final SoftSynthesizer synthesizer;
