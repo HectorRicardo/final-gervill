@@ -413,14 +413,42 @@ public final class DLSSoundbank implements Soundbank {
     }
 
     private void readInsChunk(RIFFReader riff) throws IOException {
-        DLSInstrument instrument = new DLSInstrument(this);
+        String name = null;
+        List<DLSRegion> regions = new ArrayList<>();
+        List<DLSModulator> modulators = new ArrayList<>();
+        Patch patch = null;
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
             if (format.equals("LIST")) {
                 if (chunk.getType().equals("INFO")) {
-                    readInsInfoChunk(instrument, chunk);
+                    while (chunk.hasNextChunk()) {
+                        RIFFReader subchunk = chunk.nextChunk();
+                        switch (subchunk.getFormat()) {
+                            case "INAM":
+                                name = subchunk.readString(subchunk.available());
+                                break;
+                            case "ICRD":
+                            case "ITCH":
+                            case "ISRF":
+                            case "ISRC":
+                            case "ISBJ":
+                            case "IMED":
+                            case "IKEY":
+                            case "IGNR":
+                            case "ICMS":
+                            case "IART":
+                            case "IARL":
+                            case "ISFT":
+                            case "ICOP":
+                            case "IPRD":
+                            case "IENG":
+                            case "ICMT":
+                                subchunk.readString(subchunk.available());
+                                break;
+                        }
+                    }
                 }
                 if (chunk.getType().equals("lrgn")) {
                     while (chunk.hasNextChunk()) {
@@ -429,40 +457,35 @@ public final class DLSSoundbank implements Soundbank {
                             if (subchunk.getType().equals("rgn ")) {
                                 DLSRegion split = readRgnChunk(subchunk);
                                 if (split != null)
-                                    instrument.getRegions().add(split);
+                                    regions.add(split);
                             }
                             if (subchunk.getType().equals("rgn2")) {
                                 // support for DLS level 2 regions
                                 DLSRegion split = readRgnChunk(subchunk);
                                 if (split != null)
-                                    instrument.getRegions().add(split);
+                                    regions.add(split);
                             }
                         }
                     }
                 }
                 if (chunk.getType().equals("lart")) {
-                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art1"))
-                            readArtChunk(modlist, subchunk, 1);
+                            readArtChunk(modulators, subchunk, 1);
                     }
-                    instrument.getModulators().addAll(modlist);
                 }
                 if (chunk.getType().equals("lar2")) {
                     // support for DLS level 2 ART
-                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art2"))
-                            readArtChunk(modlist, subchunk, 2);
+                            readArtChunk(modulators, subchunk, 2);
                     }
-                    instrument.getModulators().addAll(modlist);
                 }
             } else {
                 if (format.equals("dlid")) {
-                    instrument.guid = new byte[16];
-                    chunk.readFully(instrument.guid);
+                    chunk.readFully(new byte[16]);
                 }
                 if (format.equals("insh")) {
                     chunk.readUnsignedInt(); // Read Region Count - ignored
@@ -477,15 +500,13 @@ public final class DLSSoundbank implements Soundbank {
                     chunk.read(); // Read Reserved byte
                     chunk.read(); // Read Reserved byte
 
-                    instrument.bank = bank;
-                    instrument.preset = id;
-                    instrument.druminstrument = (drumins & 128) > 0;
-                    //System.out.println("bank="+bank+" drumkit="+drumkit
-                    //        +" id="+id);
+                    patch = new Patch(bank, id, (drumins & 128) > 0);
                 }
 
             }
         }
+
+        DLSInstrument instrument = new DLSInstrument(this, name, regions, modulators, patch);
         instruments.add(instrument);
     }
 
@@ -610,44 +631,6 @@ public final class DLSSoundbank implements Soundbank {
         }
 
         return new DLSSampleOptions(unitynote, finetune, loopsList);
-    }
-
-    private void readInsInfoChunk(DLSInstrument dlsinstrument, RIFFReader riff)
-            throws IOException {
-        dlsinstrument.info.name = null;
-        while (riff.hasNextChunk()) {
-            RIFFReader chunk = riff.nextChunk();
-            String format = chunk.getFormat();
-            switch (format) {
-                case "INAM":
-                    dlsinstrument.info.name = chunk.readString(chunk.available());
-                    break;
-                case "ICRD":
-                case "ITCH":
-                case "ISRF":
-                case "ISRC":
-                case "ISBJ":
-                case "IMED":
-                case "IKEY":
-                case "IGNR":
-                case "ICMS":
-                case "IART":
-                case "IARL":
-                case "ISFT":
-                case "ICOP":
-                case "IPRD":
-                    chunk.readString(chunk.available());
-                    break;
-                case "IENG":
-                    dlsinstrument.info.engineers =
-                            chunk.readString(chunk.available());
-                    break;
-                case "ICMT":
-                    dlsinstrument.info.comments =
-                            chunk.readString(chunk.available());
-                    break;
-            }
-        }
     }
 
     private void readWvplChunk(RIFFReader riff) throws IOException {

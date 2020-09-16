@@ -44,7 +44,7 @@ public final class DLSSampleOptions {
     public DLSSampleOptions(int unitynote, short finetune, List<DLSSampleLoop> loops) {
         this.unitynote = unitynote;
         this.finetune = finetune;
-        this.loops = new ImmutableList<>(loops);
+        this.loops = ImmutableList.create(loops);
     }
 
     public ImmutableList<DLSSampleLoop> getLoops() {
