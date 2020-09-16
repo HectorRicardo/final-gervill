@@ -161,7 +161,9 @@ public final class DLSSoundbank implements Soundbank {
     private long major = -1;
     private long minor = -1;
 
-    private final DLSInfo info = new DLSInfo();
+    private String name = "untitled";
+    private String engineers;
+    private String comments;
 
     private final List<DLSInstrument> instruments = new ArrayList<>();
     private final List<DLSSample> samples = new ArrayList<>();
@@ -368,13 +370,13 @@ public final class DLSSoundbank implements Soundbank {
     }
 
     private void readInfoChunk(RIFFReader riff) throws IOException {
-        info.name = null;
+        name = null;
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
             switch (format) {
                 case "INAM":
-                    info.name = chunk.readString(chunk.available());
+                    name = chunk.readString(chunk.available());
                     break;
                 case "ICRD":
                 case "ITCH":
@@ -393,10 +395,10 @@ public final class DLSSoundbank implements Soundbank {
                     chunk.readString(chunk.available());
                     break;
                 case "IENG":
-                    info.engineers = chunk.readString(chunk.available());
+                    engineers = chunk.readString(chunk.available());
                     break;
                 case "ICMT":
-                    info.comments = chunk.readString(chunk.available());
+                    comments = chunk.readString(chunk.available());
                     break;
             }
         }
@@ -752,7 +754,7 @@ public final class DLSSoundbank implements Soundbank {
     }
 
     public String getName() {
-        return info.name;
+        return name;
     }
 
     public String getVersion() {
@@ -760,11 +762,11 @@ public final class DLSSoundbank implements Soundbank {
     }
 
     public String getVendor() {
-        return info.engineers;
+        return engineers;
     }
 
     public String getDescription() {
-        return info.comments;
+        return comments;
     }
 
     public DLSInstrument[] getInstruments() {
