@@ -599,12 +599,11 @@ public final class DLSSoundbank implements Soundbank {
             riff.skip(size - 20);
 
         for (int i = 0; i < loops; i++) {
-            DLSSampleLoop loop = new DLSSampleLoop();
             long size2 = riff.readUnsignedInt();
-            loop.type = riff.readUnsignedInt();
-            loop.start = riff.readUnsignedInt();
-            loop.length = riff.readUnsignedInt();
-            sampleOptions.loops.add(loop);
+            long type = riff.readUnsignedInt();
+            long start = riff.readUnsignedInt();
+            long length = riff.readUnsignedInt();
+            sampleOptions.loops.add(new DLSSampleLoop(type, start, length));
             if (size2 > 16)
                 riff.skip(size2 - 16);
         }

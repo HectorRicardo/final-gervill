@@ -33,9 +33,16 @@ public final class DLSSampleLoop {
 
     public final static int LOOP_TYPE_FORWARD = 0;
     public final static int LOOP_TYPE_RELEASE = 1;
-    long type;
-    long start;
-    long length;
+
+    private final long type;
+    private final long start;
+    private final long length;
+
+    public DLSSampleLoop(long type, long start, long length) {
+        this.type = type;
+        this.start = start;
+        this.length = length;
+    }
 
     public long getLength() {
         return length;
