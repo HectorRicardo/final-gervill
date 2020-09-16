@@ -226,7 +226,7 @@ public final class DLSSoundbank implements Soundbank {
         }
 
         for (Map.Entry<DLSRegion, Long> entry : temp_rgnassign.entrySet()) {
-            entry.getKey().sample = samples.get((int)entry.getValue().longValue());
+            entry.getKey().setSample(samples.get((int)entry.getValue().longValue()));
         }
 
         temp_rgnassign = null;
@@ -427,14 +427,14 @@ public final class DLSSoundbank implements Soundbank {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("LIST")) {
                             if (subchunk.getType().equals("rgn ")) {
-                                DLSRegion split = new DLSRegion();
-                                if (readRgnChunk(split, subchunk))
+                                DLSRegion split = readRgnChunk(subchunk);
+                                if (split != null)
                                     instrument.getRegions().add(split);
                             }
                             if (subchunk.getType().equals("rgn2")) {
                                 // support for DLS level 2 regions
-                                DLSRegion split = new DLSRegion();
-                                if (readRgnChunk(split, subchunk))
+                                DLSRegion split = readRgnChunk(subchunk);
+                                if (split != null)
                                     instrument.getRegions().add(split);
                             }
                         }
@@ -507,60 +507,82 @@ public final class DLSSoundbank implements Soundbank {
         }
     }
 
+    private void readArtChunkSkip(RIFFReader riff)
+            throws IOException {
+        long size = riff.readUnsignedInt();
+        long count = riff.readUnsignedInt();
+
+        if (size - 8 != 0)
+            riff.skip(size - 8);
+
+        for (int i = 0; i < count; i++) {
+            riff.readUnsignedShort();
+            riff.readUnsignedShort();
+            riff.readUnsignedShort();
+            riff.readUnsignedShort();
+            riff.readInt();
+        }
+    }
+
     private Map<DLSRegion, Long> temp_rgnassign = new HashMap<>();
 
-    private boolean readRgnChunk(DLSRegion split, RIFFReader riff)
+    private DLSRegion readRgnChunk(RIFFReader riff)
             throws IOException {
+        int keyfrom = 0;
+        int keyto = 0;
+        int velfrom = 0;
+        int velto = 0;
+        int exclusiveClass = 0;
+        int fusoptions = 0;
+        DLSSampleOptions sampleoptions = null;
+        long sampleid = 0;
+
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
             if (format.equals("LIST")) {
                 if (chunk.getType().equals("lart")) {
-                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art1"))
-                            readArtChunk(modlist, subchunk, 1);
+                            readArtChunkSkip(subchunk);
                     }
-                    split.getModulators().addAll(modlist);
                 }
                 if (chunk.getType().equals("lar2")) {
                     // support for DLS level 2 ART
-                    List<DLSModulator> modlist = new ArrayList<>();
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("art2"))
-                            readArtChunk(modlist, subchunk, 2);
+                            readArtChunkSkip(subchunk);
                     }
-                    split.getModulators().addAll(modlist);
                 }
             } else {
-
-                if (format.equals("cdl ")) {
-                    if (readCdlChunkInverted(chunk))
-                        return false;
+                if (format.equals("cdl ") && readCdlChunkInverted(chunk)) {
+                    return null;
                 }
                 if (format.equals("rgnh")) {
-                    split.keyfrom = chunk.readUnsignedShort();
-                    split.keyto = chunk.readUnsignedShort();
-                    split.velfrom = chunk.readUnsignedShort();
-                    split.velto = chunk.readUnsignedShort();
+                    keyfrom = chunk.readUnsignedShort();
+                    keyto = chunk.readUnsignedShort();
+                    velfrom = chunk.readUnsignedShort();
+                    velto = chunk.readUnsignedShort();
                     chunk.readUnsignedShort();
-                    split.exclusiveClass = chunk.readUnsignedShort();
+                    exclusiveClass = chunk.readUnsignedShort();
                 }
                 if (format.equals("wlnk")) {
-                    split.fusoptions = chunk.readUnsignedShort();
+                    fusoptions = chunk.readUnsignedShort();
                     chunk.readUnsignedShort();
                     chunk.readUnsignedInt();
-                    long sampleid = chunk.readUnsignedInt();
-                    temp_rgnassign.put(split, sampleid);
+                    sampleid = chunk.readUnsignedInt();
                 }
                 if (format.equals("wsmp")) {
-                    split.sampleoptions = readWsmpChunk(chunk);
+                    sampleoptions = readWsmpChunk(chunk);
                 }
             }
         }
-        return true;
+
+        DLSRegion split = new DLSRegion(keyfrom, keyto, velfrom, velto, exclusiveClass, fusoptions, sampleoptions);
+        temp_rgnassign.put(split, sampleid);
+        return split;
     }
 
     private DLSSampleOptions readWsmpChunk(RIFFReader riff)

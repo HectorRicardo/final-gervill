@@ -24,9 +24,6 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * This class is used to store region parts for instrument.
  * A region has a velocity and key range which it response to.
@@ -39,18 +36,28 @@ import java.util.List;
 public final class DLSRegion {
 
     public final static int OPTION_SELFNONEXCLUSIVE = 0x0001;
-    final List<DLSModulator> modulators = new ArrayList<>();
-    int keyfrom;
-    int keyto;
-    int velfrom;
-    int velto;
-    int exclusiveClass;
-    int fusoptions;
-    DLSSample sample = null;
-    DLSSampleOptions sampleoptions;
 
-    public List<DLSModulator> getModulators() {
-        return modulators;
+    private final int keyfrom;
+    private final int keyto;
+    private final int velfrom;
+    private final int velto;
+    private final int exclusiveClass;
+    private final int fusoptions;
+    private DLSSample sample;
+    private final DLSSampleOptions sampleoptions;
+
+    public DLSRegion(int keyfrom, int keyto, int velfrom, int velto, int exclusiveClass, int fusoptions, DLSSampleOptions sampleoptions) {
+        this.keyfrom = keyfrom;
+        this.keyto = keyto;
+        this.velfrom = velfrom;
+        this.velto = velto;
+        this.exclusiveClass = exclusiveClass;
+        this.fusoptions = fusoptions;
+        this.sampleoptions = sampleoptions;
+    }
+
+    public void setSample(DLSSample sample) {
+        this.sample = sample;
     }
 
     public int getExclusiveClass() {

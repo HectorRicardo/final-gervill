@@ -334,10 +334,6 @@ public final class DLSInstrument extends ModelInstrument {
 
             insmodmap.clear();
             insmodmap.putAll(modmap);
-            for (DLSModulator mod: zone.getModulators()) {
-                insmodmap.put(mod.getSource() + "x" + mod.getControl() + "=" +
-                        mod.getDestination(), mod);
-            }
 
             List<ModelConnectionBlock> blocks = performer.getConnectionBlocks();
             for (DLSModulator mod: insmodmap.values()) {
