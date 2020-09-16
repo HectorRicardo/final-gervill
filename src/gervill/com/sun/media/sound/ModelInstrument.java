@@ -25,7 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.Instrument;
-import gervill.javax.sound.midi.MidiChannel;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.midi.Soundbank;
 
@@ -52,13 +51,10 @@ public abstract class ModelInstrument extends Instrument {
         super(soundbank, patch, name);
     }
 
-    public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers,
-            MidiChannel channel, SoftChannel player) {
+    public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers, SoftChannel player) {
         return new ModelStandardIndexedDirector(performers, player);
     }
 
-    public ModelPerformer[] getPerformers() {
-        return new ModelPerformer[0];
-    }
+    public abstract ModelPerformer[] getPerformers();
 
 }

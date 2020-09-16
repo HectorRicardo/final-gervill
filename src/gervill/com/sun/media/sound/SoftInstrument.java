@@ -25,7 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.Instrument;
-import gervill.javax.sound.midi.MidiChannel;
 
 /**
  * Software synthesizer internal instrument.
@@ -51,9 +50,8 @@ public final class SoftInstrument extends Instrument {
             performers[i] = new SoftPerformer(modelperformers[i]);
     }
 
-    public ModelStandardIndexedDirector getDirector(MidiChannel channel,
-            SoftChannel player) {
-        return ins.getDirector(modelperformers, channel, player);
+    public ModelStandardIndexedDirector getDirector(SoftChannel player) {
+        return ins.getDirector(modelperformers, player);
     }
 
     /* am: currently getPerformers() is not used (replaced with getPerformer(int))

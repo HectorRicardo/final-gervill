@@ -456,7 +456,7 @@ public final class SoftChannel implements MidiChannel {
                         = synthesizer.findInstrument(program, bank, channel);
                 if (current_instrument == null)
                     return;
-                current_director = current_instrument.getDirector(this, this);
+                current_director = current_instrument.getDirector(this);
             }
             prevVoiceID = synthesizer.voiceIDCounter++;
             firstVoice = true;
@@ -547,7 +547,7 @@ public final class SoftChannel implements MidiChannel {
                         = synthesizer.findInstrument(program, bank, channel);
                 if (current_instrument == null)
                     return;
-                current_director = current_instrument.getDirector(this, this);
+                current_director = current_instrument.getDirector(this);
 
             }
             prevVoiceID = synthesizer.voiceIDCounter++;

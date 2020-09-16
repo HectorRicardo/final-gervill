@@ -24,7 +24,6 @@
  */
 package gervill.com.sun.media.sound;
 
-import gervill.javax.sound.midi.MidiChannel;
 import gervill.javax.sound.midi.Patch;
 
 /**
@@ -43,11 +42,6 @@ public final class ModelMappedInstrument extends ModelInstrument {
 
     public ModelPerformer[] getPerformers() {
         return ins.getPerformers();
-    }
-
-    public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers,
-            MidiChannel channel, SoftChannel player) {
-        return ins.getDirector(performers, channel, player);
     }
 
 }
