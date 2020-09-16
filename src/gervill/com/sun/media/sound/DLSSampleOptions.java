@@ -24,7 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.ArrayList;
+import own.main.ImmutableList;
+
 import java.util.List;
 
 /**
@@ -36,12 +37,26 @@ import java.util.List;
  */
 public final class DLSSampleOptions {
 
-    int unitynote;
-    short finetune;
-    final List<DLSSampleLoop> loops = new ArrayList<>();
+    private final int unitynote;
+    private final short finetune;
+    private final ImmutableList<DLSSampleLoop> loops;
 
-    public List<DLSSampleLoop> getLoops() {
+    public DLSSampleOptions(int unitynote, short finetune, List<DLSSampleLoop> loops) {
+        this.unitynote = unitynote;
+        this.finetune = finetune;
+        this.loops = new ImmutableList<>(loops);
+    }
+
+    public ImmutableList<DLSSampleLoop> getLoops() {
         return loops;
+    }
+
+    public int getUnitynote() {
+        return unitynote;
+    }
+
+    public short getFinetune() {
+        return finetune;
     }
 
 }

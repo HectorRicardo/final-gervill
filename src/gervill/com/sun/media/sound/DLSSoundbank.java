@@ -556,19 +556,18 @@ public final class DLSSoundbank implements Soundbank {
                     temp_rgnassign.put(split, sampleid);
                 }
                 if (format.equals("wsmp")) {
-                    split.sampleoptions = new DLSSampleOptions();
-                    readWsmpChunk(split.sampleoptions, chunk);
+                    split.sampleoptions = readWsmpChunk(chunk);
                 }
             }
         }
         return true;
     }
 
-    private void readWsmpChunk(DLSSampleOptions sampleOptions, RIFFReader riff)
+    private DLSSampleOptions readWsmpChunk(RIFFReader riff)
             throws IOException {
         long size = riff.readUnsignedInt();
-        sampleOptions.unitynote = riff.readUnsignedShort();
-        sampleOptions.finetune = riff.readShort();
+        int unitynote = riff.readUnsignedShort();
+        short finetune = riff.readShort();
         riff.readInt();
         riff.readUnsignedInt();
         long loops = riff.readInt();
@@ -576,15 +575,19 @@ public final class DLSSoundbank implements Soundbank {
         if (size > 20)
             riff.skip(size - 20);
 
+        List<DLSSampleLoop> loopsList = new ArrayList<>();
+
         for (int i = 0; i < loops; i++) {
             long size2 = riff.readUnsignedInt();
             long type = riff.readUnsignedInt();
             long start = riff.readUnsignedInt();
             long length = riff.readUnsignedInt();
-            sampleOptions.loops.add(new DLSSampleLoop(type, start, length));
+            loopsList.add(new DLSSampleLoop(type, start, length));
             if (size2 > 16)
                 riff.skip(size2 - 16);
         }
+
+        return new DLSSampleOptions(unitynote, finetune, loopsList);
     }
 
     private void readInsInfoChunk(DLSInstrument dlsinstrument, RIFFReader riff)
@@ -709,8 +712,7 @@ public final class DLSSoundbank implements Soundbank {
                 }
 
                 if (format.equals("wsmp")) {
-                    sample.sampleoptions = new DLSSampleOptions();
-                    readWsmpChunk(sample.sampleoptions, chunk);
+                    sample.sampleoptions = readWsmpChunk(chunk);
                 }
             }
         }

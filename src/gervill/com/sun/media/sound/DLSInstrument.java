@@ -354,8 +354,8 @@ public final class DLSInstrument extends ModelInstrument {
 
             ModelByteBuffer buff = sample.getDataBuffer();
 
-            float pitchcorrection = (-sampleopt.unitynote * 100) +
-                    sampleopt.finetune;
+            float pitchcorrection = (-sampleopt.getUnitynote() * 100) +
+                    sampleopt.getFinetune();
 
             ModelByteBufferWavetable osc = new ModelByteBufferWavetable(buff,
                     sample.getFormat(), pitchcorrection);
