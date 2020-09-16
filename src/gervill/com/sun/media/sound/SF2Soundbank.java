@@ -415,30 +415,20 @@ public final class SF2Soundbank implements Soundbank {
                         throw new RuntimeException();
                     int count = chunk.available() / 46;
                     for (int i = 0; i < count; i++) {
-                        SF2Sample sample = new SF2Sample(this);
-                        sample.name = chunk.readString(20);
+
+                        String name = chunk.readString(20);
                         long start = chunk.readUnsignedInt();
                         long end = chunk.readUnsignedInt();
-                        if (sampleData != null)
-                            sample.data = sampleData.subbuffer(start * 2, end * 2, true);
-                        if (sampleData24 != null)
-                            sample.data24 = sampleData24.subbuffer(start, end, true);
-                    /*
-                    sample.data = new ModelByteBuffer(sampleData, (int)(start*2),
-                            (int)((end - start)*2));
-                    if (sampleData24 != null)
-                        sample.data24 = new ModelByteBuffer(sampleData24,
-                                (int)start, (int)(end - start));
-                     */
-                        sample.startLoop = chunk.readUnsignedInt() - start;
-                        sample.endLoop = chunk.readUnsignedInt() - start;
-                        if (sample.startLoop < 0)
-                            sample.startLoop = -1;
-                        if (sample.endLoop < 0)
-                            sample.endLoop = -1;
-                        sample.sampleRate = chunk.readUnsignedInt();
-                        sample.originalPitch = chunk.readUnsignedByte();
-                        sample.pitchCorrection = chunk.readByte();
+                        ModelByteBuffer data = sampleData == null ? null : sampleData.subbuffer(start * 2, end * 2, true);
+                        ModelByteBuffer data24 = sampleData24 == null ? null : sampleData24.subbuffer(start, end, true);
+                        long startLoop = Math.max(-1, chunk.readUnsignedInt() - start);
+                        long endLoop = Math.max(-1, chunk.readUnsignedInt() - start);
+                        long sampleRate = chunk.readUnsignedInt();
+                        int originalPitch = chunk.readUnsignedByte();
+                        byte pitchCorrection = chunk.readByte();
+
+                        SF2Sample sample = new SF2Sample(this, name, data, data24, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
+
                         chunk.readUnsignedShort();
                         chunk.readUnsignedShort();
                         if (i != count - 1)

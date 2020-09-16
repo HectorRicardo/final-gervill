@@ -165,12 +165,12 @@ public final class SF2Instrument extends ModelInstrument {
                 endloopAddrsOffset -= startAddrsOffset;
 
                 SF2Sample sample = layerzone.getSample();
-                int rootkey = sample.originalPitch;
+                int rootkey = sample.getOriginalPitch();
                 if (layerzone.getShort(SF2Region.GENERATOR_OVERRIDINGROOTKEY) != -1) {
                     rootkey = layerzone.getShort(
                             SF2Region.GENERATOR_OVERRIDINGROOTKEY);
                 }
-                float pitchcorrection = (-rootkey * 100) + sample.pitchCorrection;
+                float pitchcorrection = (-rootkey * 100) + sample.getPitchCorrection();
                 ModelByteBuffer buff = sample.getDataBuffer();
                 ModelByteBuffer buff24 = sample.getData24Buffer();
 
@@ -230,11 +230,11 @@ public final class SF2Instrument extends ModelInstrument {
                 int sampleMode = getGeneratorValue(generators,
                         SF2Region.GENERATOR_SAMPLEMODES);
                 if ((sampleMode == 1) || (sampleMode == 3)) {
-                    if (sample.startLoop >= 0 && sample.endLoop > 0) {
-                        osc.setLoopStart((int)(sample.startLoop
-                                + startloopAddrsOffset));
-                        osc.setLoopLength((int)(sample.endLoop - sample.startLoop
-                                + endloopAddrsOffset - startloopAddrsOffset));
+                    long startLoop = sample.getStartLoop();
+                    long endLoop = sample.getEndLoop();
+                    if (startLoop >= 0 && endLoop > 0) {
+                        osc.setLoopStart((int)(startLoop + startloopAddrsOffset));
+                        osc.setLoopLength((int)(endLoop - startLoop + endloopAddrsOffset - startloopAddrsOffset));
                         if (sampleMode == 1)
                             osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
                         if (sampleMode == 3)

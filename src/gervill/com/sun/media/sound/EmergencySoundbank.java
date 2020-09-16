@@ -662,7 +662,7 @@ public final class EmergencySoundbank {
             fadeUp(data, 80);
         }
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Guitar Noise", datab);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Guitar Noise", datab, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Guitar Noise");
@@ -839,7 +839,7 @@ public final class EmergencySoundbank {
             fadeUp(data, 80);
         }
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Piano Hammer", datab);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Piano Hammer", datab, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Piano Hammer");
@@ -1855,7 +1855,7 @@ public final class EmergencySoundbank {
 
         normalize(datab, 0.9);
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Timpani", datab);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Timpani", datab, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Timpani");
@@ -1932,8 +1932,7 @@ public final class EmergencySoundbank {
 
         normalize(datab, 0.99);
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Melodic Toms", datab);
-        sample.setOriginalPitch(63);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Melodic Toms", datab, 63);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Melodic Toms");
@@ -2051,7 +2050,7 @@ public final class EmergencySoundbank {
         for (int i = 0; i < 5; i++)
             datab[i] *= i / 5.0;
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Snare Drum", datab);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Snare Drum", datab, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Snare Drum");
@@ -2125,7 +2124,7 @@ public final class EmergencySoundbank {
         for (int i = 0; i < 5; i++)
             datab[i] *= i / 5.0;
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Bass Drum", datab);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Bass Drum", datab, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Bass Drum");
@@ -2203,8 +2202,7 @@ public final class EmergencySoundbank {
 
         normalize(datab, 0.99);
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Tom", datab);
-        sample.setOriginalPitch(50);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Tom", datab, 50);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Tom");
@@ -2255,7 +2253,7 @@ public final class EmergencySoundbank {
 
         for (int i = 0; i < 5; i++)
             datah[i] *= i / 5.0;
-        SF2Sample sample = newSimpleDrumSample(sf2, "Closed Hi-Hat", datah);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Closed Hi-Hat", datah, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Closed Hi-Hat");
@@ -2392,7 +2390,7 @@ public final class EmergencySoundbank {
         for (int i = 0; i < 10; i++)
             datab[i] *= i / 10.0;
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Side Stick", datab);
+        SF2Sample sample = newSimpleDrumSample(sf2, "Side Stick", datab, 60);
 
         SF2Layer layer = new SF2Layer(sf2);
         layer.setName("Side Stick");
@@ -2436,16 +2434,9 @@ public final class EmergencySoundbank {
         /*
          * Create SoundFont2 sample.
          */
-        SF2Sample sample = new SF2Sample(sf2);
-        sample.setName(name);
-        sample.setData(bdata);
-        sample.setStartLoop(256);
-        sample.setEndLoop(fftsize + 256);
-        sample.setSampleRate((long) format.getSampleRate());
-        double orgnote = (69 + 12)
-                + (12 * Math.log(basefreq / 440.0) / Math.log(2));
-        sample.setOriginalPitch((int) orgnote);
-        sample.setPitchCorrection((byte) (-(orgnote - (int) orgnote) * 100.0));
+
+        double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
+        SF2Sample sample = new SF2Sample(sf2, name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
         sf2.addResource(sample);
 
         return sample;
@@ -2476,23 +2467,14 @@ public final class EmergencySoundbank {
         /*
          * Create SoundFont2 sample.
          */
-        SF2Sample sample = new SF2Sample(sf2);
-        sample.setName(name);
-        sample.setData(bdata);
-        sample.setStartLoop(256);
-        sample.setEndLoop(fftsize + 256);
-        sample.setSampleRate((long) format.getSampleRate());
-        double orgnote = (69 + 12)
-                + (12 * Math.log(basefreq / 440.0) / Math.log(2));
-        sample.setOriginalPitch((int) orgnote);
-        sample.setPitchCorrection((byte) (-(orgnote - (int) orgnote) * 100.0));
+        double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
+        SF2Sample sample = new SF2Sample(sf2, name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
         sf2.addResource(sample);
 
         return sample;
     }
 
-    public static SF2Sample newSimpleDrumSample(SF2Soundbank sf2, String name,
-            double[] data) {
+    public static SF2Sample newSimpleDrumSample(SF2Soundbank sf2, String name, double[] data, int originalPitch) {
 
         int fftsize = data.length;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2502,13 +2484,7 @@ public final class EmergencySoundbank {
         /*
          * Create SoundFont2 sample.
          */
-        SF2Sample sample = new SF2Sample(sf2);
-        sample.setName(name);
-        sample.setData(bdata);
-        sample.setStartLoop(256);
-        sample.setEndLoop(fftsize + 256);
-        sample.setSampleRate((long) format.getSampleRate());
-        sample.setOriginalPitch(60);
+        SF2Sample sample = new SF2Sample(sf2, name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), originalPitch);
         sf2.addResource(sample);
 
         return sample;
