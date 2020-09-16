@@ -639,19 +639,46 @@ public final class DLSSoundbank implements Soundbank {
     }
 
     private void readWaveChunk(RIFFReader riff) throws IOException {
-        DLSSample sample = new DLSSample(this);
+        String name = null;
+        AudioFormat sampleFormat = null;
+        ModelByteBuffer mbb = null;
+        DLSSampleOptions sampleoptions = null;
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
             if (format.equals("LIST")) {
                 if (chunk.getType().equals("INFO")) {
-                    readWaveInfoChunk(sample, chunk);
+                    while (chunk.hasNextChunk()) {
+                        RIFFReader subchunk = chunk.nextChunk();
+                        switch (subchunk.getFormat()) {
+                            case "INAM":
+                                name = subchunk.readString(subchunk.available());
+                                break;
+                            case "ICRD":
+                            case "ITCH":
+                            case "ISRF":
+                            case "ISRC":
+                            case "ISBJ":
+                            case "IMED":
+                            case "IKEY":
+                            case "IGNR":
+                            case "ICMS":
+                            case "IART":
+                            case "IARL":
+                            case "ISFT":
+                            case "ICOP":
+                            case "IPRD":
+                            case "IENG":
+                            case "ICMT":
+                                subchunk.readString(subchunk.available());
+                                break;
+                        }
+                    }
                 }
             } else {
                 if (format.equals("dlid")) {
-                    sample.guid = new byte[16];
-                    chunk.readFully(sample.guid);
+                    chunk.readFully(new byte[16]);
                 }
 
                 if (format.equals("fmt ")) {
@@ -685,17 +712,15 @@ public final class DLSSoundbank implements Soundbank {
                                 channels, framesize, samplerate);
                     }
 
-                    sample.format = audioformat;
+                    sampleFormat = audioformat;
                 }
 
                 if (format.equals("data")) {
                     if (largeFormat) {
-                        sample.setData(new ModelByteBuffer(sampleFile,
-                                chunk.getFilePointer(), chunk.available()));
+                        mbb = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
                     } else {
                         byte[] buffer = new byte[chunk.available()];
-                        //  chunk.read(buffer);
-                        sample.setData(buffer);
+                        mbb = new ModelByteBuffer(buffer);
 
                         int read = 0;
                         int avail = chunk.available();
@@ -712,49 +737,13 @@ public final class DLSSoundbank implements Soundbank {
                 }
 
                 if (format.equals("wsmp")) {
-                    sample.sampleoptions = readWsmpChunk(chunk);
+                    sampleoptions = readWsmpChunk(chunk);
                 }
             }
         }
 
-        samples.add(sample);
+        samples.add(new DLSSample(this, name, sampleFormat, mbb, sampleoptions));
 
-    }
-
-    private void readWaveInfoChunk(DLSSample dlssample, RIFFReader riff)
-            throws IOException {
-        dlssample.info.name = null;
-        while (riff.hasNextChunk()) {
-            RIFFReader chunk = riff.nextChunk();
-            String format = chunk.getFormat();
-            switch (format) {
-                case "INAM":
-                    dlssample.info.name = chunk.readString(chunk.available());
-                    break;
-                case "ICRD":
-                case "ITCH":
-                case "ISRF":
-                case "ISRC":
-                case "ISBJ":
-                case "IMED":
-                case "IKEY":
-                case "IGNR":
-                case "ICMS":
-                case "IART":
-                case "IARL":
-                case "ISFT":
-                case "ICOP":
-                case "IPRD":
-                    chunk.readString(chunk.available());
-                    break;
-                case "IENG":
-                    dlssample.info.engineers = chunk.readString(chunk.available());
-                    break;
-                case "ICMT":
-                    dlssample.info.comments = chunk.readString(chunk.available());
-                    break;
-            }
-        }
     }
 
     public String getName() {
