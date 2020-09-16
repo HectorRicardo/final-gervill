@@ -68,22 +68,22 @@ public class AudioInputStream extends InputStream {
     /**
      * The format of the audio data contained in the stream.
      */
-    protected final AudioFormat format;
+    private final AudioFormat format;
 
     /**
      * This stream's length, in sample frames.
      */
-    protected final long frameLength;
+    private final long frameLength;
 
     /**
      * The size of each frame, in bytes.
      */
-    protected int frameSize;
+    private final int frameSize;
 
     /**
      * The current position in this stream, in sample frames (zero-based).
      */
-    protected long framePos;
+    private long framePos;
 
     /**
      * The position where a mark was set.
@@ -127,13 +127,10 @@ public class AudioInputStream extends InputStream {
 
         this.format = format;
         this.frameLength = length;
-        this.frameSize = format.getFrameSize();
 
         // any frameSize that is not well-defined will
         // cause that this stream will be read in bytes
-        if( this.frameSize == AudioSystem.NOT_SPECIFIED || frameSize <= 0) {
-            this.frameSize = 1;
-        }
+        this.frameSize = Math.max(format.getFrameSize(), 1);
 
         this.stream = stream;
         framePos = 0;
