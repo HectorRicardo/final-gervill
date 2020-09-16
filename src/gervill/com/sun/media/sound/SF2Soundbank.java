@@ -27,7 +27,6 @@ package gervill.com.sun.media.sound;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.midi.Soundbank;
-import gervill.javax.sound.midi.SoundbankResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,11 +57,6 @@ public final class SF2Soundbank extends Soundbank {
     String engineers = null;
     // Comments
     String comments = null;
-    // The Sample Data loaded from the SoundFont
-    private ModelByteBuffer sampleData = null;
-    private ModelByteBuffer sampleData24 = null;
-    private File sampleFile = null;
-    private boolean largeFormat = false;
     private final List<SF2Layer> layers = new ArrayList<>();
     private final List<SF2Sample> samples = new ArrayList<>();
 
@@ -70,25 +64,22 @@ public final class SF2Soundbank extends Soundbank {
     }
 
     public SF2Soundbank(URL url) throws IOException {
-
         try (InputStream is = url.openStream()) {
-            readSoundbank(is);
+            readSoundbank(is, null);
         }
     }
 
     public SF2Soundbank(File file) throws IOException {
-        largeFormat = true;
-        sampleFile = file;
         try (InputStream is = new FileInputStream(file)) {
-            readSoundbank(is);
+            readSoundbank(is, file);
         }
     }
 
     public SF2Soundbank(InputStream inputstream) throws IOException {
-        readSoundbank(inputstream);
+        readSoundbank(inputstream, null);
     }
 
-    private void readSoundbank(InputStream inputstream) throws IOException {
+    private void readSoundbank(InputStream inputstream, File sampleFile) throws IOException {
         RIFFReader riff = new RIFFReader(inputstream);
         if (!riff.getFormat().equals("RIFF")) {
             throw new RuntimeException(
@@ -98,15 +89,19 @@ public final class SF2Soundbank extends Soundbank {
             throw new RuntimeException(
                     "Input stream is not a valid SoundFont!");
         }
+        ModelByteBuffer[] datas = new ModelByteBuffer[2];
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             if (chunk.getFormat().equals("LIST")) {
-                if (chunk.getType().equals("INFO"))
+                if (chunk.getType().equals("INFO")) {
                     readInfoChunk(chunk);
-                if (chunk.getType().equals("sdta"))
-                    readSdtaChunk(chunk);
-                if (chunk.getType().equals("pdta"))
-                    readPdtaChunk(chunk);
+                }
+                if (chunk.getType().equals("sdta")) {
+                    readSdtaChunk(chunk, sampleFile, datas);
+                }
+                if (chunk.getType().equals("pdta")) {
+                    readPdtaChunk(chunk, datas[0], datas[1]);
+                }
             }
         }
     }
@@ -146,11 +141,12 @@ public final class SF2Soundbank extends Soundbank {
         }
     }
 
-    private void readSdtaChunk(RIFFReader riff) throws IOException {
+    private void readSdtaChunk(RIFFReader riff, File sampleFile, ModelByteBuffer[] datas) throws IOException {
+
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             if (chunk.getFormat().equals("smpl")) {
-                if (!largeFormat) {
+                if (sampleFile == null) {
                     byte[] sampleData = new byte[chunk.available()];
 
                     int read = 0;
@@ -165,15 +161,14 @@ public final class SF2Soundbank extends Soundbank {
                         }
 
                     }
-                    this.sampleData = new ModelByteBuffer(sampleData);
+                    datas[0] = new ModelByteBuffer(sampleData);
                     //chunk.read(sampleData);
                 } else {
-                    this.sampleData = new ModelByteBuffer(sampleFile,
-                            chunk.getFilePointer(), chunk.available());
+                    datas[0] = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
                 }
             }
             if (chunk.getFormat().equals("sm24")) {
-                if (!largeFormat) {
+                if (sampleFile == null) {
                     byte[] sampleData24 = new byte[chunk.available()];
                     //chunk.read(sampleData24);
 
@@ -189,17 +184,15 @@ public final class SF2Soundbank extends Soundbank {
                         }
 
                     }
-                    this.sampleData24 = new ModelByteBuffer(sampleData24);
+                    datas[1] = new ModelByteBuffer(sampleData24);
                 } else {
-                    this.sampleData24 = new ModelByteBuffer(sampleFile,
-                            chunk.getFilePointer(), chunk.available());
+                    datas[1] = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
                 }
-
             }
         }
     }
 
-    private void readPdtaChunk(RIFFReader riff) throws IOException {
+    private void readPdtaChunk(RIFFReader riff, ModelByteBuffer sampleData, ModelByteBuffer sampleData24) throws IOException {
 
         List<Integer> presets_bagNdx = new ArrayList<>();
         List<SF2InstrumentRegion> presets_splits_gen
@@ -515,17 +508,11 @@ public final class SF2Soundbank extends Soundbank {
         comments = s;
     }
 
-    public void addResource(SoundbankResource resource) {
-        if (resource instanceof SF2Instrument)
-            getInstrumentsAux().add((SF2Instrument)resource);
-        if (resource instanceof SF2Layer)
-            layers.add((SF2Layer)resource);
-        if (resource instanceof SF2Sample)
-            samples.add((SF2Sample)resource);
+    public List<SF2Layer> getLayers() {
+        return layers;
     }
 
-    public void addInstrument(SF2Instrument resource) {
-        getInstrumentsAux().add(resource);
+    public List<SF2Sample> getSamples() {
+        return samples;
     }
-
 }
