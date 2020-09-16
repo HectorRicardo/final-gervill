@@ -34,9 +34,9 @@ import java.util.Collection;
  */
 public final class ModelByteBuffer {
 
-    private ModelByteBuffer root = this;
-    private File file;
-    private long fileoffset;
+    private final ModelByteBuffer root;
+    private final File file;
+    private final long fileoffset;
     private byte[] buffer;
     private long offset;
     private final long len;
@@ -131,8 +131,6 @@ public final class ModelByteBuffer {
 
     private ModelByteBuffer(ModelByteBuffer parent,
             long beginIndex, long endIndex, boolean independent) {
-        this.root = parent.root;
-        this.offset = 0;
         long parent_len = parent.len;
         if (beginIndex < 0)
             beginIndex = 0;
@@ -144,17 +142,26 @@ public final class ModelByteBuffer {
             endIndex = parent_len;
         if (beginIndex > endIndex)
             beginIndex = endIndex;
-        offset = beginIndex;
         len = endIndex - beginIndex;
         if (independent) {
-            buffer = root.buffer;
-            if (root.file != null) {
-                file = root.file;
-                fileoffset = root.fileoffset + arrayOffset();
+            buffer = parent.root.buffer;
+            long offsetAux = arrayOffset(parent.root, beginIndex);
+            if (parent.root.file != null) {
+                file = parent.root.file;
+                fileoffset = parent.root.fileoffset + offsetAux;
                 offset = 0;
-            } else
-                offset = arrayOffset();
+            } else {
+                offset = offsetAux;
+                file = null;
+                fileoffset = 0;
+            }
             root = this;
+        } else {
+            root = parent.root;
+            file = null;
+            fileoffset = 0;
+            buffer = null;
+            offset = beginIndex;
         }
     }
 
@@ -162,12 +169,18 @@ public final class ModelByteBuffer {
         this.buffer = buffer;
         this.offset = 0;
         this.len = buffer.length;
+        root = this;
+        file = null;
+        fileoffset = 0;
     }
 
     public ModelByteBuffer(File file, long offset, long len) {
         this.file = file;
         this.fileoffset = offset;
         this.len = len;
+        root = this;
+        buffer = null;
+        this.offset = 0;
     }
 
     public InputStream getInputStream() {
@@ -196,10 +209,14 @@ public final class ModelByteBuffer {
         return root.buffer;
     }
 
-    public long arrayOffset() {
+    public long arrayOffset(ModelByteBuffer root, long offset) {
         if (root != this)
             return root.arrayOffset() + offset;
         return offset;
+    }
+
+    public long arrayOffset() {
+        return arrayOffset(root, offset);
     }
 
     public long capacity() {
