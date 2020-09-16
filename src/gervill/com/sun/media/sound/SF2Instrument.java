@@ -58,18 +58,11 @@ public final class SF2Instrument extends ModelInstrument {
     }
 
     public Patch getPatch() {
-        if (bank == 128)
-            return new ModelPatch(0, preset, true);
-        else
-            return new ModelPatch(bank << 7, preset, false);
+        return bank == 128 ? new Patch(0, preset, true) : new Patch(bank << 7, preset, false);
     }
 
     public void setPatch(Patch patch) {
-        if (patch instanceof ModelPatch && ((ModelPatch) patch).isPercussion()) {
-            bank = 128;
-        } else {
-            bank = patch.getBank() >> 7;
-        }
+        bank = patch.isPercussion() ? 128 : patch.getBank() >> 7;
         preset = patch.getProgram();
     }
 

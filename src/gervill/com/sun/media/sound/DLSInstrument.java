@@ -24,6 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.Patch;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,8 +57,8 @@ public final class DLSInstrument extends ModelInstrument {
         return info.name;
     }
 
-    public ModelPatch getPatch() {
-        return new ModelPatch(bank, preset, druminstrument);
+    public Patch getPatch() {
+        return new Patch(bank, preset, druminstrument);
     }
 
     public Object getData() {

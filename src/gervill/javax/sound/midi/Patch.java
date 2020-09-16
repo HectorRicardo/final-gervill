@@ -70,6 +70,7 @@ public class Patch {
      */
     private final int program;
 
+    private final boolean percussion;
 
     /**
      * Constructs a new patch object from the specified bank and program
@@ -78,9 +79,13 @@ public class Patch {
      * @param program the program index (in the range from 0 to 127)
      */
     public Patch(int bank, int program) {
+        this(bank, program, false);
+    }
 
+    public Patch(int bank, int program, boolean percussion) {
         this.bank = bank;
         this.program = program;
+        this.percussion = percussion;
     }
 
 
@@ -108,5 +113,17 @@ public class Patch {
     public int getProgram() {
 
         return program;
+    }
+
+    public boolean isPercussion() {
+        return percussion;
+    }
+
+    public boolean equals(Patch patch) {
+        return bank == patch.bank && program == patch.program && percussion == patch.percussion;
+    }
+
+    public int hashCode() {
+        return 128 * bank + program + (percussion ? 2097152 : 0);
     }
 }

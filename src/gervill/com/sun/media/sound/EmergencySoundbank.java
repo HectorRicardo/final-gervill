@@ -240,7 +240,7 @@ public final class EmergencySoundbank {
 
         SF2Instrument drum_instrument = new SF2Instrument(sf2);
         drum_instrument.setName("Standard Kit");
-        drum_instrument.setPatch(new ModelPatch(0, 0, true));
+        drum_instrument.setPatch(new Patch(0, 0, true));
         sf2.addInstrument(drum_instrument);
         for (int i = 0; i < drums.length; i++) {
             if (drums[i] != null) {
@@ -466,10 +466,8 @@ public final class EmergencySoundbank {
 
         for (SF2Instrument instrument : sf2.getInstruments()) {
             Patch patch = instrument.getPatch();
-            if (patch instanceof ModelPatch) {
-                if (((ModelPatch) patch).isPercussion())
-                    continue;
-            }
+            if (patch.isPercussion())
+                continue;
             instrument.setName(general_midi_instruments[patch.getProgram()]);
         }
 

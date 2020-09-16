@@ -802,21 +802,9 @@ public final class DLSSoundbank implements Soundbank {
     }
 
     public Instrument getInstrument(Patch patch) {
-        int program = patch.getProgram();
-        int bank = patch.getBank();
-        boolean percussion = false;
-        if (patch instanceof ModelPatch)
-            percussion = ((ModelPatch) patch).isPercussion();
         for (Instrument instrument : instruments) {
-            Patch patch2 = instrument.getPatch();
-            int program2 = patch2.getProgram();
-            int bank2 = patch2.getBank();
-            if (program == program2 && bank == bank2) {
-                boolean percussion2 = false;
-                if (patch2 instanceof ModelPatch)
-                    percussion2 = ((ModelPatch) patch2).isPercussion();
-                if (percussion == percussion2)
-                    return instrument;
+            if (patch.equals(instrument.getPatch())) {
+                return instrument;
             }
         }
         return null;

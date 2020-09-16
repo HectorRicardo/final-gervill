@@ -250,10 +250,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     }
 
     private String patchToString(Patch patch) {
-        if (patch instanceof ModelPatch && ((ModelPatch) patch).isPercussion())
-            return "p." + patch.getProgram() + "." + patch.getBank();
-        else
-            return patch.getProgram() + "." + patch.getBank();
+        return (patch.isPercussion() ? "p." : "") +  patch.getProgram() + "." + patch.getBank();
     }
 
     SoftMainMixer getMainMixer() {
