@@ -36,20 +36,19 @@ import java.util.List;
  */
 public final class SF2Layer extends SoundbankResource {
 
-    String name = "";
-    SF2Region globalregion = null;
-    final List<SF2LayerRegion> regions = new ArrayList<>();
+    private SF2Region globalregion;
+    private final List<SF2LayerRegion> regions;
 
-    public SF2Layer(SF2Soundbank soundBank) {
-        super(soundBank, null);
+    public SF2Layer(SF2Soundbank soundBank, String name) {
+        super(soundBank, name);
+        this.globalregion = null;
+        this.regions = new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public SF2Layer(SF2Soundbank soundBank, String name, SF2Region globalregion, List<SF2LayerRegion> regions) {
+        super(soundBank, name);
+        this.globalregion = globalregion;
+        this.regions = regions;
     }
 
     public List<SF2LayerRegion> getRegions() {

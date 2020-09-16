@@ -322,8 +322,8 @@ public final class SF2Soundbank implements Soundbank {
                         throw new RuntimeException();
                     int count = chunk.available() / 22;
                     for (int i = 0; i < count; i++) {
-                        SF2Layer layer = new SF2Layer(this);
-                        layer.name = chunk.readString(20);
+                        String name = chunk.readString(20);
+                        SF2Layer layer = new SF2Layer(this, name);
                         instruments_bagNdx.add(chunk.readUnsignedShort());
                         if (i != count - 1)
                             this.layers.add(layer);
@@ -373,7 +373,7 @@ public final class SF2Soundbank implements Soundbank {
                             int gencount = chunk.readUnsignedShort();
                             int modcount = chunk.readUnsignedShort();
                             SF2LayerRegion split = new SF2LayerRegion();
-                            layer.regions.add(split);
+                            layer.getRegions().add(split);
                             while (instruments_splits_gen.size() < gencount)
                                 instruments_splits_gen.add(split);
                             while (instruments_splits_mod.size() < modcount)
@@ -440,7 +440,7 @@ public final class SF2Soundbank implements Soundbank {
         }
 
         for (SF2Layer layer : this.layers) {
-            Iterator<SF2LayerRegion> siter = layer.regions.iterator();
+            Iterator<SF2LayerRegion> siter = layer.getRegions().iterator();
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
                 SF2LayerRegion split = siter.next();

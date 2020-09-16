@@ -27,9 +27,7 @@ package gervill.com.sun.media.sound;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.sampled.AudioFormat;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Emergency Soundbank generator.
@@ -479,7 +477,7 @@ public final class EmergencySoundbank {
             a *= a_step;
         }
         SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base);
-        return newLayer(sf2, "EPiano", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -534,7 +532,7 @@ public final class EmergencySoundbank {
         }
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Guitar", data, base);
-        return newLayer(sf2, "Guitar", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Guitar", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -594,7 +592,7 @@ public final class EmergencySoundbank {
                 data, base, 10000.0);
 
 
-        return newLayer(sf2, "Distorted Guitar", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Distorted Guitar", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -636,20 +634,12 @@ public final class EmergencySoundbank {
             fadeUp(data, 80);
         }
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Guitar Noise", datab, 60);
+        String name = "Guitar Noise";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Guitar Noise");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_gpiano(SF2Soundbank sf2) {
@@ -697,7 +687,7 @@ public final class EmergencySoundbank {
         }
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Grand Piano", data, base, 200);
-        return newLayer(sf2, "Grand Piano", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Grand Piano", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -7000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -755,7 +745,7 @@ public final class EmergencySoundbank {
         }
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Grand Piano", data, base, 200);
-        return newLayer(sf2, "Grand Piano", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Grand Piano", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -7000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -800,20 +790,12 @@ public final class EmergencySoundbank {
             fadeUp(data, 80);
         }
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Piano Hammer", datab, 60);
+        String name = "Piano Hammer";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Piano Hammer");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_piano1(SF2Soundbank sf2) {
@@ -857,7 +839,7 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * (17.5), 1, 0.01);
 
         SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base, 200);
-        return newLayer(sf2, "EPiano", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -892,7 +874,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base);
-        return newLayer(sf2, "EPiano", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -925,7 +907,7 @@ public final class EmergencySoundbank {
         }
 
         SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base);
-        return newLayer(sf2, "EPiano", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -969,7 +951,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Bass", data, base);
-        return newLayer(sf2, "Bass", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Bass", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1013,7 +995,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Bass", data, base);
-        return newLayer(sf2, "Bass", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Bass", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1058,7 +1040,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Bass2", data, base);
-        return newLayer(sf2, "Bass2", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Bass2", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -8000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1092,7 +1074,7 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, a);
         }
         SF2Sample sample = newSimpleFFTSample(sf2, "Strings", data, base);
-        return newLayer(sf2, "Strings", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Strings", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1000);
@@ -1125,7 +1107,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Och Strings", data, base);
-        return newLayer(sf2, "Och Strings", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Och Strings", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 200);
@@ -1153,7 +1135,7 @@ public final class EmergencySoundbank {
             a *= a_step;
         }
         SF2Sample sample = newSimpleFFTSample(sf2, "Strings", data, base);
-        return newLayer(sf2, "Strings", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Strings", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1000);
@@ -1191,7 +1173,7 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
         SF2Sample sample = newSimpleFFTSample(sf2, "Strings", data, base);
-        return newLayer(sf2, "Strings", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Strings", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1000);
@@ -1222,7 +1204,7 @@ public final class EmergencySoundbank {
             a *= a_step;
         }
         SF2Sample sample = newSimpleFFTSample(sf2, "Organ", data, base);
-        return newLayer(sf2, "Organ", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Organ", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1296,7 +1278,7 @@ public final class EmergencySoundbank {
             a *= a_step;
         }
         SF2Sample sample = newSimpleFFTSample(sf2, "Organ", data, base);
-        return newLayer(sf2, "Organ", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Organ", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -10000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1353,7 +1335,7 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 17, 30, 6);
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Flute", data, base);
-        return newLayer(sf2, "Flute", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Flute", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1386,7 +1368,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Horn", data, base);
-        return newLayer(sf2, "Horn", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Horn", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1429,7 +1411,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Trumpet", data, base);
-        return newLayer(sf2, "Trumpet", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Trumpet", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -10000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1473,7 +1455,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Brass Section", data, base);
-        return newLayer(sf2, "Brass Section", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Brass Section", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -9200);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1514,7 +1496,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Trombone", data, base);
-        return newLayer(sf2, "Trombone", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Trombone", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -8000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1550,7 +1532,7 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 4, 200, 1);
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Sax", data, base);
-        return newLayer(sf2, "Sax", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Sax", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1596,7 +1578,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Oboe", data, base);
-        return newLayer(sf2, "Oboe", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Oboe", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1639,7 +1621,7 @@ public final class EmergencySoundbank {
 
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Flute", data, base);
-        return newLayer(sf2, "Flute", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Flute", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1699,7 +1681,7 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 17, 30, 6);
 
         SF2Sample sample = newSimpleFFTSample(sf2, "Clarinet", data, base);
-        return newLayer(sf2, "Clarinet", sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, "Clarinet", null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1780,21 +1762,13 @@ public final class EmergencySoundbank {
 
         normalize(datab, 0.9);
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Timpani", datab, 60);
+        String name = "Timpani";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Timpani");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_melodic_toms(SF2Soundbank sf2) {
@@ -1856,21 +1830,13 @@ public final class EmergencySoundbank {
 
         normalize(datab, 0.99);
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Melodic Toms", datab, 63);
+        String name = "Melodic Toms";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Melodic Toms");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 63);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_reverse_cymbal(SF2Soundbank sf2) {
@@ -1893,25 +1859,16 @@ public final class EmergencySoundbank {
             datah = data;
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Reverse Cymbal",
-                datah, 100, 20);
+        String name = "Reverse Cymbal";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Reverse Cymbal");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(sf2, name, datah, 100, 20);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -200);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_snare_drum(SF2Soundbank sf2) {
@@ -1971,22 +1928,14 @@ public final class EmergencySoundbank {
         for (int i = 0; i < 5; i++)
             datab[i] *= i / 5.0;
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Snare Drum", datab, 60);
+        String name = "Snare Drum";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Snare Drum");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_bass_drum(SF2Soundbank sf2) {
@@ -2044,22 +1993,14 @@ public final class EmergencySoundbank {
         for (int i = 0; i < 5; i++)
             datab[i] *= i / 5.0;
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Bass Drum", datab, 60);
+        String name = "Bass Drum";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Bass Drum");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_tom(SF2Soundbank sf2) {
@@ -2121,21 +2062,13 @@ public final class EmergencySoundbank {
 
         normalize(datab, 0.99);
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Tom", datab, 50);
+        String name = "Tom";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Tom");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 50);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_closed_hihat(SF2Soundbank sf2) {
@@ -2170,22 +2103,16 @@ public final class EmergencySoundbank {
 
         for (int i = 0; i < 5; i++)
             datah[i] *= i / 5.0;
-        SF2Sample sample = newSimpleDrumSample(sf2, "Closed Hi-Hat", datah, 60);
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Closed Hi-Hat");
+        String name = "Closed Hi-Hat";
 
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datah, 60);
 
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_EXCLUSIVECLASS, (short) 1);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_open_hihat(SF2Soundbank sf2) {
@@ -2207,15 +2134,10 @@ public final class EmergencySoundbank {
             datah = data;
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Open Hi-Hat", datah, 1000, 5);
+        String name = "Open Hi-Hat";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Open Hi-Hat");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(sf2, name, datah, 1000, 5);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 1500);
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1500);
@@ -2223,9 +2145,6 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_EXCLUSIVECLASS, (short) 1);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_crash_cymbal(SF2Soundbank sf2) {
@@ -2247,24 +2166,16 @@ public final class EmergencySoundbank {
             datah = data;
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Crash Cymbal", datah, 1000, 5);
+        String name = "Crash Cymbal";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Crash Cymbal");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(sf2, name, datah, 1000, 5);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 1800);
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1800);
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
     }
 
     public static SF2Layer new_side_stick(SF2Soundbank sf2) {
@@ -2304,23 +2215,14 @@ public final class EmergencySoundbank {
         for (int i = 0; i < 10; i++)
             datab[i] *= i / 10.0;
 
-        SF2Sample sample = newSimpleDrumSample(sf2, "Side Stick", datab, 60);
+        String name = "Side Stick";
 
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName("Side Stick");
-
-        layer.setGlobalZone(new SF2Region());
-        sf2.addResource(layer);
-
-        SF2LayerRegion region = new SF2LayerRegion(sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
+        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -50);
         }});
-        layer.getRegions().add(region);
-
-        return layer;
-
     }
 
     public static SF2Sample newSimpleFFTSample(SF2Soundbank sf2, String name,
@@ -2403,10 +2305,8 @@ public final class EmergencySoundbank {
         return sample;
     }
 
-    public static SF2Layer newLayer(SF2Soundbank sf2, String name, SF2Sample sample, Map<Integer, Short> generators) {
-        SF2Layer layer = new SF2Layer(sf2);
-        layer.setName(name);
-        layer.getRegions().add(new SF2LayerRegion(sample, generators));
+    public static SF2Layer newLayer(SF2Soundbank sf2, String name, SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {
+        SF2Layer layer = new SF2Layer(sf2, name, globalRegion, Collections.singletonList(new SF2LayerRegion(sample, generators)));
         sf2.addResource(layer);
 
         return layer;
