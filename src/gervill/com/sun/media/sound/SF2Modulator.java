@@ -44,11 +44,20 @@ public final class SF2Modulator {
     public final static int SOURCE_TYPE_CONVEX = 1024 * 2;
     public final static int SOURCE_TYPE_SWITCH = 1024 * 3;
     public final static int TRANSFORM_ABSOLUTE = 2;
-    int sourceOperator;
-    int destinationOperator;
-    short amount;
-    int amountSourceOperator;
-    int transportOperator;
+
+    private final int sourceOperator;
+    private final int destinationOperator;
+    private final short amount;
+    private final int amountSourceOperator;
+    private final int transportOperator;
+
+    public SF2Modulator(int sourceOperator, int destinationOperator, short amount, int amountSourceOperator, int transportOperator) {
+        this.sourceOperator = sourceOperator;
+        this.destinationOperator = destinationOperator;
+        this.amount = amount;
+        this.amountSourceOperator = amountSourceOperator;
+        this.transportOperator = transportOperator;
+    }
 
     public short getAmount() {
         return amount;

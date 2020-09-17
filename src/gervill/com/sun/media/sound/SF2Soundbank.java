@@ -297,14 +297,14 @@ public final class SF2Soundbank implements Soundbank {
                 case "pmod":
                     // Preset Modulators / Split Modulators
                     for (SF2InstrumentRegion sf2InstrumentRegion : presets_splits_mod) {
-                        SF2Modulator modulator = new SF2Modulator();
-                        modulator.sourceOperator = chunk.readUnsignedShort();
-                        modulator.destinationOperator = chunk.readUnsignedShort();
-                        modulator.amount = chunk.readShort();
-                        modulator.amountSourceOperator = chunk.readUnsignedShort();
-                        modulator.transportOperator = chunk.readUnsignedShort();
-                        if (sf2InstrumentRegion != null)
-                            sf2InstrumentRegion.modulators.add(modulator);
+                        int sourceOperator = chunk.readUnsignedShort();
+                        int destinationOperator = chunk.readUnsignedShort();
+                        short amount = chunk.readShort();
+                        int amountSourceOperator = chunk.readUnsignedShort();
+                        int transportOperator = chunk.readUnsignedShort();
+                        if (sf2InstrumentRegion != null) {
+                            sf2InstrumentRegion.modulators.add(new SF2Modulator(sourceOperator, destinationOperator, amount, amountSourceOperator, transportOperator));
+                        }
                     }
                     break;
                 case "pgen":
@@ -387,18 +387,17 @@ public final class SF2Soundbank implements Soundbank {
                 case "imod":
                     // Instrument Modulators / Split Modulators
                     for (int i = 0; i < instruments_splits_mod.size(); i++) {
-                        SF2Modulator modulator = new SF2Modulator();
-                        modulator.sourceOperator = chunk.readUnsignedShort();
-                        modulator.destinationOperator = chunk.readUnsignedShort();
-                        modulator.amount = chunk.readShort();
-                        modulator.amountSourceOperator = chunk.readUnsignedShort();
-                        modulator.transportOperator = chunk.readUnsignedShort();
+                        int sourceOperator = chunk.readUnsignedShort();
+                        int destinationOperator = chunk.readUnsignedShort();
+                        short amount = chunk.readShort();
+                        int amountSourceOperator = chunk.readUnsignedShort();
+                        int transportOperator = chunk.readUnsignedShort();
                         if (i >= instruments_splits_gen.size()) {
                             throw new RuntimeException();
                         }
                         SF2LayerRegion split = instruments_splits_gen.get(i);
                         if (split != null)
-                            split.modulators.add(modulator);
+                            split.modulators.add(new SF2Modulator(sourceOperator, destinationOperator, amount, amountSourceOperator, transportOperator));
                     }
                     break;
                 case "igen":
