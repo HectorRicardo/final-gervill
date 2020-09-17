@@ -16,7 +16,7 @@ public class Main {
 
         // Step 2. Repeat operations
         openPlayAndClose(player, new SF2Soundbank(new File("assets/gm.sf2")));
-        openPlayAndClose(player, new DLSSoundbank(new File("assets/gm.dls")));
+        openPlayAndClose(player, DLSSoundbank.createSoundbank(new File("assets/gm.dls")));
         openPlayAndClose(player, null);
     }
 

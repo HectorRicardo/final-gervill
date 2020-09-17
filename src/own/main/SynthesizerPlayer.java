@@ -241,9 +241,9 @@ public class SynthesizerPlayer {
                     soundbank = new SF2Soundbank(file);
                     soundbank = new SF2Soundbank(url);
 
-                    soundbank = new DLSSoundbank(fis);
-                    soundbank = new DLSSoundbank(file);
-                    soundbank = new DLSSoundbank(url);
+                    soundbank = DLSSoundbank.createSoundbank(fis);
+                    soundbank = DLSSoundbank.createSoundbank(file);
+                    soundbank = DLSSoundbank.createSoundbank(url);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

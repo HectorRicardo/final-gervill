@@ -81,6 +81,10 @@ public abstract class Soundbank {
         instruments = new ArrayList<>();
     }
 
+    public Soundbank(List<Instrument> instruments) {
+        this.instruments = instruments;
+    }
+
     public List<Instrument> getInstrumentsAux() {
         return instruments;
     }
