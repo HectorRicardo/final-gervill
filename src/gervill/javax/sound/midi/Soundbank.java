@@ -26,6 +26,12 @@
 package gervill.javax.sound.midi;
 
 
+import gervill.com.sun.media.sound.ModelInstrumentComparator;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A <code>Soundbank</code> contains a set of <code>Instruments</code>
  * that can be loaded into a <code>Synthesizer</code>.
@@ -67,33 +73,42 @@ package gervill.javax.sound.midi;
  * @author Kara Kytle
  */
 
-public interface Soundbank {
+public abstract class Soundbank {
 
+    private final List<Instrument> instruments;
+
+    public Soundbank() {
+        instruments = new ArrayList<>();
+    }
+
+    public List<Instrument> getInstrumentsAux() {
+        return instruments;
+    }
 
     /**
      * Obtains the name of the sound bank.
      * @return a <code>String</code> naming the sound bank
      */
-    String getName();
+    public abstract String getName();
 
     /**
      * Obtains the version string for the sound bank.
      * @return a <code>String</code> that indicates the sound bank's version
      */
-    String getVersion();
+    public abstract String getVersion();
 
     /**
      * Obtains a <code>string</code> naming the company that provides the
      * sound bank
      * @return the vendor string
      */
-    String getVendor();
+    public abstract String getVendor();
 
     /**
      * Obtains a textual description of the sound bank, suitable for display.
      * @return a <code>String</code> that describes the sound bank
      */
-    String getDescription();
+    public abstract String getDescription();
 
 
     /**
@@ -105,7 +120,11 @@ public interface Soundbank {
      * see Synthesizer#getLoadedInstruments
      * see #getInstrument(Patch)
      */
-    Instrument[] getInstruments();
+    public Instrument[] getInstruments() {
+        Instrument[] inslist_array = instruments.toArray(new Instrument[0]);
+        Arrays.sort(inslist_array, new ModelInstrumentComparator());
+        return inslist_array;
+    }
 
     /**
      * Obtains an <code>Instrument</code> from the given <code>Patch</code>.
@@ -117,7 +136,14 @@ public interface Soundbank {
      * see #getInstruments
      * see Synthesizer#loadInstruments(Soundbank, Patch[])
      */
-    Instrument getInstrument(Patch patch);
+    public Instrument getInstrument(Patch patch) {
+        for (Instrument instrument : instruments) {
+            if (patch.equals(instrument.getPatch())) {
+                return instrument;
+            }
+        }
+        return null;
+    }
 
 
 }

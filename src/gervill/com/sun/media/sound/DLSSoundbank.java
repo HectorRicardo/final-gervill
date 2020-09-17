@@ -24,7 +24,6 @@
  */
 package gervill.com.sun.media.sound;
 
-import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.midi.Soundbank;
 import gervill.javax.sound.sampled.AudioFormat;
@@ -42,7 +41,7 @@ import java.util.*;
  *
  * @author Karl Helgason
  */
-public final class DLSSoundbank implements Soundbank {
+public final class DLSSoundbank extends Soundbank {
 
     static private class DLSID {
         long i1;
@@ -165,7 +164,6 @@ public final class DLSSoundbank implements Soundbank {
     private String engineers;
     private String comments;
 
-    private final List<DLSInstrument> instruments = new ArrayList<>();
     private final List<DLSSample> samples = new ArrayList<>();
 
     private boolean largeFormat = false;
@@ -509,7 +507,7 @@ public final class DLSSoundbank implements Soundbank {
         }
 
         DLSInstrument instrument = new DLSInstrument(this, name, regions, modulators, patch);
-        instruments.add(instrument);
+        getInstrumentsAux().add(instrument);
     }
 
     private void readArtChunk(List<DLSModulator> modulators, RIFFReader riff, int version)
@@ -767,22 +765,6 @@ public final class DLSSoundbank implements Soundbank {
 
     public String getDescription() {
         return comments;
-    }
-
-    public DLSInstrument[] getInstruments() {
-        DLSInstrument[] inslist_array =
-                instruments.toArray(new DLSInstrument[0]);
-        Arrays.sort(inslist_array, new ModelInstrumentComparator());
-        return inslist_array;
-    }
-
-    public Instrument getInstrument(Patch patch) {
-        for (Instrument instrument : instruments) {
-            if (patch.equals(instrument.getPatch())) {
-                return instrument;
-            }
-        }
-        return null;
     }
 
 }

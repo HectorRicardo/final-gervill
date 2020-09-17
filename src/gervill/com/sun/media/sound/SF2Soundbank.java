@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,7 +47,7 @@ import java.util.List;
  *
  * @author Karl Helgason
  */
-public final class SF2Soundbank implements Soundbank {
+public final class SF2Soundbank extends Soundbank {
 
     // version of the Sound Font RIFF file
     int major = 2;
@@ -64,7 +63,6 @@ public final class SF2Soundbank implements Soundbank {
     private ModelByteBuffer sampleData24 = null;
     private File sampleFile = null;
     private boolean largeFormat = false;
-    private final List<SF2Instrument> instruments = new ArrayList<>();
     private final List<SF2Layer> layers = new ArrayList<>();
     private final List<SF2Sample> samples = new ArrayList<>();
 
@@ -234,7 +232,7 @@ public final class SF2Soundbank implements Soundbank {
                         chunk.readUnsignedInt();
                         if (i != count - 1) {
                             Patch patch = bank == 128 ? new Patch(0, program, true) : new Patch(bank << 7, program, false);
-                            this.instruments.add(new SF2Instrument(this, name, patch));
+                            this.getInstrumentsAux().add(new SF2Instrument(this, name, patch));
                         }
                     }
                     break;
@@ -276,7 +274,7 @@ public final class SF2Soundbank implements Soundbank {
                     for (int i = 0; i < presets_bagNdx.size() - 1; i++) {
                         int zone_count = presets_bagNdx.get(i + 1)
                                 - presets_bagNdx.get(i);
-                        SF2Instrument preset = (SF2Instrument) this.instruments.get(i);
+                        SF2Instrument preset = (SF2Instrument) this.getInstrumentsAux().get(i);
                         for (int ii = 0; ii < zone_count; ii++) {
                             if (count == 0)
                                 throw new RuntimeException();
@@ -462,7 +460,8 @@ public final class SF2Soundbank implements Soundbank {
         }
 
 
-        for (SF2Instrument instrument : this.instruments) {
+        for (Instrument instrumentG : this.getInstrumentsAux()) {
+            SF2Instrument instrument = (SF2Instrument) instrumentG;
             Iterator<SF2InstrumentRegion> siter = instrument.getRegions().iterator();
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
@@ -516,25 +515,9 @@ public final class SF2Soundbank implements Soundbank {
         comments = s;
     }
 
-    public SF2Instrument[] getInstruments() {
-        SF2Instrument[] inslist_array
-                = instruments.toArray(new SF2Instrument[0]);
-        Arrays.sort(inslist_array, new ModelInstrumentComparator());
-        return inslist_array;
-    }
-
-    public Instrument getInstrument(Patch patch) {
-        for (Instrument instrument : instruments) {
-            if (patch.equals(instrument.getPatch())) {
-                return instrument;
-            }
-        }
-        return null;
-    }
-
     public void addResource(SoundbankResource resource) {
         if (resource instanceof SF2Instrument)
-            instruments.add((SF2Instrument)resource);
+            getInstrumentsAux().add((SF2Instrument)resource);
         if (resource instanceof SF2Layer)
             layers.add((SF2Layer)resource);
         if (resource instanceof SF2Sample)
@@ -542,7 +525,7 @@ public final class SF2Soundbank implements Soundbank {
     }
 
     public void addInstrument(SF2Instrument resource) {
-        instruments.add(resource);
+        getInstrumentsAux().add(resource);
     }
 
 }
