@@ -42,8 +42,8 @@ public final class DLSSample extends SoundbankResource {
     private final ModelByteBuffer data;
     private final AudioFormat format;
 
-    public DLSSample(DLSSoundbank soundbank, String name, AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
-        super(soundbank, name);
+    public DLSSample(String name, AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
+        super(name);
         this.format = format;
         this.data = data;
         this.sampleoptions = sampleoptions;

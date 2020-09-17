@@ -43,8 +43,8 @@ public final class SF2Sample extends SoundbankResource {
     private final ModelByteBuffer data;
     private final ModelByteBuffer data24;
 
-    public SF2Sample(Soundbank soundBank, String name, ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
-        super(soundBank, name);
+    public SF2Sample(String name, ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
+        super(name);
         this.startLoop = startLoop;
         this.endLoop = endLoop;
         this.sampleRate = sampleRate;
@@ -54,12 +54,12 @@ public final class SF2Sample extends SoundbankResource {
         this.data24 = data24;
     }
 
-    public SF2Sample(Soundbank soundBank, String name, byte[] data, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
-        this(soundBank, name, new ModelByteBuffer(data), null, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
+    public SF2Sample(String name, byte[] data, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
+        this(name, new ModelByteBuffer(data), null, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
     }
 
-    public SF2Sample(Soundbank soundBank, String name, byte[] data, long startLoop, long endLoop, long sampleRate, int originalPitch) {
-        this(soundBank, name, data, startLoop, endLoop, sampleRate, originalPitch, (byte)0);
+    public SF2Sample(String name, byte[] data, long startLoop, long endLoop, long sampleRate, int originalPitch) {
+        this(name, data, startLoop, endLoop, sampleRate, originalPitch, (byte)0);
     }
 
     public ModelByteBuffer getDataBuffer() {

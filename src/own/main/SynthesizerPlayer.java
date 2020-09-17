@@ -194,7 +194,6 @@ public class SynthesizerPlayer {
 
             // Instrument
             System.out.println(instrument.getName());
-            soundbank = instrument.getSoundbank();
             System.out.println(instrument.getPatch().getBank());
 
             // Soundbank

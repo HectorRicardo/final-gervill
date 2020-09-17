@@ -41,13 +41,13 @@ public final class SF2Instrument extends ModelInstrument {
     private SF2Region globalregion;
     private final List<SF2InstrumentRegion> regions;
 
-    public SF2Instrument(SF2Soundbank soundbank, String name, Patch patch) {
-        super(soundbank, patch, name);
+    public SF2Instrument(String name, Patch patch) {
+        super(patch, name);
         regions = new ArrayList<>();
     }
 
-    public SF2Instrument(SF2Soundbank soundbank, String name, Patch patch, List<SF2InstrumentRegion> regions) {
-        super(soundbank, patch, name);
+    public SF2Instrument(String name, Patch patch, List<SF2InstrumentRegion> regions) {
+        super(patch, name);
         this.regions = regions;
     }
 

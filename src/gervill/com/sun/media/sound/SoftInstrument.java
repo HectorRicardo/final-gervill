@@ -38,7 +38,7 @@ public final class SoftInstrument extends Instrument {
     private final ModelInstrument ins;
 
     public SoftInstrument(ModelInstrument ins) {
-        super(ins.getSoundbank(), ins.getPatch(), ins.getName());
+        super(ins.getPatch(), ins.getName());
         this.ins = ins;
         initPerformers(ins.getPerformers());
     }

@@ -248,7 +248,7 @@ public final class EmergencySoundbank {
             }
         }
 
-        SF2Instrument drum_instrument = new SF2Instrument(sf2, "Standard Kit", new Patch(0, 0, true), regions);
+        SF2Instrument drum_instrument = new SF2Instrument("Standard Kit", new Patch(0, 0, true), regions);
         sf2.addInstrument(drum_instrument);
 
 
@@ -2243,7 +2243,7 @@ public final class EmergencySoundbank {
          */
 
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
-        SF2Sample sample = new SF2Sample(sf2, name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
+        SF2Sample sample = new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
         sf2.addResource(sample);
 
         return sample;
@@ -2275,7 +2275,7 @@ public final class EmergencySoundbank {
          * Create SoundFont2 sample.
          */
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
-        SF2Sample sample = new SF2Sample(sf2, name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
+        SF2Sample sample = new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
         sf2.addResource(sample);
 
         return sample;
@@ -2291,14 +2291,14 @@ public final class EmergencySoundbank {
         /*
          * Create SoundFont2 sample.
          */
-        SF2Sample sample = new SF2Sample(sf2, name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), originalPitch);
+        SF2Sample sample = new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), originalPitch);
         sf2.addResource(sample);
 
         return sample;
     }
 
     public static SF2Layer newLayer(SF2Soundbank sf2, String name, SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {
-        SF2Layer layer = new SF2Layer(sf2, name, globalRegion, Collections.singletonList(new SF2LayerRegion(sample, generators)));
+        SF2Layer layer = new SF2Layer(name, globalRegion, Collections.singletonList(new SF2LayerRegion(sample, generators)));
         sf2.addResource(layer);
 
         return layer;
@@ -2309,24 +2309,24 @@ public final class EmergencySoundbank {
         for (SF2Layer layer : layers) {
             regions.add(new SF2InstrumentRegion(layer));
         }
-        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, regions);
+        SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
         sf2.addInstrument(ins);
     }
 
     public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer, Map<Integer, Short> generators) {
-        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, Collections.singletonList(new SF2InstrumentRegion(layer, generators)));
+        SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, Collections.singletonList(new SF2InstrumentRegion(layer, generators)));
         sf2.addInstrument(ins);
     }
 
     public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
         List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer, generators1), new SF2InstrumentRegion(layer, generators2));
-        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, regions);
+        SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
         sf2.addInstrument(ins);
     }
 
     public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
         List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer1, generators), new SF2InstrumentRegion(layer1), new SF2InstrumentRegion(layer2));
-        SF2Instrument ins = new SF2Instrument(sf2, general_midi_instruments[patch.getProgram()], patch, regions);
+        SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
         sf2.addInstrument(ins);
     }
 

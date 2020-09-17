@@ -45,8 +45,8 @@ public final class DLSInstrument extends ModelInstrument {
     private final ImmutableList<DLSRegion> regions;
     private final ImmutableList<DLSModulator> modulators;
 
-    public DLSInstrument(DLSSoundbank soundbank, String name, List<DLSRegion> regions, List<DLSModulator> modulators, Patch patch) {
-        super(soundbank, patch, name);
+    public DLSInstrument(String name, List<DLSRegion> regions, List<DLSModulator> modulators, Patch patch) {
+        super(patch, name);
         this.regions = ImmutableList.create(regions);
         this.modulators = ImmutableList.create(modulators);
     }

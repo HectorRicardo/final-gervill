@@ -232,7 +232,7 @@ public final class SF2Soundbank extends Soundbank {
                         chunk.readUnsignedInt();
                         if (i != count - 1) {
                             Patch patch = bank == 128 ? new Patch(0, program, true) : new Patch(bank << 7, program, false);
-                            this.getInstrumentsAux().add(new SF2Instrument(this, name, patch));
+                            this.getInstrumentsAux().add(new SF2Instrument(name, patch));
                         }
                     }
                     break;
@@ -320,7 +320,7 @@ public final class SF2Soundbank extends Soundbank {
                     int count = chunk.available() / 22;
                     for (int i = 0; i < count; i++) {
                         String name = chunk.readString(20);
-                        SF2Layer layer = new SF2Layer(this, name);
+                        SF2Layer layer = new SF2Layer(name);
                         instruments_bagNdx.add(chunk.readUnsignedShort());
                         if (i != count - 1)
                             this.layers.add(layer);
@@ -424,7 +424,7 @@ public final class SF2Soundbank extends Soundbank {
                         int originalPitch = chunk.readUnsignedByte();
                         byte pitchCorrection = chunk.readByte();
 
-                        SF2Sample sample = new SF2Sample(this, name, data, data24, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
+                        SF2Sample sample = new SF2Sample(name, data, data24, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
 
                         chunk.readUnsignedShort();
                         chunk.readUnsignedShort();

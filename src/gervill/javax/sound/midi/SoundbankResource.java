@@ -69,12 +69,6 @@ public abstract class SoundbankResource {
 
 
     /**
-     * The sound bank that contains the <code>SoundbankResources</code>
-     */
-    private final Soundbank soundBank;
-
-
-    /**
      * The name of the <code>SoundbankResource</code>
      */
     private final String name;
@@ -84,7 +78,6 @@ public abstract class SoundbankResource {
      * Constructs a new <code>SoundbankResource</code> from the given sound bank
      * and wavetable index.  (Setting the <code>SoundbankResource's</code> name,
      * sampled audio data, and instruments is a subclass responsibility.)
-     * @param soundBank the sound bank containing this <code>SoundbankResource</code>
      * @param name the name of the sample
      *
      * see #getSoundbank
@@ -92,19 +85,8 @@ public abstract class SoundbankResource {
      * see #getDataClass
      * see #getData
      */
-    protected SoundbankResource(Soundbank soundBank, String name) {
-
-        this.soundBank = soundBank;
+    protected SoundbankResource(String name) {
         this.name = name;
-    }
-
-
-    /**
-     * Obtains the sound bank that contains this <code>SoundbankResource</code>.
-     * @return the sound bank in which this <code>SoundbankResource</code> is stored
-     */
-    public Soundbank getSoundbank() {
-        return soundBank;
     }
 
 

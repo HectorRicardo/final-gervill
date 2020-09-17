@@ -506,7 +506,7 @@ public final class DLSSoundbank extends Soundbank {
             }
         }
 
-        DLSInstrument instrument = new DLSInstrument(this, name, regions, modulators, patch);
+        DLSInstrument instrument = new DLSInstrument(name, regions, modulators, patch);
         getInstrumentsAux().add(instrument);
     }
 
@@ -747,7 +747,7 @@ public final class DLSSoundbank extends Soundbank {
             }
         }
 
-        samples.add(new DLSSample(this, name, sampleFormat, mbb, sampleoptions));
+        samples.add(new DLSSample(name, sampleFormat, mbb, sampleoptions));
 
     }
 
