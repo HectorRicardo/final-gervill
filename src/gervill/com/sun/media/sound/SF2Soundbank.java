@@ -303,7 +303,7 @@ public final class SF2Soundbank implements Soundbank {
                         int amountSourceOperator = chunk.readUnsignedShort();
                         int transportOperator = chunk.readUnsignedShort();
                         if (sf2InstrumentRegion != null) {
-                            sf2InstrumentRegion.modulators.add(new SF2Modulator(sourceOperator, destinationOperator, amount, amountSourceOperator, transportOperator));
+                            sf2InstrumentRegion.getModulators().add(new SF2Modulator(sourceOperator, destinationOperator, amount, amountSourceOperator, transportOperator));
                         }
                     }
                     break;
@@ -313,7 +313,7 @@ public final class SF2Soundbank implements Soundbank {
                         int operator = chunk.readUnsignedShort();
                         short amount = chunk.readShort();
                         if (sf2InstrumentRegion != null)
-                            sf2InstrumentRegion.generators.put(operator, amount);
+                            sf2InstrumentRegion.getGenerators().put(operator, amount);
                     }
                     break;
                 case "inst": {
@@ -397,7 +397,7 @@ public final class SF2Soundbank implements Soundbank {
                         }
                         SF2LayerRegion split = instruments_splits_gen.get(i);
                         if (split != null)
-                            split.modulators.add(new SF2Modulator(sourceOperator, destinationOperator, amount, amountSourceOperator, transportOperator));
+                            split.getModulators().add(new SF2Modulator(sourceOperator, destinationOperator, amount, amountSourceOperator, transportOperator));
                     }
                     break;
                 case "igen":
@@ -406,7 +406,7 @@ public final class SF2Soundbank implements Soundbank {
                         int operator = chunk.readUnsignedShort();
                         short amount = chunk.readShort();
                         if (sf2LayerRegion != null)
-                            sf2LayerRegion.generators.put(operator, amount);
+                            sf2LayerRegion.getGenerators().put(operator, amount);
                     }
                     break;
                 case "shdr": {
@@ -444,24 +444,21 @@ public final class SF2Soundbank implements Soundbank {
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
                 SF2LayerRegion split = siter.next();
-                if (split.generators.get(SF2LayerRegion.GENERATOR_SAMPLEID) != null) {
-                    int sampleid = split.generators.get(
+                if (split.getGenerators().get(SF2LayerRegion.GENERATOR_SAMPLEID) != null) {
+                    int sampleid = split.getGenerators().get(
                             SF2LayerRegion.GENERATOR_SAMPLEID);
-                    split.generators.remove(SF2LayerRegion.GENERATOR_SAMPLEID);
+                    split.getGenerators().remove(SF2LayerRegion.GENERATOR_SAMPLEID);
                     if (sampleid < 0 || sampleid >= samples.size()) {
                         throw new RuntimeException();
                     }
-                    split.sample = samples.get(sampleid);
+                    split.setSample(samples.get(sampleid));
                 } else {
                     globalsplit = split;
                 }
             }
             if (globalsplit != null) {
                 layer.getRegions().remove(globalsplit);
-                SF2Region gsplit = new SF2Region();
-                gsplit.generators = globalsplit.generators;
-                gsplit.modulators = globalsplit.modulators;
-                layer.setGlobalZone(gsplit);
+                layer.setGlobalZone(new SF2Region(globalsplit.getGenerators(), globalsplit.getModulators()));
             }
         }
 
@@ -471,14 +468,14 @@ public final class SF2Soundbank implements Soundbank {
             SF2Region globalsplit = null;
             while (siter.hasNext()) {
                 SF2InstrumentRegion split = siter.next();
-                if (split.generators.get(SF2LayerRegion.GENERATOR_INSTRUMENT) != null) {
-                    int instrumentid = split.generators.get(
+                if (split.getGenerators().get(SF2LayerRegion.GENERATOR_INSTRUMENT) != null) {
+                    int instrumentid = split.getGenerators().get(
                             SF2InstrumentRegion.GENERATOR_INSTRUMENT);
-                    split.generators.remove(SF2LayerRegion.GENERATOR_INSTRUMENT);
+                    split.getGenerators().remove(SF2LayerRegion.GENERATOR_INSTRUMENT);
                     if (instrumentid < 0 || instrumentid >= layers.size()) {
                         throw new RuntimeException();
                     }
-                    split.layer = layers.get(instrumentid);
+                    split.setLayer(layers.get(instrumentid));
                 } else {
                     globalsplit = split;
                 }
@@ -486,10 +483,7 @@ public final class SF2Soundbank implements Soundbank {
 
             if (globalsplit != null) {
                 instrument.getRegions().remove(globalsplit);
-                SF2Region gsplit = new SF2Region();
-                gsplit.generators = globalsplit.generators;
-                gsplit.modulators = globalsplit.modulators;
-                instrument.setGlobalZone(gsplit);
+                instrument.setGlobalZone(new SF2Region(globalsplit.getGenerators(), globalsplit.getModulators()));
             }
         }
 

@@ -24,6 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
+import java.util.Map;
+
 /**
  * Soundfont instrument region.
  *
@@ -31,7 +33,19 @@ package gervill.com.sun.media.sound;
  */
 public final class SF2InstrumentRegion extends SF2Region {
 
-    SF2Layer layer;
+    private SF2Layer layer;
+
+    public SF2InstrumentRegion() {}
+
+    public SF2InstrumentRegion(SF2Layer layer) {
+        super();
+        this.layer = layer;
+    }
+
+    public SF2InstrumentRegion(SF2Layer layer, Map<Integer, Short> generators) {
+        super(generators);
+        this.layer = layer;
+    }
 
     public SF2Layer getLayer() {
         return layer;

@@ -88,8 +88,22 @@ public class SF2Region {
     public final static int GENERATOR_SCALETUNING = 56;
     public final static int GENERATOR_EXCLUSIVECLASS = 57;
     public final static int GENERATOR_OVERRIDINGROOTKEY = 58;
-    protected Map<Integer, Short> generators = new HashMap<>();
-    protected List<SF2Modulator> modulators = new ArrayList<>();
+
+    private final Map<Integer, Short> generators;
+    private final List<SF2Modulator> modulators;
+
+    public SF2Region() {
+        this(new HashMap<>(), new ArrayList<>());
+    }
+
+    public SF2Region(Map<Integer, Short> generators, List<SF2Modulator> modulators) {
+        this.generators = generators;
+        this.modulators = modulators;
+    }
+
+    public SF2Region(Map<Integer, Short> generators) {
+        this(generators, new ArrayList<>());
+    }
 
     public Map<Integer, Short> getGenerators() {
         return generators;
@@ -136,19 +150,12 @@ public class SF2Region {
         return bytes;
     }
 
-    public void putBytes(int generator, byte[] bytes) {
-        generators.put(generator, (short) (bytes[0] + (bytes[1] << 8)));
-    }
-
     public int getInteger(int generator) {
         return 0xFFFF & getShort(generator);
-    }
-
-    public void putInteger(int generator, int value) {
-        generators.put(generator, (short) value);
     }
 
     public List<SF2Modulator> getModulators() {
         return modulators;
     }
+
 }
