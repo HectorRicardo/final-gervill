@@ -44,20 +44,17 @@ import java.util.*;
 public final class DLSSoundbank extends Soundbank {
 
     static private class DLSID {
-        long i1;
-        int s1;
-        int s2;
-        int x1;
-        int x2;
-        int x3;
-        int x4;
-        int x5;
-        int x6;
-        int x7;
-        int x8;
-
-        private DLSID() {
-        }
+        private final long i1;
+        private final int s1;
+        private final int s2;
+        private final int x1;
+        private final int x2;
+        private final int x3;
+        private final int x4;
+        private final int x5;
+        private final int x6;
+        private final int x7;
+        private final int x8;
 
         DLSID(long i1, int s1, int s2, int x1, int x2, int x4,
               int x5, int x6, int x7, int x8) {
@@ -75,19 +72,18 @@ public final class DLSSoundbank extends Soundbank {
         }
 
         public static DLSID read(RIFFReader riff) throws IOException {
-            DLSID d = new DLSID();
-            d.i1 = riff.readUnsignedInt();
-            d.s1 = riff.readUnsignedShort();
-            d.s2 = riff.readUnsignedShort();
-            d.x1 = riff.readUnsignedByte();
-            d.x2 = riff.readUnsignedByte();
-            d.x3 = riff.readUnsignedByte();
-            d.x4 = riff.readUnsignedByte();
-            d.x5 = riff.readUnsignedByte();
-            d.x6 = riff.readUnsignedByte();
-            d.x7 = riff.readUnsignedByte();
-            d.x8 = riff.readUnsignedByte();
-            return d;
+            long i1 = riff.readUnsignedInt();
+            int s1 = riff.readUnsignedShort();
+            int s2 = riff.readUnsignedShort();
+            int x1 = riff.readUnsignedByte();
+            int x2 = riff.readUnsignedByte();
+            riff.readUnsignedByte();
+            int x4 = riff.readUnsignedByte();
+            int x5 = riff.readUnsignedByte();
+            int x6 = riff.readUnsignedByte();
+            int x7 = riff.readUnsignedByte();
+            int x8 = riff.readUnsignedByte();
+            return new DLSID(i1, s1, s2, x1, x2, x4, x5, x6, x7, x8);
         }
 
         public boolean equals(Object obj) {
@@ -166,17 +162,16 @@ public final class DLSSoundbank extends Soundbank {
 
     private final List<DLSSample> samples = new ArrayList<>();
 
-    private boolean largeFormat = false;
-    private File sampleFile;
+    private final File sampleFile;
 
     public DLSSoundbank(URL url) throws IOException {
+        sampleFile = null;
         try (InputStream is = url.openStream()) {
             readSoundbank(is);
         }
     }
 
     public DLSSoundbank(File file) throws IOException {
-        largeFormat = true;
         sampleFile = file;
         try (InputStream is = new FileInputStream(file)) {
             readSoundbank(is);
@@ -184,10 +179,13 @@ public final class DLSSoundbank extends Soundbank {
     }
 
     public DLSSoundbank(InputStream inputstream) throws IOException {
+        sampleFile = null;
         readSoundbank(inputstream);
     }
 
     private void readSoundbank(InputStream inputstream) throws IOException {
+        Map<DLSRegion, Long> temp_rgnassign = new HashMap<>();
+
         RIFFReader riff = new RIFFReader(inputstream);
         if (!riff.getFormat().equals("RIFF")) {
             throw new RuntimeException(
@@ -203,7 +201,7 @@ public final class DLSSoundbank extends Soundbank {
                 if (chunk.getType().equals("INFO"))
                     readInfoChunk(chunk);
                 if (chunk.getType().equals("lins"))
-                    readLinsChunk(chunk);
+                    readLinsChunk(chunk, temp_rgnassign);
                 if (chunk.getType().equals("wvpl"))
                     readWvplChunk(chunk);
             } else {
@@ -228,11 +226,9 @@ public final class DLSSoundbank extends Soundbank {
         for (Map.Entry<DLSRegion, Long> entry : temp_rgnassign.entrySet()) {
             entry.getKey().setSample(samples.get((int)entry.getValue().longValue()));
         }
-
-        temp_rgnassign = null;
     }
 
-    private boolean cdlIsQuerySupported(DLSID uuid) {
+    private static boolean cdlIsQuerySupported(DLSID uuid) {
         return uuid.equals(DLSID_GMInHardware)
             || uuid.equals(DLSID_GSInHardware)
             || uuid.equals(DLSID_XGInHardware)
@@ -244,7 +240,7 @@ public final class DLSSoundbank extends Soundbank {
             || uuid.equals(DLSID_SamplePlaybackRate);
     }
 
-    private long cdlQuery(DLSID uuid) {
+    private static long cdlQuery(DLSID uuid) {
         if (uuid.equals(DLSID_GMInHardware))
             return 1;
         if (uuid.equals(DLSID_GSInHardware))
@@ -269,7 +265,7 @@ public final class DLSSoundbank extends Soundbank {
 
     // Reading cdl-ck Chunk
     // "cdl " chunk can only appear inside : DLS,lart,lar2,rgn,rgn2
-    private boolean readCdlChunkInverted(RIFFReader riff) throws IOException {
+    private static boolean readCdlChunkInverted(RIFFReader riff) throws IOException {
 
         DLSID uuid;
         long x;
@@ -402,17 +398,17 @@ public final class DLSSoundbank extends Soundbank {
         }
     }
 
-    private void readLinsChunk(RIFFReader riff) throws IOException {
+    private void readLinsChunk(RIFFReader riff, Map<DLSRegion, Long> temp_rgnassign) throws IOException {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             if (chunk.getFormat().equals("LIST")) {
                 if (chunk.getType().equals("ins "))
-                    readInsChunk(chunk);
+                    readInsChunk(chunk, temp_rgnassign);
             }
         }
     }
 
-    private void readInsChunk(RIFFReader riff) throws IOException {
+    private void readInsChunk(RIFFReader riff, Map<DLSRegion, Long> temp_rgnassign) throws IOException {
         String name = null;
         List<DLSRegion> regions = new ArrayList<>();
         List<DLSModulator> modulators = new ArrayList<>();
@@ -455,13 +451,13 @@ public final class DLSSoundbank extends Soundbank {
                         RIFFReader subchunk = chunk.nextChunk();
                         if (subchunk.getFormat().equals("LIST")) {
                             if (subchunk.getType().equals("rgn ")) {
-                                DLSRegion split = readRgnChunk(subchunk);
+                                DLSRegion split = readRgnChunk(subchunk, temp_rgnassign);
                                 if (split != null)
                                     regions.add(split);
                             }
                             if (subchunk.getType().equals("rgn2")) {
                                 // support for DLS level 2 regions
-                                DLSRegion split = readRgnChunk(subchunk);
+                                DLSRegion split = readRgnChunk(subchunk, temp_rgnassign);
                                 if (split != null)
                                     regions.add(split);
                             }
@@ -510,7 +506,7 @@ public final class DLSSoundbank extends Soundbank {
         getInstrumentsAux().add(instrument);
     }
 
-    private void readArtChunk(List<DLSModulator> modulators, RIFFReader riff, int version)
+    private static void readArtChunk(List<DLSModulator> modulators, RIFFReader riff, int version)
             throws IOException {
         long size = riff.readUnsignedInt();
         long count = riff.readUnsignedInt();
@@ -528,7 +524,7 @@ public final class DLSSoundbank extends Soundbank {
         }
     }
 
-    private void readArtChunkSkip(RIFFReader riff)
+    private static void readArtChunkSkip(RIFFReader riff)
             throws IOException {
         long size = riff.readUnsignedInt();
         long count = riff.readUnsignedInt();
@@ -545,9 +541,7 @@ public final class DLSSoundbank extends Soundbank {
         }
     }
 
-    private Map<DLSRegion, Long> temp_rgnassign = new HashMap<>();
-
-    private DLSRegion readRgnChunk(RIFFReader riff)
+    private static DLSRegion readRgnChunk(RIFFReader riff, Map<DLSRegion, Long> temp_rgnassign)
             throws IOException {
         int keyfrom = 0;
         int keyto = 0;
@@ -606,7 +600,7 @@ public final class DLSSoundbank extends Soundbank {
         return split;
     }
 
-    private DLSSampleOptions readWsmpChunk(RIFFReader riff)
+    private static DLSSampleOptions readWsmpChunk(RIFFReader riff)
             throws IOException {
         long size = riff.readUnsignedInt();
         int unitynote = riff.readUnsignedShort();
@@ -721,7 +715,7 @@ public final class DLSSoundbank extends Soundbank {
                 }
 
                 if (format.equals("data")) {
-                    if (largeFormat) {
+                    if (sampleFile != null) {
                         mbb = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
                     } else {
                         byte[] buffer = new byte[chunk.available()];
