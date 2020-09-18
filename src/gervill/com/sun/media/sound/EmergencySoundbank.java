@@ -24,6 +24,7 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.sampled.AudioFormat;
 
@@ -169,22 +170,21 @@ public final class EmergencySoundbank {
     };
 
     public static SF2Soundbank createSoundbank() {
-        SF2Soundbank sf2 = new SF2Soundbank();
-        sf2.setName("Emergency GM sound set");
-        sf2.setVendor("Generated");
-        sf2.setDescription("Emergency generated soundbank");
+        List<SF2Layer> layers = new ArrayList<>();
+        List<SF2Sample> samples = new ArrayList<>();
+        List<Instrument> instruments = new ArrayList<>();
 
         /*
          *  percussion instruments
          */
 
-        SF2Layer bass_drum = new_bass_drum(sf2);
-        SF2Layer snare_drum = new_snare_drum(sf2);
-        SF2Layer tom = new_tom(sf2);
-        SF2Layer open_hihat = new_open_hihat(sf2);
-        SF2Layer closed_hihat = new_closed_hihat(sf2);
-        SF2Layer crash_cymbal = new_crash_cymbal(sf2);
-        SF2Layer side_stick = new_side_stick(sf2);
+        SF2Layer bass_drum = new_bass_drum(layers, samples);
+        SF2Layer snare_drum = new_snare_drum(layers, samples);
+        SF2Layer tom = new_tom(layers, samples);
+        SF2Layer open_hihat = new_open_hihat(layers, samples);
+        SF2Layer closed_hihat = new_closed_hihat(layers, samples);
+        SF2Layer crash_cymbal = new_crash_cymbal(layers, samples);
+        SF2Layer side_stick = new_side_stick(layers, samples);
 
         SF2Layer[] drums = new SF2Layer[128];
         drums[35] = bass_drum;
@@ -249,208 +249,207 @@ public final class EmergencySoundbank {
         }
 
         SF2Instrument drum_instrument = new SF2Instrument("Standard Kit", new Patch(0, 0, true), regions);
-        sf2.getInstrumentsAux().add(drum_instrument);
+        instruments.add(drum_instrument);
 
 
         /*
          *  melodic instruments
          */
 
-        SF2Layer gpiano = new_gpiano(sf2);
-        SF2Layer gpiano2 = new_gpiano2(sf2);
-        SF2Layer gpiano_hammer = new_piano_hammer(sf2);
-        SF2Layer piano1 = new_piano1(sf2);
-        SF2Layer epiano1 = new_epiano1(sf2);
-        SF2Layer epiano2 = new_epiano2(sf2);
+        SF2Layer gpiano = new_gpiano(layers, samples);
+        SF2Layer gpiano2 = new_gpiano2(layers, samples);
+        SF2Layer gpiano_hammer = new_piano_hammer(layers, samples);
+        SF2Layer piano1 = new_piano1(layers, samples);
+        SF2Layer epiano1 = new_epiano1(layers, samples);
+        SF2Layer epiano2 = new_epiano2(layers, samples);
 
-        SF2Layer guitar = new_guitar1(sf2);
-        SF2Layer guitar_pick = new_guitar_pick(sf2);
-        SF2Layer guitar_dist = new_guitar_dist(sf2);
-        SF2Layer bass1 = new_bass1(sf2);
-        SF2Layer bass2 = new_bass2(sf2);
-        SF2Layer synthbass = new_synthbass(sf2);
-        SF2Layer string2 = new_string2(sf2);
-        SF2Layer orchhit = new_orchhit(sf2);
-        SF2Layer choir = new_choir(sf2);
-        SF2Layer solostring = new_solostring(sf2);
-        SF2Layer organ = new_organ(sf2);
-        SF2Layer ch_organ = new_ch_organ(sf2);
-        SF2Layer bell = new_bell(sf2);
-        SF2Layer flute = new_flute(sf2);
+        SF2Layer guitar = new_guitar1(layers, samples);
+        SF2Layer guitar_pick = new_guitar_pick(layers, samples);
+        SF2Layer guitar_dist = new_guitar_dist(layers, samples);
+        SF2Layer bass1 = new_bass1(layers, samples);
+        SF2Layer bass2 = new_bass2(layers, samples);
+        SF2Layer synthbass = new_synthbass(layers, samples);
+        SF2Layer string2 = new_string2(layers, samples);
+        SF2Layer orchhit = new_orchhit(layers, samples);
+        SF2Layer choir = new_choir(layers, samples);
+        SF2Layer solostring = new_solostring(layers, samples);
+        SF2Layer organ = new_organ(layers, samples);
+        SF2Layer ch_organ = new_ch_organ(layers, samples);
+        SF2Layer bell = new_bell(layers, samples);
+        SF2Layer flute = new_flute(layers, samples);
 
-        SF2Layer timpani = new_timpani(sf2);
-        SF2Layer melodic_toms = new_melodic_toms(sf2);
-        SF2Layer trumpet = new_trumpet(sf2);
-        SF2Layer trombone = new_trombone(sf2);
-        SF2Layer brass_section = new_brass_section(sf2);
-        SF2Layer horn = new_horn(sf2);
-        SF2Layer sax = new_sax(sf2);
-        SF2Layer oboe = new_oboe(sf2);
-        SF2Layer bassoon = new_bassoon(sf2);
-        SF2Layer clarinet = new_clarinet(sf2);
-        SF2Layer reverse_cymbal = new_reverse_cymbal(sf2);
+        SF2Layer timpani = new_timpani(layers, samples);
+        SF2Layer melodic_toms = new_melodic_toms(layers, samples);
+        SF2Layer trumpet = new_trumpet(layers, samples);
+        SF2Layer trombone = new_trombone(layers, samples);
+        SF2Layer brass_section = new_brass_section(layers, samples);
+        SF2Layer horn = new_horn(layers, samples);
+        SF2Layer sax = new_sax(layers, samples);
+        SF2Layer oboe = new_oboe(layers, samples);
+        SF2Layer bassoon = new_bassoon(layers, samples);
+        SF2Layer clarinet = new_clarinet(layers, samples);
+        SF2Layer reverse_cymbal = new_reverse_cymbal(layers, samples);
 
-        newInstrument(sf2, new Patch(0, 0), gpiano, gpiano_hammer);
-        newInstrument(sf2, new Patch(0, 1), gpiano2, gpiano_hammer);
-        newInstrument(sf2, new Patch(0, 2), piano1);
-        newInstrument(sf2, new Patch(0, 3), piano1, new HashMap<Integer, Short>() {{
+        newInstrument(new Patch(0, 0), instruments, gpiano, gpiano_hammer);
+        newInstrument(new Patch(0, 1), instruments, gpiano2, gpiano_hammer);
+        newInstrument(new Patch(0, 2), instruments, piano1);
+        newInstrument(new Patch(0, 3), instruments, piano1, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 80);
             put(SF2Region.GENERATOR_FINETUNE, (short) 30);
         }}, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 30);
         }});
-        newInstrument(sf2, new Patch(0, 4), epiano2);
-        newInstrument(sf2, new Patch(0, 5), epiano2);
-        newInstrument(sf2, new Patch(0, 6), epiano1);
-        newInstrument(sf2, new Patch(0, 7), epiano1);
-        newInstrument(sf2, new Patch(0, 8), epiano2);
-        newInstrument(sf2, new Patch(0, 9), bell);
-        newInstrument(sf2, new Patch(0, 10), bell);
-        newInstrument(sf2, new Patch(0, 11), bell);
-        newInstrument(sf2, new Patch(0, 12), bell);
-        newInstrument(sf2, new Patch(0, 13), bell);
-        newInstrument(sf2, new Patch(0, 14), bell);
-        newInstrument(sf2, new Patch(0, 15), organ);
-        newInstrument(sf2, new Patch(0, 16), organ);
-        newInstrument(sf2, new Patch(0, 17), organ);
-        newInstrument(sf2, new Patch(0, 18), organ);
-        newInstrument(sf2, new Patch(0, 19), ch_organ);
-        newInstrument(sf2, new Patch(0, 20), organ);
-        newInstrument(sf2, new Patch(0, 21), organ);
-        newInstrument(sf2, new Patch(0, 22), organ);
-        newInstrument(sf2, new Patch(0, 23), organ);
-        newInstrument(sf2, new Patch(0, 24), guitar, guitar_pick);
-        newInstrument(sf2, new Patch(0, 25), guitar, guitar_pick);
-        newInstrument(sf2, new Patch(0, 26), guitar, guitar_pick);
-        newInstrument(sf2, new Patch(0, 27), guitar, guitar_pick);
-        newInstrument(sf2, new Patch(0, 28), guitar, guitar_pick);
-        newInstrument(sf2, new Patch(0, 29), guitar_dist);
-        newInstrument(sf2, new Patch(0, 30), guitar_dist);
-        newInstrument(sf2, new Patch(0, 31), guitar, guitar_pick);
-        newInstrument(sf2, new Patch(0, 32), bass1);
-        newInstrument(sf2, new Patch(0, 33), bass1);
-        newInstrument(sf2, new Patch(0, 34), bass1);
-        newInstrument(sf2, new Patch(0, 35), bass2);
-        newInstrument(sf2, new Patch(0, 36), bass2);
-        newInstrument(sf2, new Patch(0, 37), bass2);
-        newInstrument(sf2, new Patch(0, 38), synthbass);
-        newInstrument(sf2, new Patch(0, 39), synthbass);
-        newInstrument(sf2, new Patch(0, 40), string2, solostring);
-        newInstrument(sf2, new Patch(0, 41), string2, solostring);
-        newInstrument(sf2, new Patch(0, 42), string2, solostring);
-        newInstrument(sf2, new Patch(0, 43), string2, solostring);
-        newInstrument(sf2, new Patch(0, 44), string2, solostring);
-        newInstrument(sf2, new Patch(0, 45), piano1);
-        newInstrument(sf2, new Patch(0, 46), bell);
-        newInstrument(sf2, new Patch(0, 47), timpani);
-        newInstrument(sf2, new Patch(0, 48), string2);
-        newInstrument(sf2, new Patch(0, 49), string2, new HashMap<Integer, Short>() {{
+        newInstrument(new Patch(0, 4), instruments, epiano2);
+        newInstrument(new Patch(0, 5), instruments, epiano2);
+        newInstrument(new Patch(0, 6), instruments, epiano1);
+        newInstrument(new Patch(0, 7), instruments, epiano1);
+        newInstrument(new Patch(0, 8), instruments, epiano2);
+        newInstrument(new Patch(0, 9), instruments, bell);
+        newInstrument(new Patch(0, 10), instruments, bell);
+        newInstrument(new Patch(0, 11), instruments, bell);
+        newInstrument(new Patch(0, 12), instruments, bell);
+        newInstrument(new Patch(0, 13), instruments, bell);
+        newInstrument(new Patch(0, 14), instruments, bell);
+        newInstrument(new Patch(0, 15), instruments, organ);
+        newInstrument(new Patch(0, 16), instruments, organ);
+        newInstrument(new Patch(0, 17), instruments, organ);
+        newInstrument(new Patch(0, 18), instruments, organ);
+        newInstrument(new Patch(0, 19), instruments, ch_organ);
+        newInstrument(new Patch(0, 20), instruments, organ);
+        newInstrument(new Patch(0, 21), instruments, organ);
+        newInstrument(new Patch(0, 22), instruments, organ);
+        newInstrument(new Patch(0, 23), instruments, organ);
+        newInstrument(new Patch(0, 24), instruments, guitar, guitar_pick);
+        newInstrument(new Patch(0, 25), instruments, guitar, guitar_pick);
+        newInstrument(new Patch(0, 26), instruments, guitar, guitar_pick);
+        newInstrument(new Patch(0, 27), instruments, guitar, guitar_pick);
+        newInstrument(new Patch(0, 28), instruments, guitar, guitar_pick);
+        newInstrument(new Patch(0, 29), instruments, guitar_dist);
+        newInstrument(new Patch(0, 30), instruments, guitar_dist);
+        newInstrument(new Patch(0, 31), instruments, guitar, guitar_pick);
+        newInstrument(new Patch(0, 32), instruments, bass1);
+        newInstrument(new Patch(0, 33), instruments, bass1);
+        newInstrument(new Patch(0, 34), instruments, bass1);
+        newInstrument(new Patch(0, 35), instruments, bass2);
+        newInstrument(new Patch(0, 36), instruments, bass2);
+        newInstrument(new Patch(0, 37), instruments, bass2);
+        newInstrument(new Patch(0, 38), instruments, synthbass);
+        newInstrument(new Patch(0, 39), instruments, synthbass);
+        newInstrument(new Patch(0, 40), instruments, string2, solostring);
+        newInstrument(new Patch(0, 41), instruments, string2, solostring);
+        newInstrument(new Patch(0, 42), instruments, string2, solostring);
+        newInstrument(new Patch(0, 43), instruments, string2, solostring);
+        newInstrument(new Patch(0, 44), instruments, string2, solostring);
+        newInstrument(new Patch(0, 45), instruments, piano1);
+        newInstrument(new Patch(0, 46), instruments, bell);
+        newInstrument(new Patch(0, 47), instruments, timpani);
+        newInstrument(new Patch(0, 48), instruments, string2);
+        newInstrument(new Patch(0, 49), instruments, string2, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) 2500);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 2000);
         }});
-        newInstrument(sf2, new Patch(0, 50), string2);
-        newInstrument(sf2, new Patch(0, 51), string2);
+        newInstrument(new Patch(0, 50), instruments, string2);
+        newInstrument(new Patch(0, 51), instruments, string2);
 
 
-        newInstrument(sf2, new Patch(0, 52), choir);
-        newInstrument(sf2, new Patch(0, 53), choir);
-        newInstrument(sf2, new Patch(0, 54), choir);
-        newInstrument(sf2, new Patch(0, 55), orchhit, timpani, new HashMap<Integer, Short>() {{
+        newInstrument(new Patch(0, 52), instruments, choir);
+        newInstrument(new Patch(0, 53), instruments, choir);
+        newInstrument(new Patch(0, 54), instruments, choir);
+        newInstrument(new Patch(0, 55), instruments, orchhit, timpani, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_COARSETUNE, (short) -12);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
-        newInstrument(sf2, new Patch(0, 56), trumpet);
-        newInstrument(sf2, new Patch(0, 57), trombone);
-        newInstrument(sf2, new Patch(0, 58), trombone);
-        newInstrument(sf2, new Patch(0, 59), trumpet);
-        newInstrument(sf2, new Patch(0, 60), horn);
-        newInstrument(sf2, new Patch(0, 61), brass_section);
-        newInstrument(sf2, new Patch(0, 62), brass_section);
-        newInstrument(sf2, new Patch(0, 63), brass_section);
-        newInstrument(sf2, new Patch(0, 64), sax);
-        newInstrument(sf2, new Patch(0, 65), sax);
-        newInstrument(sf2, new Patch(0, 66), sax);
-        newInstrument(sf2, new Patch(0, 67), sax);
-        newInstrument(sf2, new Patch(0, 68), oboe);
-        newInstrument(sf2, new Patch(0, 69), horn);
-        newInstrument(sf2, new Patch(0, 70), bassoon);
-        newInstrument(sf2, new Patch(0, 71), clarinet);
-        newInstrument(sf2, new Patch(0, 72), flute);
-        newInstrument(sf2, new Patch(0, 73), flute);
-        newInstrument(sf2, new Patch(0, 74), flute);
-        newInstrument(sf2, new Patch(0, 75), flute);
-        newInstrument(sf2, new Patch(0, 76), flute);
-        newInstrument(sf2, new Patch(0, 77), flute);
-        newInstrument(sf2, new Patch(0, 78), flute);
-        newInstrument(sf2, new Patch(0, 79), flute);
-        newInstrument(sf2, new Patch(0, 80), organ);
-        newInstrument(sf2, new Patch(0, 81), organ);
-        newInstrument(sf2, new Patch(0, 82), flute);
-        newInstrument(sf2, new Patch(0, 83), organ);
-        newInstrument(sf2, new Patch(0, 84), organ);
-        newInstrument(sf2, new Patch(0, 85), choir);
-        newInstrument(sf2, new Patch(0, 86), organ);
-        newInstrument(sf2, new Patch(0, 87), organ);
-        newInstrument(sf2, new Patch(0, 88), string2);
-        newInstrument(sf2, new Patch(0, 89), organ);
-        newInstrument(sf2, new Patch(0, 90), piano1);
-        newInstrument(sf2, new Patch(0, 91), choir);
-        newInstrument(sf2, new Patch(0, 92), organ);
-        newInstrument(sf2, new Patch(0, 93), organ);
-        newInstrument(sf2, new Patch(0, 94), organ);
-        newInstrument(sf2, new Patch(0, 95), organ);
-        newInstrument(sf2, new Patch(0, 96), organ);
-        newInstrument(sf2, new Patch(0, 97), organ);
-        newInstrument(sf2, new Patch(0, 98), bell);
-        newInstrument(sf2, new Patch(0, 99), organ);
-        newInstrument(sf2, new Patch(0, 100), organ);
-        newInstrument(sf2, new Patch(0, 101), organ);
-        newInstrument(sf2, new Patch(0, 102), piano1);
-        newInstrument(sf2, new Patch(0, 103), string2);
-        newInstrument(sf2, new Patch(0, 104), piano1);
-        newInstrument(sf2, new Patch(0, 105), piano1);
-        newInstrument(sf2, new Patch(0, 106), piano1);
-        newInstrument(sf2, new Patch(0, 107), piano1);
-        newInstrument(sf2, new Patch(0, 108), bell);
-        newInstrument(sf2, new Patch(0, 109), sax);
-        newInstrument(sf2, new Patch(0, 110), string2, solostring);
-        newInstrument(sf2, new Patch(0, 111), oboe);
-        newInstrument(sf2, new Patch(0, 112), bell);
-        newInstrument(sf2, new Patch(0, 113), melodic_toms);
-        newInstrument(sf2, new Patch(0, 114), bell);
-        newInstrument(sf2, new Patch(0, 115), melodic_toms);
-        newInstrument(sf2, new Patch(0, 116), melodic_toms);
-        newInstrument(sf2, new Patch(0, 117), melodic_toms);
-        newInstrument(sf2, new Patch(0, 118), reverse_cymbal);
-        newInstrument(sf2, new Patch(0, 119), reverse_cymbal);
-        newInstrument(sf2, new Patch(0, 120), guitar);
-        newInstrument(sf2, new Patch(0, 121), piano1);
-        newInstrument(sf2, new Patch(0, 122), reverse_cymbal, new HashMap<Integer, Short>() {{
+        newInstrument(new Patch(0, 56), instruments, trumpet);
+        newInstrument(new Patch(0, 57), instruments, trombone);
+        newInstrument(new Patch(0, 58), instruments, trombone);
+        newInstrument(new Patch(0, 59), instruments, trumpet);
+        newInstrument(new Patch(0, 60), instruments, horn);
+        newInstrument(new Patch(0, 61), instruments, brass_section);
+        newInstrument(new Patch(0, 62), instruments, brass_section);
+        newInstrument(new Patch(0, 63), instruments, brass_section);
+        newInstrument(new Patch(0, 64), instruments, sax);
+        newInstrument(new Patch(0, 65), instruments, sax);
+        newInstrument(new Patch(0, 66), instruments, sax);
+        newInstrument(new Patch(0, 67), instruments, sax);
+        newInstrument(new Patch(0, 68), instruments, oboe);
+        newInstrument(new Patch(0, 69), instruments, horn);
+        newInstrument(new Patch(0, 70), instruments, bassoon);
+        newInstrument(new Patch(0, 71), instruments, clarinet);
+        newInstrument(new Patch(0, 72), instruments, flute);
+        newInstrument(new Patch(0, 73), instruments, flute);
+        newInstrument(new Patch(0, 74), instruments, flute);
+        newInstrument(new Patch(0, 75), instruments, flute);
+        newInstrument(new Patch(0, 76), instruments, flute);
+        newInstrument(new Patch(0, 77), instruments, flute);
+        newInstrument(new Patch(0, 78), instruments, flute);
+        newInstrument(new Patch(0, 79), instruments, flute);
+        newInstrument(new Patch(0, 80), instruments, organ);
+        newInstrument(new Patch(0, 81), instruments, organ);
+        newInstrument(new Patch(0, 82), instruments, flute);
+        newInstrument(new Patch(0, 83), instruments, organ);
+        newInstrument(new Patch(0, 84), instruments, organ);
+        newInstrument(new Patch(0, 85), instruments, choir);
+        newInstrument(new Patch(0, 86), instruments, organ);
+        newInstrument(new Patch(0, 87), instruments, organ);
+        newInstrument(new Patch(0, 88), instruments, string2);
+        newInstrument(new Patch(0, 89), instruments, organ);
+        newInstrument(new Patch(0, 90), instruments, piano1);
+        newInstrument(new Patch(0, 91), instruments, choir);
+        newInstrument(new Patch(0, 92), instruments, organ);
+        newInstrument(new Patch(0, 93), instruments, organ);
+        newInstrument(new Patch(0, 94), instruments, organ);
+        newInstrument(new Patch(0, 95), instruments, organ);
+        newInstrument(new Patch(0, 96), instruments, organ);
+        newInstrument(new Patch(0, 97), instruments, organ);
+        newInstrument(new Patch(0, 98), instruments, bell);
+        newInstrument(new Patch(0, 99), instruments, organ);
+        newInstrument(new Patch(0, 100), instruments, organ);
+        newInstrument(new Patch(0, 101), instruments, organ);
+        newInstrument(new Patch(0, 102), instruments, piano1);
+        newInstrument(new Patch(0, 103), instruments, string2);
+        newInstrument(new Patch(0, 104), instruments, piano1);
+        newInstrument(new Patch(0, 105), instruments, piano1);
+        newInstrument(new Patch(0, 106), instruments, piano1);
+        newInstrument(new Patch(0, 107), instruments, piano1);
+        newInstrument(new Patch(0, 108), instruments, bell);
+        newInstrument(new Patch(0, 109), instruments, sax);
+        newInstrument(new Patch(0, 110), instruments, string2, solostring);
+        newInstrument(new Patch(0, 111), instruments, oboe);
+        newInstrument(new Patch(0, 112), instruments, bell);
+        newInstrument(new Patch(0, 113), instruments, melodic_toms);
+        newInstrument(new Patch(0, 114), instruments, bell);
+        newInstrument(new Patch(0, 115), instruments, melodic_toms);
+        newInstrument(new Patch(0, 116), instruments, melodic_toms);
+        newInstrument(new Patch(0, 117), instruments, melodic_toms);
+        newInstrument(new Patch(0, 118), instruments, reverse_cymbal);
+        newInstrument(new Patch(0, 119), instruments, reverse_cymbal);
+        newInstrument(new Patch(0, 120), instruments, guitar);
+        newInstrument(new Patch(0, 121), instruments, piano1);
+        newInstrument(new Patch(0, 122), instruments, reverse_cymbal, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 18500);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 4500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) -4500);
         }});
-        newInstrument(sf2, new Patch(0, 123), flute, new HashMap<Integer, Short>() {{
+        newInstrument(new Patch(0, 123), instruments, flute, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_COARSETUNE, (short) 24);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) -3000);
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
         }});
-        newInstrument(sf2, new Patch(0, 124), side_stick);
-        newInstrument(sf2, new Patch(0, 125), reverse_cymbal, new HashMap<Integer, Short>() {{
+        newInstrument(new Patch(0, 124), instruments, side_stick);
+        newInstrument(new Patch(0, 125), instruments, reverse_cymbal, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 18500);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 4500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) -4500);
         }});
-        newInstrument(sf2, new Patch(0, 126), crash_cymbal);
-        newInstrument(sf2, new Patch(0, 127), side_stick);
+        newInstrument(new Patch(0, 126), instruments, crash_cymbal);
+        newInstrument(new Patch(0, 127), instruments, side_stick);
 
-        return sf2;
-
+        return new SF2Soundbank("Emergency GM sound set", "Generated", "Emergency generated soundbank", 2, 1, instruments);
     }
 
-    public static SF2Layer new_bell(SF2Soundbank sf2) {
+    public static SF2Layer new_bell(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(102030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -468,8 +467,11 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1) * detune, w, a);
             a *= a_step;
         }
-        SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base);
-        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
+
+        String name = "EPiano";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -480,9 +482,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_MODENVTOFILTERFC, (short) -9000);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 16000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_guitar1(SF2Soundbank sf2) {
+    public static SF2Layer new_guitar1(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         int x = 8;
         int fftsize = 4096 * x;
@@ -523,8 +530,10 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Guitar", data, base);
-        return newLayer(sf2, "Guitar", null, sample, new HashMap<Integer, Short>() {{
+        String name = "Guitar";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -536,9 +545,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 16000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -20);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_guitar_dist(SF2Soundbank sf2) {
+    public static SF2Layer new_guitar_dist(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         int x = 8;
         int fftsize = 4096 * x;
@@ -579,20 +593,23 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
 
+        String name = "Distorted Guitar";
 
-        SF2Sample sample = newSimpleFFTSample_dist(sf2, "Distorted Guitar",
-                data, base, 10000.0);
-
-
-        return newLayer(sf2, "Distorted Guitar", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample_dist(name, data, base, 10000.0);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 8000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_guitar_pick(SF2Soundbank sf2) {
+    public static SF2Layer new_guitar_pick(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
 
@@ -628,13 +645,18 @@ public final class EmergencySoundbank {
 
         String name = "Guitar Noise";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 60);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_gpiano(SF2Soundbank sf2) {
+    public static SF2Layer new_gpiano(List<SF2Layer> layers, List<SF2Sample> samples) {
         //Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -678,8 +700,10 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1) + adjust, w, ai);
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Grand Piano", data, base, 200);
-        return newLayer(sf2, "Grand Piano", null, sample, new HashMap<Integer, Short>() {{
+        String name = "Grand Piano";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base, 200);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -7000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -690,9 +714,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_MODENVTOFILTERFC, (short) -5500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 18000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_gpiano2(SF2Soundbank sf2) {
+    public static SF2Layer new_gpiano2(List<SF2Layer> layers, List<SF2Sample> samples) {
         //Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -736,8 +765,10 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1) + adjust, w, ai);
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Grand Piano", data, base, 200);
-        return newLayer(sf2, "Grand Piano", null, sample, new HashMap<Integer, Short>() {{
+        String name = "Grand Piano";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base, 200);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -7000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -748,9 +779,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_MODENVTOFILTERFC, (short) -5500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 18000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_piano_hammer(SF2Soundbank sf2) {
+    public static SF2Layer new_piano_hammer(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
 
@@ -784,13 +820,18 @@ public final class EmergencySoundbank {
 
         String name = "Piano Hammer";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 60);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_piano1(SF2Soundbank sf2) {
+    public static SF2Layer new_piano1(List<SF2Layer> layers, List<SF2Sample> samples) {
         //Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -830,8 +871,10 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * (15.5), 1, 0.1);
         complexGaussianDist(data, base * (17.5), 1, 0.01);
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base, 200);
-        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
+        String name = "EPiano";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base, 200);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -842,9 +885,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_MODENVTOFILTERFC, (short) -5500);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 16000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_epiano1(SF2Soundbank sf2) {
+    public static SF2Layer new_epiano1(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -863,10 +911,10 @@ public final class EmergencySoundbank {
             a *= a_step;
         }
 
+        String name = "EPiano";
 
-
-        SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base);
-        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -877,9 +925,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_MODENVTOFILTERFC, (short) -9000);
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 16000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_epiano2(SF2Soundbank sf2) {
+    public static SF2Layer new_epiano2(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -898,8 +951,10 @@ public final class EmergencySoundbank {
             a *= a_step;
         }
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "EPiano", data, base);
-        return newLayer(sf2, "EPiano", null, sample, new HashMap<Integer, Short>() {{
+        String name = "EPiano";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -911,9 +966,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 16000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_bass1(SF2Soundbank sf2) {
+    public static SF2Layer new_bass1(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -941,9 +1001,10 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
 
+        String name = "Bass";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Bass", data, base);
-        return newLayer(sf2, "Bass", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -955,9 +1016,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 11000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_synthbass(SF2Soundbank sf2) {
+    public static SF2Layer new_synthbass(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -985,9 +1051,10 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
 
+        String name = "Bass";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Bass", data, base);
-        return newLayer(sf2, "Bass", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1000,9 +1067,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 8000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_bass2(SF2Soundbank sf2) {
+    public static SF2Layer new_bass2(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1030,9 +1102,10 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
 
+        String name = "Bass2";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Bass2", data, base);
-        return newLayer(sf2, "Bass2", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -8000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1043,9 +1116,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 5000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_solostring(SF2Soundbank sf2) {
+    public static SF2Layer new_solostring(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1065,8 +1143,11 @@ public final class EmergencySoundbank {
             double w = start_w + (end_w - start_w) * (i / 40.0);
             complexGaussianDist(data, base * (i + 1), w, a);
         }
-        SF2Sample sample = newSimpleFFTSample(sf2, "Strings", data, base);
-        return newLayer(sf2, "Strings", null, sample, new HashMap<Integer, Short>() {{
+
+        String name = "Strings";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1000);
@@ -1077,9 +1158,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_VIBLFOTOPITCH, (short) 15);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_orchhit(SF2Soundbank sf2) {
+    public static SF2Layer new_orchhit(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1097,9 +1182,10 @@ public final class EmergencySoundbank {
         }
         complexGaussianDist(data, base * 4, 300, 1);
 
+        String name = "Och Strings";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Och Strings", data, base);
-        return newLayer(sf2, "Och Strings", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 200);
@@ -1108,9 +1194,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_string2(SF2Soundbank sf2) {
+    public static SF2Layer new_string2(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1126,8 +1216,11 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, a);
             a *= a_step;
         }
-        SF2Sample sample = newSimpleFFTSample(sf2, "Strings", data, base);
-        return newLayer(sf2, "Strings", null, sample, new HashMap<Integer, Short>() {{
+
+        String name = "Strings";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1000);
@@ -1136,9 +1229,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_choir(SF2Soundbank sf2) {
+    public static SF2Layer new_choir(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1164,8 +1261,11 @@ public final class EmergencySoundbank {
             double w = start_w + (end_w - start_w) * (i / 40.0);
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
         }
-        SF2Sample sample = newSimpleFFTSample(sf2, "Strings", data, base);
-        return newLayer(sf2, "Strings", null, sample, new HashMap<Integer, Short>() {{
+
+        String name = "Strings";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -5000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1000);
@@ -1174,9 +1274,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_organ(SF2Soundbank sf2) {
+    public static SF2Layer new_organ(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(102030201);
         int x = 1;
         int fftsize = 4096 * x;
@@ -1195,8 +1299,11 @@ public final class EmergencySoundbank {
                     a * (0.5 + 3 * (random.nextDouble())));
             a *= a_step;
         }
-        SF2Sample sample = newSimpleFFTSample(sf2, "Organ", data, base);
-        return newLayer(sf2, "Organ", null, sample, new HashMap<Integer, Short>() {{
+
+        String name = "Organ";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1205,9 +1312,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_ch_organ(SF2Soundbank sf2) {
+    public static SF2Layer new_ch_organ(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 1;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1269,16 +1380,23 @@ public final class EmergencySoundbank {
             complexGaussianDist(data, base * (i + 1), w, aa[i]);
             a *= a_step;
         }
-        SF2Sample sample = newSimpleFFTSample(sf2, "Organ", data, base);
-        return newLayer(sf2, "Organ", null, sample, new HashMap<Integer, Short>() {{
+
+        String name = "Organ";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -10000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_flute(SF2Soundbank sf2) {
+    public static SF2Layer new_flute(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1326,8 +1444,10 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 16, 30, 7);
         complexGaussianDist(data, base * 17, 30, 6);
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Flute", data, base);
-        return newLayer(sf2, "Flute", null, sample, new HashMap<Integer, Short>() {{
+        String name = "Flute";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1336,9 +1456,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_horn(SF2Soundbank sf2) {
+    public static SF2Layer new_horn(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1358,9 +1482,10 @@ public final class EmergencySoundbank {
 
         complexGaussianDist(data, base * 2, 100, 1);
 
+        String name = "Horns";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Horn", data, base);
-        return newLayer(sf2, "Horn", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1372,9 +1497,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 4500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_trumpet(SF2Soundbank sf2) {
+    public static SF2Layer new_trumpet(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1401,9 +1530,10 @@ public final class EmergencySoundbank {
 
         complexGaussianDist(data, base * 5, 300, 3);
 
+        String name = "Trumpet";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Trumpet", data, base);
-        return newLayer(sf2, "Trumpet", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -10000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 0);
@@ -1416,9 +1546,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERQ, (short) 10);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_brass_section(SF2Soundbank sf2) {
+    public static SF2Layer new_brass_section(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1445,9 +1579,10 @@ public final class EmergencySoundbank {
 
         complexGaussianDist(data, base * 6, 300, 2);
 
+        String name = "Brass Section";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Brass Section", data, base);
-        return newLayer(sf2, "Brass Section", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -9200);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1459,9 +1594,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 4500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_trombone(SF2Soundbank sf2) {
+    public static SF2Layer new_trombone(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1486,9 +1625,10 @@ public final class EmergencySoundbank {
 
         complexGaussianDist(data, base * 6, 300, 2);
 
+        String name = "Trombone";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Trombone", data, base);
-        return newLayer(sf2, "Trombone", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -8000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1501,9 +1641,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERQ, (short) 10);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_sax(SF2Soundbank sf2) {
+    public static SF2Layer new_sax(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1523,8 +1667,10 @@ public final class EmergencySoundbank {
 
         complexGaussianDist(data, base * 4, 200, 1);
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Sax", data, base);
-        return newLayer(sf2, "Sax", null, sample, new HashMap<Integer, Short>() {{
+        String name = "Sax";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1536,9 +1682,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 4500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_oboe(SF2Soundbank sf2) {
+    public static SF2Layer new_oboe(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1568,9 +1718,10 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 19, 0.01, 0.5);
         complexGaussianDist(data, base * 20, 0.01, 0.1);
 
+        String name = "Oboe";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Oboe", data, base);
-        return newLayer(sf2, "Oboe", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1579,9 +1730,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_bassoon(SF2Soundbank sf2) {
+    public static SF2Layer new_bassoon(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1611,9 +1766,10 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 19, 0.01, 0.5);
         complexGaussianDist(data, base * 20, 0.01, 0.1);
 
+        String name = "Flute";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Flute", data, base);
-        return newLayer(sf2, "Flute", null, sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1622,9 +1778,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_clarinet(SF2Soundbank sf2) {
+    public static SF2Layer new_clarinet(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1672,8 +1832,10 @@ public final class EmergencySoundbank {
         complexGaussianDist(data, base * 16, 30, 7);
         complexGaussianDist(data, base * 17, 30, 6);
 
-        SF2Sample sample = newSimpleFFTSample(sf2, "Clarinet", data, base);
-        return newLayer(sf2, "Clarinet", null, sample, new HashMap<Integer, Short>() {{
+        String name = "Clarinet";
+
+        SF2Sample sample = newSimpleFFTSample(name, data, base);
+        SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -6000);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
@@ -1682,9 +1844,13 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_INITIALFILTERFC, (short) 9500);
         }});
 
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_timpani(SF2Soundbank sf2) {
+    public static SF2Layer new_timpani(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -1756,14 +1922,19 @@ public final class EmergencySoundbank {
 
         String name = "Timpani";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 60);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_melodic_toms(SF2Soundbank sf2) {
+    public static SF2Layer new_melodic_toms(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -1824,14 +1995,19 @@ public final class EmergencySoundbank {
 
         String name = "Melodic Toms";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 63);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 63);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_reverse_cymbal(SF2Soundbank sf2) {
+    public static SF2Layer new_reverse_cymbal(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
         {
             int fftlen = 4096 * 4;
@@ -1853,17 +2029,22 @@ public final class EmergencySoundbank {
 
         String name = "Reverse Cymbal";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, name, datah, 100, 20);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, datah, 100, 20);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -200);
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) -12000);
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) -1000);
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_snare_drum(SF2Soundbank sf2) {
+    public static SF2Layer new_snare_drum(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -1922,15 +2103,20 @@ public final class EmergencySoundbank {
 
         String name = "Snare Drum";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 60);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_bass_drum(SF2Soundbank sf2) {
+    public static SF2Layer new_bass_drum(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -1987,15 +2173,20 @@ public final class EmergencySoundbank {
 
         String name = "Bass Drum";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 60);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_tom(SF2Soundbank sf2) {
+    public static SF2Layer new_tom(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -2056,14 +2247,19 @@ public final class EmergencySoundbank {
 
         String name = "Tom";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 50);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 50);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -100);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_closed_hihat(SF2Soundbank sf2) {
+    public static SF2Layer new_closed_hihat(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
 
         // Make treble part
@@ -2098,16 +2294,21 @@ public final class EmergencySoundbank {
 
         String name = "Closed Hi-Hat";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datah, 60);
+        SF2Sample sample = newSimpleDrumSample(name, datah, 60);
 
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_EXCLUSIVECLASS, (short) 1);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_open_hihat(SF2Soundbank sf2) {
+    public static SF2Layer new_open_hihat(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
         {
             int fftlen = 4096 * 4;
@@ -2128,8 +2329,8 @@ public final class EmergencySoundbank {
 
         String name = "Open Hi-Hat";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, name, datah, 1000, 5);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, datah, 1000, 5);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 1500);
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1500);
@@ -2137,9 +2338,14 @@ public final class EmergencySoundbank {
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_EXCLUSIVECLASS, (short) 1);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_crash_cymbal(SF2Soundbank sf2) {
+    public static SF2Layer new_crash_cymbal(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
         {
             int fftlen = 4096 * 4;
@@ -2160,17 +2366,22 @@ public final class EmergencySoundbank {
 
         String name = "Crash Cymbal";
 
-        SF2Sample sample = newSimpleFFTSample(sf2, name, datah, 1000, 5);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleFFTSample(name, datah, 1000, 5);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_DECAYVOLENV, (short) 1800);
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 1800);
             put(SF2Region.GENERATOR_SUSTAINVOLENV, (short) 1000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Layer new_side_stick(SF2Soundbank sf2) {
+    public static SF2Layer new_side_stick(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datab;
 
         // Make treble part
@@ -2209,21 +2420,24 @@ public final class EmergencySoundbank {
 
         String name = "Side Stick";
 
-        SF2Sample sample = newSimpleDrumSample(sf2, name, datab, 60);
-        return newLayer(sf2, name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
+        SF2Sample sample = newSimpleDrumSample(name, datab, 60);
+        SF2Layer layer = newLayer(name, new SF2Region(), sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_RELEASEVOLENV, (short) 12000);
             put(SF2Region.GENERATOR_SCALETUNING, (short) 0);
             put(SF2Region.GENERATOR_INITIALATTENUATION, (short) -50);
         }});
+
+        samples.add(sample);
+        layers.add(layer);
+
+        return layer;
     }
 
-    public static SF2Sample newSimpleFFTSample(SF2Soundbank sf2, String name,
-            double[] data, double base) {
-        return newSimpleFFTSample(sf2, name, data, base, 10);
+    public static SF2Sample newSimpleFFTSample(String name, double[] data, double base) {
+        return newSimpleFFTSample(name, data, base, 10);
     }
 
-    public static SF2Sample newSimpleFFTSample(SF2Soundbank sf2, String name,
-            double[] data, double base, int fadeuptime) {
+    public static SF2Sample newSimpleFFTSample(String name, double[] data, double base, int fadeuptime) {
 
         int fftsize = data.length / 2;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2243,14 +2457,11 @@ public final class EmergencySoundbank {
          */
 
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
-        SF2Sample sample = new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
-        sf2.getSamples().add(sample);
 
-        return sample;
+        return new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
     }
 
-    public static SF2Sample newSimpleFFTSample_dist(SF2Soundbank sf2,
-            String name, double[] data, double base, double preamp) {
+    public static SF2Sample newSimpleFFTSample_dist(String name, double[] data, double base, double preamp) {
 
         int fftsize = data.length / 2;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2275,13 +2486,11 @@ public final class EmergencySoundbank {
          * Create SoundFont2 sample.
          */
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
-        SF2Sample sample = new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
-        sf2.getSamples().add(sample);
 
-        return sample;
+        return new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
     }
 
-    public static SF2Sample newSimpleDrumSample(SF2Soundbank sf2, String name, double[] data, int originalPitch) {
+    public static SF2Sample newSimpleDrumSample(String name, double[] data, int originalPitch) {
 
         int fftsize = data.length;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2291,43 +2500,38 @@ public final class EmergencySoundbank {
         /*
          * Create SoundFont2 sample.
          */
-        SF2Sample sample = new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), originalPitch);
-        sf2.getSamples().add(sample);
 
-        return sample;
+        return new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), originalPitch);
     }
 
-    public static SF2Layer newLayer(SF2Soundbank sf2, String name, SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {
-        SF2Layer layer = new SF2Layer(name, globalRegion, Collections.singletonList(new SF2LayerRegion(sample, generators)));
-        sf2.getLayers().add(layer);
-
-        return layer;
+    public static SF2Layer newLayer(String name, SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {
+        return new SF2Layer(name, globalRegion, Collections.singletonList(new SF2LayerRegion(sample, generators)));
     }
 
-    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer... layers) {
+    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer... layers) {
         List<SF2InstrumentRegion> regions = new ArrayList<>(layers.length);
         for (SF2Layer layer : layers) {
             regions.add(new SF2InstrumentRegion(layer));
         }
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
-        sf2.getInstrumentsAux().add(ins);
+        instruments.add(ins);
     }
 
-    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer, Map<Integer, Short> generators) {
+    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer, Map<Integer, Short> generators) {
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, Collections.singletonList(new SF2InstrumentRegion(layer, generators)));
-        sf2.getInstrumentsAux().add(ins);
+        instruments.add(ins);
     }
 
-    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
+    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
         List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer, generators1), new SF2InstrumentRegion(layer, generators2));
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
-        sf2.getInstrumentsAux().add(ins);
+        instruments.add(ins);
     }
 
-    public static void newInstrument(SF2Soundbank sf2, Patch patch, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
+    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
         List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer1, generators), new SF2InstrumentRegion(layer1), new SF2InstrumentRegion(layer2));
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
-        sf2.getInstrumentsAux().add(ins);
+        instruments.add(ins);
     }
 
     static public void ifft(double[] data) {

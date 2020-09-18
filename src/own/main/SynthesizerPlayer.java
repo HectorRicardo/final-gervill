@@ -237,9 +237,9 @@ public class SynthesizerPlayer {
                     FileInputStream fis = new FileInputStream(file);
                     URL url = new URL("https://google.com");
 
-                    soundbank = new SF2Soundbank(fis);
-                    soundbank = new SF2Soundbank(file);
-                    soundbank = new SF2Soundbank(url);
+                    soundbank = SF2Soundbank.createSoundbank(fis);
+                    soundbank = SF2Soundbank.createSoundbank(file);
+                    soundbank = SF2Soundbank.createSoundbank(url);
 
                     soundbank = DLSSoundbank.createSoundbank(fis);
                     soundbank = DLSSoundbank.createSoundbank(file);

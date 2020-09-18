@@ -15,7 +15,7 @@ public class Main {
         final SynthesizerPlayer player = new SynthesizerPlayer();
 
         // Step 2. Repeat operations
-        openPlayAndClose(player, new SF2Soundbank(new File("assets/gm.sf2")));
+        openPlayAndClose(player, SF2Soundbank.createSoundbank(new File("assets/gm.sf2")));
         openPlayAndClose(player, DLSSoundbank.createSoundbank(new File("assets/gm.dls")));
         openPlayAndClose(player, null);
     }
