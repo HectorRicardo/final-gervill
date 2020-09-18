@@ -450,7 +450,7 @@ public final class EmergencySoundbank {
         return new SF2Soundbank("Emergency GM sound set", "Generated", "Emergency generated soundbank", 2, 1, instruments);
     }
 
-    public static SF2Layer new_bell(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_bell(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(102030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -490,7 +490,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_guitar1(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_guitar1(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         int x = 8;
         int fftsize = 4096 * x;
@@ -553,7 +553,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_guitar_dist(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_guitar_dist(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         int x = 8;
         int fftsize = 4096 * x;
@@ -596,7 +596,7 @@ public final class EmergencySoundbank {
 
         String name = "Distorted Guitar";
 
-        SF2Sample sample = newSimpleFFTSample_dist(name, data, base, 10000.0);
+        SF2Sample sample = newSimpleFFTSample_dist(name, data, base);
         SF2Layer layer = newLayer(name, null, sample, new HashMap<Integer, Short>() {{
             put(SF2Region.GENERATOR_SAMPLEMODES, (short) 1);
             put(SF2Region.GENERATOR_ATTACKVOLENV, (short) -12000);
@@ -610,7 +610,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_guitar_pick(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_guitar_pick(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
 
@@ -657,7 +657,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_gpiano(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_gpiano(List<SF2Layer> layers, List<SF2Sample> samples) {
         //Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -722,7 +722,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_gpiano2(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_gpiano2(List<SF2Layer> layers, List<SF2Sample> samples) {
         //Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -787,7 +787,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_piano_hammer(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_piano_hammer(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
 
@@ -832,7 +832,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_piano1(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_piano1(List<SF2Layer> layers, List<SF2Sample> samples) {
         //Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -893,7 +893,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_epiano1(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_epiano1(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -933,7 +933,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_epiano2(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_epiano2(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(302030201);
         int x = 8;
         int fftsize = 4096 * x;
@@ -974,7 +974,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_bass1(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_bass1(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1024,7 +1024,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_synthbass(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_synthbass(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1075,7 +1075,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_bass2(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_bass2(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1124,7 +1124,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_solostring(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_solostring(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1165,7 +1165,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_orchhit(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_orchhit(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1201,7 +1201,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_string2(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_string2(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1236,7 +1236,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_choir(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_choir(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1281,7 +1281,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_organ(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_organ(List<SF2Layer> layers, List<SF2Sample> samples) {
         Random random = new Random(102030201);
         int x = 1;
         int fftsize = 4096 * x;
@@ -1319,7 +1319,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_ch_organ(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_ch_organ(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 1;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1397,7 +1397,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_flute(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_flute(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1463,7 +1463,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_horn(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_horn(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1504,7 +1504,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_trumpet(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_trumpet(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1553,7 +1553,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_brass_section(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_brass_section(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1601,7 +1601,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_trombone(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_trombone(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1648,7 +1648,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_sax(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_sax(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1689,7 +1689,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_oboe(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_oboe(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1737,7 +1737,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_bassoon(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_bassoon(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1785,7 +1785,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_clarinet(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_clarinet(List<SF2Layer> layers, List<SF2Sample> samples) {
         int x = 8;
         int fftsize = 4096 * x;
         double[] data = new double[fftsize * 2];
@@ -1851,7 +1851,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_timpani(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_timpani(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -1935,7 +1935,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_melodic_toms(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_melodic_toms(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -2008,7 +2008,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_reverse_cymbal(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_reverse_cymbal(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
         {
             int fftlen = 4096 * 4;
@@ -2045,7 +2045,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_snare_drum(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_snare_drum(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -2117,7 +2117,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_bass_drum(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_bass_drum(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -2187,7 +2187,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_tom(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_tom(List<SF2Layer> layers, List<SF2Sample> samples) {
 
         double[] datab;
         double[] datah;
@@ -2260,7 +2260,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_closed_hihat(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_closed_hihat(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
 
         // Make treble part
@@ -2309,7 +2309,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_open_hihat(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_open_hihat(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
         {
             int fftlen = 4096 * 4;
@@ -2346,7 +2346,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_crash_cymbal(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_crash_cymbal(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datah;
         {
             int fftlen = 4096 * 4;
@@ -2382,7 +2382,7 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Layer new_side_stick(List<SF2Layer> layers, List<SF2Sample> samples) {
+    private static SF2Layer new_side_stick(List<SF2Layer> layers, List<SF2Sample> samples) {
         double[] datab;
 
         // Make treble part
@@ -2434,11 +2434,11 @@ public final class EmergencySoundbank {
         return layer;
     }
 
-    public static SF2Sample newSimpleFFTSample(String name, double[] data, double base) {
+    private static SF2Sample newSimpleFFTSample(String name, double[] data, double base) {
         return newSimpleFFTSample(name, data, base, 10);
     }
 
-    public static SF2Sample newSimpleFFTSample(String name, double[] data, double base, int fadeuptime) {
+    private static SF2Sample newSimpleFFTSample(String name, double[] data, double base, int fadeuptime) {
 
         int fftsize = data.length / 2;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2459,10 +2459,10 @@ public final class EmergencySoundbank {
 
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
 
-        return new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
+        return new SF2Sample(name, bdata, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
     }
 
-    public static SF2Sample newSimpleFFTSample_dist(String name, double[] data, double base, double preamp) {
+    private static SF2Sample newSimpleFFTSample_dist(String name, double[] data, double base) {
 
         int fftsize = data.length / 2;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2473,7 +2473,7 @@ public final class EmergencySoundbank {
         data = realPart(data);
 
         for (int i = 0; i < data.length; i++) {
-            data[i] = (1 - Math.exp(-Math.abs(data[i] * preamp)))
+            data[i] = (1 - Math.exp(-Math.abs(data[i] * 10000.0)))
                     * Math.signum(data[i]);
         }
 
@@ -2488,10 +2488,10 @@ public final class EmergencySoundbank {
          */
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
 
-        return new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
+        return new SF2Sample(name, bdata, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
     }
 
-    public static SF2Sample newSimpleDrumSample(String name, double[] data, int originalPitch) {
+    private static SF2Sample newSimpleDrumSample(String name, double[] data, int originalPitch) {
 
         int fftsize = data.length;
         AudioFormat format = new AudioFormat(44100, 16, 1, true);
@@ -2502,14 +2502,14 @@ public final class EmergencySoundbank {
          * Create SoundFont2 sample.
          */
 
-        return new SF2Sample(name, bdata, 256, fftsize + 256, (long) format.getSampleRate(), originalPitch);
+        return new SF2Sample(name, bdata, fftsize + 256, (long) format.getSampleRate(), originalPitch);
     }
 
-    public static SF2Layer newLayer(String name, SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {
+    private static SF2Layer newLayer(String name, SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {
         return new SF2Layer(name, globalRegion, Collections.singletonList(new SF2LayerRegion(sample, generators)));
     }
 
-    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer... layers) {
+    private static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer... layers) {
         List<SF2InstrumentRegion> regions = new ArrayList<>(layers.length);
         for (SF2Layer layer : layers) {
             regions.add(new SF2InstrumentRegion(layer));
@@ -2518,32 +2518,32 @@ public final class EmergencySoundbank {
         instruments.add(ins);
     }
 
-    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer, Map<Integer, Short> generators) {
+    private static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer, Map<Integer, Short> generators) {
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, Collections.singletonList(new SF2InstrumentRegion(layer, generators)));
         instruments.add(ins);
     }
 
-    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
+    private static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer, Map<Integer, Short> generators1, Map<Integer, Short> generators2) {
         List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer, generators1), new SF2InstrumentRegion(layer, generators2));
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
         instruments.add(ins);
     }
 
-    public static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
+    private static void newInstrument(Patch patch, List<Instrument> instruments, SF2Layer layer1, SF2Layer layer2, Map<Integer, Short> generators) {
         List<SF2InstrumentRegion> regions = Arrays.asList(new SF2InstrumentRegion(layer1, generators), new SF2InstrumentRegion(layer1), new SF2InstrumentRegion(layer2));
         SF2Instrument ins = new SF2Instrument(general_midi_instruments[patch.getProgram()], patch, regions);
         instruments.add(ins);
     }
 
-    static public void ifft(double[] data) {
+    private static void ifft(double[] data) {
         new FFT(data.length / 2, 1).transform(data);
     }
 
-    static public void fft(double[] data) {
+    private static void fft(double[] data) {
         new FFT(data.length / 2, -1).transform(data);
     }
 
-    public static void complexGaussianDist(double[] cdata, double m,
+    private static void complexGaussianDist(double[] cdata, double m,
             double s, double v) {
         for (int x = 0; x < cdata.length / 4; x++) {
             cdata[x * 2] += v * (1.0 / (s * Math.sqrt(2 * Math.PI))
@@ -2551,7 +2551,7 @@ public final class EmergencySoundbank {
         }
     }
 
-    static public void randomPhase(double[] data) {
+    private static void randomPhase(double[] data) {
         for (int i = 0; i < data.length; i += 2) {
             double phase = Math.random() * 2 * Math.PI;
             double d = data[i];
@@ -2560,7 +2560,7 @@ public final class EmergencySoundbank {
         }
     }
 
-    static public void randomPhase(double[] data, Random random) {
+    private static void randomPhase(double[] data, Random random) {
         for (int i = 0; i < data.length; i += 2) {
             double phase = random.nextDouble() * 2 * Math.PI;
             double d = data[i];
@@ -2569,7 +2569,7 @@ public final class EmergencySoundbank {
         }
     }
 
-    static public void normalize(double[] data, double target) {
+    private static void normalize(double[] data, double target) {
         double maxvalue = 0;
         for (double datum : data) {
             if (datum > maxvalue)
@@ -2584,7 +2584,7 @@ public final class EmergencySoundbank {
             data[i] *= gain;
     }
 
-    static public double[] realPart(double[] in) {
+    private static double[] realPart(double[] in) {
         double[] out = new double[in.length / 2];
         for (int i = 0; i < out.length; i++) {
             out[i] = in[i * 2];
@@ -2592,7 +2592,7 @@ public final class EmergencySoundbank {
         return out;
     }
 
-    static public float[] toFloat(double[] in) {
+    private static float[] toFloat(double[] in) {
         float[] out = new float[in.length];
         for (int i = 0; i < out.length; i++) {
             out[i] = (float) in[i];
@@ -2600,22 +2600,22 @@ public final class EmergencySoundbank {
         return out;
     }
 
-    static public byte[] toBytes(float[] in, AudioFormat format) {
+    private static byte[] toBytes(float[] in, AudioFormat format) {
         byte[] out = new byte[in.length * format.getFrameSize()];
         return AudioFloatConverter.getConverter(format).toByteArray(in, out);
     }
 
-    static public void fadeUp(double[] data, int samples) {
+    private static void fadeUp(double[] data, int samples) {
         for (int i = 0; i < samples; i++)
             data[i] *= i / (double) samples;
     }
 
-    static public void fadeUp(float[] data, int samples) {
+    private static void fadeUp(float[] data, int samples) {
         for (int i = 0; i < samples; i++)
             data[i] *= i / (double) samples;
     }
 
-    static public float[] loopExtend(float[] data, int newsize) {
+    private static float[] loopExtend(float[] data, int newsize) {
         float[] outdata = new float[newsize];
         int p_len = data.length;
         int p_ps = 0;

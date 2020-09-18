@@ -29,30 +29,30 @@ package gervill.soundbanks;
  *
  * @author Karl Helgason
  */
-public final class DLSSampleLoop {
+final class DLSSampleLoop {
 
-    public final static int LOOP_TYPE_FORWARD = 0;
-    public final static int LOOP_TYPE_RELEASE = 1;
+    final static int LOOP_TYPE_FORWARD = 0;
+    final static int LOOP_TYPE_RELEASE = 1;
 
     private final long type;
     private final long start;
     private final long length;
 
-    public DLSSampleLoop(long type, long start, long length) {
+    DLSSampleLoop(long type, long start, long length) {
         this.type = type;
         this.start = start;
         this.length = length;
     }
 
-    public long getLength() {
+    long getLength() {
         return length;
     }
 
-    public long getStart() {
+    long getStart() {
         return start;
     }
 
-    public long getType() {
+    long getType() {
         return type;
     }
 

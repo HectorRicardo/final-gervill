@@ -33,7 +33,7 @@ import gervill.javax.sound.sampled.AudioFormat;
  *
  * @author Karl Helgason
  */
-public final class SF2Sample extends SoundbankResource {
+final class SF2Sample extends SoundbankResource {
 
     private final long startLoop;
     private final long endLoop;
@@ -43,7 +43,7 @@ public final class SF2Sample extends SoundbankResource {
     private final ModelByteBuffer data;
     private final ModelByteBuffer data24;
 
-    public SF2Sample(String name, ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
+    SF2Sample(String name, ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
         super(name);
         this.startLoop = startLoop;
         this.endLoop = endLoop;
@@ -54,39 +54,39 @@ public final class SF2Sample extends SoundbankResource {
         this.data24 = data24;
     }
 
-    public SF2Sample(String name, byte[] data, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
-        this(name, new ModelByteBuffer(data), null, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
+    SF2Sample(String name, byte[] data, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
+        this(name, new ModelByteBuffer(data), null, 256, endLoop, sampleRate, originalPitch, pitchCorrection);
     }
 
-    public SF2Sample(String name, byte[] data, long startLoop, long endLoop, long sampleRate, int originalPitch) {
-        this(name, data, startLoop, endLoop, sampleRate, originalPitch, (byte)0);
+    SF2Sample(String name, byte[] data, long endLoop, long sampleRate, int originalPitch) {
+        this(name, data, endLoop, sampleRate, originalPitch, (byte)0);
     }
 
-    public ModelByteBuffer getDataBuffer() {
+    ModelByteBuffer getDataBuffer() {
         return data;
     }
 
-    public ModelByteBuffer getData24Buffer() {
+    ModelByteBuffer getData24Buffer() {
         return data24;
     }
 
-    public AudioFormat getFormat() {
+    AudioFormat getFormat() {
         return new AudioFormat(sampleRate, 16, 1, true);
     }
 
-    public long getEndLoop() {
+    long getEndLoop() {
         return endLoop;
     }
 
-    public int getOriginalPitch() {
+    int getOriginalPitch() {
         return originalPitch;
     }
 
-    public long getStartLoop() {
+    long getStartLoop() {
         return startLoop;
     }
 
-    public byte getPitchCorrection() {
+    byte getPitchCorrection() {
         return pitchCorrection;
     }
 

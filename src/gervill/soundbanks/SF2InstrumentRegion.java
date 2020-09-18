@@ -31,27 +31,27 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-public final class SF2InstrumentRegion extends SF2Region {
+final class SF2InstrumentRegion extends SF2Region {
 
     private SF2Layer layer;
 
-    public SF2InstrumentRegion() {}
+    SF2InstrumentRegion() {}
 
-    public SF2InstrumentRegion(SF2Layer layer) {
+    SF2InstrumentRegion(SF2Layer layer) {
         super();
         this.layer = layer;
     }
 
-    public SF2InstrumentRegion(SF2Layer layer, Map<Integer, Short> generators) {
+    SF2InstrumentRegion(SF2Layer layer, Map<Integer, Short> generators) {
         super(generators);
         this.layer = layer;
     }
 
-    public SF2Layer getLayer() {
+    SF2Layer getLayer() {
         return layer;
     }
 
-    public void setLayer(SF2Layer layer) {
+    void setLayer(SF2Layer layer) {
         this.layer = layer;
     }
 }

@@ -79,11 +79,11 @@ public abstract class Soundbank {
     private final String comments;
     private final ImmutableList<Instrument> instruments;
 
-    public Soundbank(String name, String engineers, String comments, List<Instrument> instruments) {
+    protected Soundbank(String name, String engineers, String comments, List<Instrument> instruments) {
         this.name = name;
         this.engineers = engineers;
         this.comments = comments;
-        this.instruments = new ImmutableList<>(instruments, ModelInstrumentComparator.COMPARATOR);
+        this.instruments = ImmutableList.create(instruments, ModelInstrumentComparator.COMPARATOR);
     }
 
     /**

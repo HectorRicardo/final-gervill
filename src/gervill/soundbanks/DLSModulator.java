@@ -3,18 +3,18 @@
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
+ * under the terms of the GNU General License version 2 only, as
  * published by the Free Software Foundation.  Oracle designates this
  * particular file as subject to the "Classpath" exception as provided
  * by Oracle in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General License
  * version 2 for more details (a copy is included in the LICENSE file that
  * accompanied this code).
  *
- * You should have received a copy of the GNU General Public License version
+ * You should have received a copy of the GNU General License version
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
@@ -33,59 +33,59 @@ package gervill.soundbanks;
  *
  * @author Karl Helgason
  */
-public final class DLSModulator {
+final class DLSModulator {
 
     // DLS1 Destinations
-    public static final int CONN_DST_NONE = 0x000; // 0
-    public static final int CONN_DST_GAIN = 0x001; // cB
-    public static final int CONN_DST_PITCH = 0x003; // cent
-    public static final int CONN_DST_PAN = 0x004; // 0.1%
-    public static final int CONN_DST_LFO_FREQUENCY = 0x104; // cent (default 5 Hz)
-    public static final int CONN_DST_LFO_STARTDELAY = 0x105; // timecent
-    public static final int CONN_DST_EG1_ATTACKTIME = 0x206; // timecent
-    public static final int CONN_DST_EG1_DECAYTIME = 0x207; // timecent
-    public static final int CONN_DST_EG1_RELEASETIME = 0x209; // timecent
-    public static final int CONN_DST_EG1_SUSTAINLEVEL = 0x20A; // 0.1%
-    public static final int CONN_DST_EG2_ATTACKTIME = 0x30A; // timecent
-    public static final int CONN_DST_EG2_DECAYTIME = 0x30B; // timecent
-    public static final int CONN_DST_EG2_RELEASETIME = 0x30D; // timecent
-    public static final int CONN_DST_EG2_SUSTAINLEVEL = 0x30E; // 0.1%
+    static final int CONN_DST_NONE = 0x000; // 0
+    static final int CONN_DST_GAIN = 0x001; // cB
+    static final int CONN_DST_PITCH = 0x003; // cent
+    static final int CONN_DST_PAN = 0x004; // 0.1%
+    static final int CONN_DST_LFO_FREQUENCY = 0x104; // cent (default 5 Hz)
+    static final int CONN_DST_LFO_STARTDELAY = 0x105; // timecent
+    static final int CONN_DST_EG1_ATTACKTIME = 0x206; // timecent
+    static final int CONN_DST_EG1_DECAYTIME = 0x207; // timecent
+    static final int CONN_DST_EG1_RELEASETIME = 0x209; // timecent
+    static final int CONN_DST_EG1_SUSTAINLEVEL = 0x20A; // 0.1%
+    static final int CONN_DST_EG2_ATTACKTIME = 0x30A; // timecent
+    static final int CONN_DST_EG2_DECAYTIME = 0x30B; // timecent
+    static final int CONN_DST_EG2_RELEASETIME = 0x30D; // timecent
+    static final int CONN_DST_EG2_SUSTAINLEVEL = 0x30E; // 0.1%
     // DLS2 Destinations
-    public static final int CONN_DST_KEYNUMBER = 0x005;
-    public static final int CONN_DST_CHORUS = 0x080; // 0.1%
-    public static final int CONN_DST_REVERB = 0x081; // 0.1%
-    public static final int CONN_DST_VIB_FREQUENCY = 0x114; // cent
-    public static final int CONN_DST_VIB_STARTDELAY = 0x115; // dB
-    public static final int CONN_DST_EG1_DELAYTIME = 0x20B; // timecent
-    public static final int CONN_DST_EG1_HOLDTIME = 0x20C; // timecent
-    public static final int CONN_DST_EG1_SHUTDOWNTIME = 0x20D; // timecent
-    public static final int CONN_DST_EG2_DELAYTIME = 0x30F; // timecent
-    public static final int CONN_DST_EG2_HOLDTIME = 0x310; // timecent
-    public static final int CONN_DST_FILTER_CUTOFF = 0x500; // cent
-    public static final int CONN_DST_FILTER_Q = 0x501; // dB
+    static final int CONN_DST_KEYNUMBER = 0x005;
+    static final int CONN_DST_CHORUS = 0x080; // 0.1%
+    static final int CONN_DST_REVERB = 0x081; // 0.1%
+    static final int CONN_DST_VIB_FREQUENCY = 0x114; // cent
+    static final int CONN_DST_VIB_STARTDELAY = 0x115; // dB
+    static final int CONN_DST_EG1_DELAYTIME = 0x20B; // timecent
+    static final int CONN_DST_EG1_HOLDTIME = 0x20C; // timecent
+    static final int CONN_DST_EG1_SHUTDOWNTIME = 0x20D; // timecent
+    static final int CONN_DST_EG2_DELAYTIME = 0x30F; // timecent
+    static final int CONN_DST_EG2_HOLDTIME = 0x310; // timecent
+    static final int CONN_DST_FILTER_CUTOFF = 0x500; // cent
+    static final int CONN_DST_FILTER_Q = 0x501; // dB
 
     // DLS1 Sources
-    public static final int CONN_SRC_NONE = 0x000; // 1
-    public static final int CONN_SRC_LFO = 0x001; // linear (sine wave)
-    public static final int CONN_SRC_KEYONVELOCITY = 0x002; // ??db or velocity??
-    public static final int CONN_SRC_KEYNUMBER = 0x003; // ??cent or keynumber??
-    public static final int CONN_SRC_EG1 = 0x004; // linear direct from eg
-    public static final int CONN_SRC_EG2 = 0x005; // linear direct from eg
-    public static final int CONN_SRC_PITCHWHEEL = 0x006; // linear -1..1
-    public static final int CONN_SRC_CC1 = 0x081; // linear 0..1
-    public static final int CONN_SRC_CC7 = 0x087; // linear 0..1
-    public static final int CONN_SRC_CC10 = 0x08A; // linear 0..1
-    public static final int CONN_SRC_CC11 = 0x08B; // linear 0..1
-    public static final int CONN_SRC_RPN0 = 0x100; // ?? // Pitch Bend Range
-    public static final int CONN_SRC_RPN1 = 0x101; // ?? // Fine Tune
+    static final int CONN_SRC_NONE = 0x000; // 1
+    static final int CONN_SRC_LFO = 0x001; // linear (sine wave)
+    static final int CONN_SRC_KEYONVELOCITY = 0x002; // ??db or velocity??
+    static final int CONN_SRC_KEYNUMBER = 0x003; // ??cent or keynumber??
+    static final int CONN_SRC_EG1 = 0x004; // linear direct from eg
+    static final int CONN_SRC_EG2 = 0x005; // linear direct from eg
+    static final int CONN_SRC_PITCHWHEEL = 0x006; // linear -1..1
+    static final int CONN_SRC_CC1 = 0x081; // linear 0..1
+    static final int CONN_SRC_CC7 = 0x087; // linear 0..1
+    static final int CONN_SRC_CC10 = 0x08A; // linear 0..1
+    static final int CONN_SRC_CC11 = 0x08B; // linear 0..1
+    static final int CONN_SRC_RPN0 = 0x100; // ?? // Pitch Bend Range
+    static final int CONN_SRC_RPN1 = 0x101; // ?? // Fine Tune
     // DLS2 Sources
-    public static final int CONN_SRC_POLYPRESSURE = 0x007; // linear 0..1
-    public static final int CONN_SRC_CHANNELPRESSURE = 0x008; // linear 0..1
-    public static final int CONN_SRC_VIBRATO = 0x009; // linear 0..1
-    public static final int CONN_SRC_MONOPRESSURE = 0x00A; // linear 0..1
-    public static final int CONN_SRC_CC91 = 0x0DB; // linear 0..1
-    public static final int CONN_SRC_CC93 = 0x0DD; // linear 0..1
-    public static final int CONN_TRN_CONCAVE = 0x001;
+    static final int CONN_SRC_POLYPRESSURE = 0x007; // linear 0..1
+    static final int CONN_SRC_CHANNELPRESSURE = 0x008; // linear 0..1
+    static final int CONN_SRC_VIBRATO = 0x009; // linear 0..1
+    static final int CONN_SRC_MONOPRESSURE = 0x00A; // linear 0..1
+    static final int CONN_SRC_CC91 = 0x0DB; // linear 0..1
+    static final int CONN_SRC_CC93 = 0x0DD; // linear 0..1
+    static final int CONN_TRN_CONCAVE = 0x001;
 
     private final int source;
     private final int control;
@@ -94,7 +94,7 @@ public final class DLSModulator {
     private final int scale;
     private final int version;
 
-    public DLSModulator(int source, int control, int destination, int transform, int scale, int version) {
+    DLSModulator(int source, int control, int destination, int transform, int scale, int version) {
         this.source = source;
         this.control = control;
         this.destination = destination;
@@ -103,27 +103,27 @@ public final class DLSModulator {
         this.version = version;
     }
 
-    public int getControl() {
+    int getControl() {
         return control;
     }
 
-    public int getDestination() {
+    int getDestination() {
         return destination;
     }
 
-    public int getScale() {
+    int getScale() {
         return scale;
     }
 
-    public int getSource() {
+    int getSource() {
         return source;
     }
 
-    public int getVersion() {
+    int getVersion() {
         return version;
     }
 
-    public int getTransform() {
+    int getTransform() {
         return transform;
     }
 

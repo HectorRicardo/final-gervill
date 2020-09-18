@@ -29,7 +29,7 @@ package gervill.soundbanks;
  *
  * @author Karl Helgason
  */
-public final class SF2Modulator {
+final class SF2Modulator {
 
     public final static int SOURCE_NOTE_ON_VELOCITY = 2;
     public final static int SOURCE_NOTE_ON_KEYNUMBER = 3;
@@ -51,7 +51,7 @@ public final class SF2Modulator {
     private final int amountSourceOperator;
     private final int transportOperator;
 
-    public SF2Modulator(int sourceOperator, int destinationOperator, short amount, int amountSourceOperator, int transportOperator) {
+    SF2Modulator(int sourceOperator, int destinationOperator, short amount, int amountSourceOperator, int transportOperator) {
         this.sourceOperator = sourceOperator;
         this.destinationOperator = destinationOperator;
         this.amount = amount;
@@ -59,23 +59,23 @@ public final class SF2Modulator {
         this.transportOperator = transportOperator;
     }
 
-    public short getAmount() {
+    short getAmount() {
         return amount;
     }
 
-    public int getAmountSourceOperator() {
+    int getAmountSourceOperator() {
         return amountSourceOperator;
     }
 
-    public int getTransportOperator() {
+    int getTransportOperator() {
         return transportOperator;
     }
 
-    public int getDestinationOperator() {
+    int getDestinationOperator() {
         return destinationOperator;
     }
 
-    public int getSourceOperator() {
+    int getSourceOperator() {
         return sourceOperator;
     }
 

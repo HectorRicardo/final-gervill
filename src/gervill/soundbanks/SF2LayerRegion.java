@@ -31,22 +31,22 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-public final class SF2LayerRegion extends SF2Region {
+final class SF2LayerRegion extends SF2Region {
 
     private SF2Sample sample;
 
-    public SF2LayerRegion() {}
+    SF2LayerRegion() {}
 
-    public SF2LayerRegion(SF2Sample sample, Map<Integer, Short> generators) {
+    SF2LayerRegion(SF2Sample sample, Map<Integer, Short> generators) {
         super(generators);
         this.sample = sample;
     }
 
-    public SF2Sample getSample() {
+    SF2Sample getSample() {
         return sample;
     }
 
-    public void setSample(SF2Sample sample) {
+    void setSample(SF2Sample sample) {
         this.sample = sample;
     }
 }

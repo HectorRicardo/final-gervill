@@ -35,27 +35,27 @@ import java.util.List;
  *
  * @author Karl Helgason
  */
-public final class DLSSampleOptions {
+final class DLSSampleOptions {
 
     private final int unitynote;
     private final short finetune;
     private final ImmutableList<DLSSampleLoop> loops;
 
-    public DLSSampleOptions(int unitynote, short finetune, List<DLSSampleLoop> loops) {
+    DLSSampleOptions(int unitynote, short finetune, List<DLSSampleLoop> loops) {
         this.unitynote = unitynote;
         this.finetune = finetune;
         this.loops = ImmutableList.create(loops);
     }
 
-    public ImmutableList<DLSSampleLoop> getLoops() {
+    ImmutableList<DLSSampleLoop> getLoops() {
         return loops;
     }
 
-    public int getUnitynote() {
+    int getUnitynote() {
         return unitynote;
     }
 
-    public short getFinetune() {
+    short getFinetune() {
         return finetune;
     }
 

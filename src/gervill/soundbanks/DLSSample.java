@@ -37,28 +37,28 @@ import gervill.javax.sound.sampled.AudioFormat;
  *
  * @author Karl Helgason
  */
-public final class DLSSample extends SoundbankResource {
+final class DLSSample extends SoundbankResource {
 
     private final DLSSampleOptions sampleoptions;
     private final ModelByteBuffer data;
     private final AudioFormat format;
 
-    public DLSSample(String name, AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
+    DLSSample(String name, AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
         super(name);
         this.format = format;
         this.data = data;
         this.sampleoptions = sampleoptions;
     }
 
-    public ModelByteBuffer getDataBuffer() {
+    ModelByteBuffer getDataBuffer() {
         return data;
     }
 
-    public AudioFormat getFormat() {
+    AudioFormat getFormat() {
         return format;
     }
 
-    public DLSSampleOptions getSampleoptions() {
+    DLSSampleOptions getSampleoptions() {
         return sampleoptions;
     }
 

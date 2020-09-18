@@ -29,7 +29,7 @@ package gervill.soundbanks;
  *
  * @author Karl Helgason
  */
-public final class FFT {
+final class FFT {
 
     private final double[] w;
     private final int fftFrameSize;

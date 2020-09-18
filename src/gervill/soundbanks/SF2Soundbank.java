@@ -53,7 +53,7 @@ public final class SF2Soundbank extends Soundbank {
     private final int major;
     private final int minor;
 
-    public SF2Soundbank(String name, String engineers, String comments, int major, int minor, List<Instrument> instruments) {
+    SF2Soundbank(String name, String engineers, String comments, int major, int minor, List<Instrument> instruments) {
         super(name, engineers, comments, instruments);
         this.major = major;
         this.minor = minor;
@@ -488,6 +488,7 @@ public final class SF2Soundbank extends Soundbank {
 
     }
 
+    @Override
     public String getVersion() {
         return major + "." + minor;
     }

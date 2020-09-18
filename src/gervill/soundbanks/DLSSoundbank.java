@@ -45,7 +45,7 @@ import java.util.*;
  */
 public final class DLSSoundbank extends Soundbank {
 
-    static private class DLSID {
+    private static class DLSID {
         private final long i1;
         private final int s1;
         private final int s2;
@@ -58,7 +58,7 @@ public final class DLSSoundbank extends Soundbank {
         private final int x7;
         private final int x8;
 
-        DLSID(long i1, int s1, int s2, int x1, int x2, int x4,
+        private DLSID(long i1, int s1, int s2, int x1, int x2, int x4,
               int x5, int x6, int x7, int x8) {
             this.i1 = i1;
             this.s1 = s1;
@@ -73,7 +73,7 @@ public final class DLSSoundbank extends Soundbank {
             this.x8 = x8;
         }
 
-        public static DLSID read(RIFFReader riff) throws IOException {
+        private static DLSID read(RIFFReader riff) throws IOException {
             long i1 = riff.readUnsignedInt();
             int s1 = riff.readUnsignedShort();
             int s2 = riff.readUnsignedShort();
@@ -158,7 +158,7 @@ public final class DLSSoundbank extends Soundbank {
     private final long major;
     private final long minor;
 
-    public DLSSoundbank(String name, String engineers, String comments, long major, long minor, List<Instrument> instruments) {
+    DLSSoundbank(String name, String engineers, String comments, long major, long minor, List<Instrument> instruments) {
         super(name, engineers, comments, instruments);
         this.major = major;
         this.minor = minor;
@@ -733,6 +733,7 @@ public final class DLSSoundbank extends Soundbank {
 
     }
 
+    @Override
     public String getVersion() {
         return major + "." + minor;
     }

@@ -41,12 +41,12 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-public final class DLSInstrument extends ModelInstrument {
+final class DLSInstrument extends ModelInstrument {
 
     private final ImmutableList<DLSRegion> regions;
     private final ImmutableList<DLSModulator> modulators;
 
-    public DLSInstrument(String name, List<DLSRegion> regions, List<DLSModulator> modulators, Patch patch) {
+    DLSInstrument(String name, List<DLSRegion> regions, List<DLSModulator> modulators, Patch patch) {
         super(patch, name);
         this.regions = ImmutableList.create(regions);
         this.modulators = ImmutableList.create(modulators);
@@ -292,6 +292,7 @@ public final class DLSInstrument extends ModelInstrument {
 
     }
 
+    @Override
     public ModelPerformer[] getPerformers() {
         List<ModelPerformer> performers = new ArrayList<>();
 

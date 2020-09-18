@@ -37,29 +37,30 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-public final class SF2Instrument extends ModelInstrument {
+final class SF2Instrument extends ModelInstrument {
 
     private SF2Region globalregion;
     private final List<SF2InstrumentRegion> regions;
 
-    public SF2Instrument(String name, Patch patch) {
+    SF2Instrument(String name, Patch patch) {
         super(patch, name);
         regions = new ArrayList<>();
     }
 
-    public SF2Instrument(String name, Patch patch, List<SF2InstrumentRegion> regions) {
+    SF2Instrument(String name, Patch patch, List<SF2InstrumentRegion> regions) {
         super(patch, name);
         this.regions = regions;
     }
 
-    public List<SF2InstrumentRegion> getRegions() {
+    List<SF2InstrumentRegion> getRegions() {
         return regions;
     }
 
-    public void setGlobalZone(SF2Region zone) {
+    void setGlobalZone(SF2Region zone) {
         globalregion = zone;
     }
 
+    @Override
     public ModelPerformer[] getPerformers() {
         int performercount = 0;
         for (SF2InstrumentRegion presetzone : regions)
@@ -578,7 +579,7 @@ public final class SF2Instrument extends ModelInstrument {
         return performers;
     }
 
-    private void convertModulator(ModelPerformer performer,
+    private static void convertModulator(ModelPerformer performer,
             SF2Modulator modulator) {
         ModelSource src1 = convertSource(modulator.getSourceOperator());
         ModelSource src2 = convertSource(modulator.getAmountSourceOperator());
@@ -654,7 +655,7 @@ public final class SF2Instrument extends ModelInstrument {
         return msrc;
     }
 
-    static ModelDestination convertDestination(int dst,
+    private static ModelDestination convertDestination(int dst,
             double[] amountcorrection, ModelSource[] extrasrc) {
         ModelIdentifier id = null;
         switch (dst) {
@@ -802,7 +803,7 @@ public final class SF2Instrument extends ModelInstrument {
         return null;
     }
 
-    private void addTimecentValue(ModelPerformer performer,
+    private static void addTimecentValue(ModelPerformer performer,
             ModelIdentifier dest, short value) {
         double fvalue;
         if (value == -12000)
@@ -813,19 +814,19 @@ public final class SF2Instrument extends ModelInstrument {
                 new ModelConnectionBlock(fvalue, new ModelDestination(dest)));
     }
 
-    private void addValue(ModelPerformer performer,
+    private static void addValue(ModelPerformer performer,
             ModelIdentifier dest, short value) {
         performer.getConnectionBlocks().add(
                 new ModelConnectionBlock(value, new ModelDestination(dest)));
     }
 
-    private void addValue(ModelPerformer performer,
+    private static void addValue(ModelPerformer performer,
             ModelIdentifier dest, double value) {
         performer.getConnectionBlocks().add(
                 new ModelConnectionBlock(value, new ModelDestination(dest)));
     }
 
-    private short getGeneratorValue(Map<Integer, Short> generators, int gen) {
+    private static short getGeneratorValue(Map<Integer, Short> generators, int gen) {
         if (generators.containsKey(gen))
             return generators.get(gen);
         return SF2Region.getDefaultValue(gen);

@@ -33,9 +33,9 @@ package gervill.soundbanks;
  *
  * @author Karl Helgason
  */
-public final class DLSRegion {
+final class DLSRegion {
 
-    public final static int OPTION_SELFNONEXCLUSIVE = 0x0001;
+    final static int OPTION_SELFNONEXCLUSIVE = 0x0001;
 
     private final int keyfrom;
     private final int keyto;
@@ -46,7 +46,7 @@ public final class DLSRegion {
     private DLSSample sample;
     private final DLSSampleOptions sampleoptions;
 
-    public DLSRegion(int keyfrom, int keyto, int velfrom, int velto, int exclusiveClass, int fusoptions, DLSSampleOptions sampleoptions) {
+    DLSRegion(int keyfrom, int keyto, int velfrom, int velto, int exclusiveClass, int fusoptions, DLSSampleOptions sampleoptions) {
         this.keyfrom = keyfrom;
         this.keyto = keyto;
         this.velfrom = velfrom;
@@ -56,39 +56,39 @@ public final class DLSRegion {
         this.sampleoptions = sampleoptions;
     }
 
-    public void setSample(DLSSample sample) {
+    void setSample(DLSSample sample) {
         this.sample = sample;
     }
 
-    public int getExclusiveClass() {
+    int getExclusiveClass() {
         return exclusiveClass;
     }
 
-    public int getFusoptions() {
+    int getFusoptions() {
         return fusoptions;
     }
 
-    public int getKeyfrom() {
+    int getKeyfrom() {
         return keyfrom;
     }
 
-    public int getKeyto() {
+    int getKeyto() {
         return keyto;
     }
 
-    public DLSSample getSample() {
+    DLSSample getSample() {
         return sample;
     }
 
-    public int getVelfrom() {
+    int getVelfrom() {
         return velfrom;
     }
 
-    public int getVelto() {
+    int getVelto() {
         return velto;
     }
 
-    public DLSSampleOptions getSampleoptions() {
+    DLSSampleOptions getSampleoptions() {
         return sampleoptions;
     }
 

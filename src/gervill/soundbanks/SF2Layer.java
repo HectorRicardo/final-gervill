@@ -34,32 +34,32 @@ import java.util.List;
  *
  * @author Karl Helgason
  */
-public final class SF2Layer extends SoundbankResource {
+final class SF2Layer extends SoundbankResource {
 
     private SF2Region globalregion;
     private final List<SF2LayerRegion> regions;
 
-    public SF2Layer(String name) {
+    SF2Layer(String name) {
         super(name);
         this.globalregion = null;
         this.regions = new ArrayList<>();
     }
 
-    public SF2Layer(String name, SF2Region globalregion, List<SF2LayerRegion> regions) {
+    SF2Layer(String name, SF2Region globalregion, List<SF2LayerRegion> regions) {
         super(name);
         this.globalregion = globalregion;
         this.regions = regions;
     }
 
-    public List<SF2LayerRegion> getRegions() {
+    List<SF2LayerRegion> getRegions() {
         return regions;
     }
 
-    public SF2Region getGlobalRegion() {
+    SF2Region getGlobalRegion() {
         return globalregion;
     }
 
-    public void setGlobalZone(SF2Region zone) {
+    void setGlobalZone(SF2Region zone) {
         globalregion = zone;
     }
 
