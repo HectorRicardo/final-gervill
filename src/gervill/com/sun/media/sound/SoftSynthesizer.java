@@ -30,6 +30,7 @@ import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.SourceDataLine;
+import own.main.ImmutableList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -477,13 +478,9 @@ public final class SoftSynthesizer implements AutoCloseable {
         return defaultSoundBank;
     }
 
-    public Instrument[] getAvailableInstruments() {
+    public ImmutableList<Instrument> getAvailableInstruments() {
         Soundbank defsbk = getDefaultSoundbank();
-        if (defsbk == null)
-            return new Instrument[0];
-        Instrument[] inslist_array = defsbk.getInstruments();
-        Arrays.sort(inslist_array, new ModelInstrumentComparator());
-        return inslist_array;
+        return defsbk == null ? null : defsbk.getInstruments();
     }
 
     public Instrument[] getLoadedInstruments() {

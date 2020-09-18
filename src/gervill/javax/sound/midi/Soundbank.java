@@ -27,9 +27,8 @@ package gervill.javax.sound.midi;
 
 
 import gervill.com.sun.media.sound.ModelInstrumentComparator;
+import own.main.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -75,25 +74,25 @@ import java.util.List;
 
 public abstract class Soundbank {
 
-    private final List<Instrument> instruments;
+    private final String name;
+    private final String engineers;
+    private final String comments;
+    private final ImmutableList<Instrument> instruments;
 
-    public Soundbank() {
-        instruments = new ArrayList<>();
-    }
-
-    public Soundbank(List<Instrument> instruments) {
-        this.instruments = instruments;
-    }
-
-    public List<Instrument> getInstrumentsAux() {
-        return instruments;
+    public Soundbank(String name, String engineers, String comments, List<Instrument> instruments) {
+        this.name = name;
+        this.engineers = engineers;
+        this.comments = comments;
+        this.instruments = new ImmutableList<>(instruments, new ModelInstrumentComparator());
     }
 
     /**
      * Obtains the name of the sound bank.
      * @return a <code>String</code> naming the sound bank
      */
-    public abstract String getName();
+    public String getName() {
+        return name;
+    }
 
     /**
      * Obtains the version string for the sound bank.
@@ -106,13 +105,17 @@ public abstract class Soundbank {
      * sound bank
      * @return the vendor string
      */
-    public abstract String getVendor();
+    public String getVendor() {
+        return engineers;
+    }
 
     /**
      * Obtains a textual description of the sound bank, suitable for display.
      * @return a <code>String</code> that describes the sound bank
      */
-    public abstract String getDescription();
+    public String getDescription() {
+        return comments;
+    }
 
 
     /**
@@ -124,10 +127,8 @@ public abstract class Soundbank {
      * see Synthesizer#getLoadedInstruments
      * see #getInstrument(Patch)
      */
-    public Instrument[] getInstruments() {
-        Instrument[] inslist_array = instruments.toArray(new Instrument[0]);
-        Arrays.sort(inslist_array, new ModelInstrumentComparator());
-        return inslist_array;
+    public ImmutableList<Instrument> getInstruments() {
+        return instruments;
     }
 
     /**

@@ -61,16 +61,16 @@ public class SynthesizerPlayer {
     public String[] sample1() {
         playing = true;
 
-        Instrument[] instruments = soundbank.getInstruments();
+        ImmutableList<Instrument> instruments = soundbank.getInstruments();
 
         int index1 = random(10);
         int index2 = random(11);
 
-        Instrument instrument1 = instruments[index1];
+        Instrument instrument1 = instruments.get(index1);
         changeInstrument(instrument1);
         playMelody();
 
-        Instrument instrument2 = instruments[index2];
+        Instrument instrument2 = instruments.get(index2);
         changeInstrument(instrument2);
         playMelody();
 

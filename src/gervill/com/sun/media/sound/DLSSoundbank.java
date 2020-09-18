@@ -157,15 +157,8 @@ public final class DLSSoundbank extends Soundbank {
     private final long major;
     private final long minor;
 
-    private final String name;
-    private final String engineers;
-    private final String comments;
-
     public DLSSoundbank(String name, String engineers, String comments, long major, long minor, List<Instrument> instruments) {
-        super(instruments);
-        this.name = name;
-        this.engineers = engineers;
-        this.comments = comments;
+        super(name, engineers, comments, instruments);
         this.major = major;
         this.minor = minor;
     }
@@ -739,20 +732,8 @@ public final class DLSSoundbank extends Soundbank {
 
     }
 
-    public String getName() {
-        return name;
-    }
-
     public String getVersion() {
         return major + "." + minor;
-    }
-
-    public String getVendor() {
-        return engineers;
-    }
-
-    public String getDescription() {
-        return comments;
     }
 
 }
