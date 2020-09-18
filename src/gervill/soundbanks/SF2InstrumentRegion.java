@@ -22,38 +22,36 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
+
+import java.util.Map;
 
 /**
- * This class is used to store loop points inside DLSSampleOptions class.
+ * Soundfont instrument region.
  *
  * @author Karl Helgason
  */
-public final class DLSSampleLoop {
+public final class SF2InstrumentRegion extends SF2Region {
 
-    public final static int LOOP_TYPE_FORWARD = 0;
-    public final static int LOOP_TYPE_RELEASE = 1;
+    private SF2Layer layer;
 
-    private final long type;
-    private final long start;
-    private final long length;
+    public SF2InstrumentRegion() {}
 
-    public DLSSampleLoop(long type, long start, long length) {
-        this.type = type;
-        this.start = start;
-        this.length = length;
+    public SF2InstrumentRegion(SF2Layer layer) {
+        super();
+        this.layer = layer;
     }
 
-    public long getLength() {
-        return length;
+    public SF2InstrumentRegion(SF2Layer layer, Map<Integer, Short> generators) {
+        super(generators);
+        this.layer = layer;
     }
 
-    public long getStart() {
-        return start;
+    public SF2Layer getLayer() {
+        return layer;
     }
 
-    public long getType() {
-        return type;
+    public void setLayer(SF2Layer layer) {
+        this.layer = layer;
     }
-
 }

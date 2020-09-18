@@ -1,7 +1,7 @@
 package own.main;
 
-import gervill.com.sun.media.sound.DLSSoundbank;
-import gervill.com.sun.media.sound.SF2Soundbank;
+import gervill.soundbanks.DLSSoundbank;
+import gervill.soundbanks.SF2Soundbank;
 import gervill.javax.sound.midi.Soundbank;
 
 import java.io.File;

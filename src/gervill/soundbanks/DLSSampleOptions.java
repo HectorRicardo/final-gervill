@@ -22,31 +22,41 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
 
-import java.util.Map;
+import own.main.ImmutableList;
+
+import java.util.List;
 
 /**
- * Soundfont layer region.
+ * This class stores options how to playback sampled data like pitch/tuning,
+ * attenuation and loops.
+ * It is stored as a "wsmp" chunk inside DLS files.
  *
  * @author Karl Helgason
  */
-public final class SF2LayerRegion extends SF2Region {
+public final class DLSSampleOptions {
 
-    private SF2Sample sample;
+    private final int unitynote;
+    private final short finetune;
+    private final ImmutableList<DLSSampleLoop> loops;
 
-    public SF2LayerRegion() {}
-
-    public SF2LayerRegion(SF2Sample sample, Map<Integer, Short> generators) {
-        super(generators);
-        this.sample = sample;
+    public DLSSampleOptions(int unitynote, short finetune, List<DLSSampleLoop> loops) {
+        this.unitynote = unitynote;
+        this.finetune = finetune;
+        this.loops = ImmutableList.create(loops);
     }
 
-    public SF2Sample getSample() {
-        return sample;
+    public ImmutableList<DLSSampleLoop> getLoops() {
+        return loops;
     }
 
-    public void setSample(SF2Sample sample) {
-        this.sample = sample;
+    public int getUnitynote() {
+        return unitynote;
     }
+
+    public short getFinetune() {
+        return finetune;
+    }
+
 }

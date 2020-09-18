@@ -22,45 +22,31 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
 
-import gervill.javax.sound.midi.SoundbankResource;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 /**
- * Soundfont layer.
+ * Soundfont layer region.
  *
  * @author Karl Helgason
  */
-public final class SF2Layer extends SoundbankResource {
+public final class SF2LayerRegion extends SF2Region {
 
-    private SF2Region globalregion;
-    private final List<SF2LayerRegion> regions;
+    private SF2Sample sample;
 
-    public SF2Layer(String name) {
-        super(name);
-        this.globalregion = null;
-        this.regions = new ArrayList<>();
+    public SF2LayerRegion() {}
+
+    public SF2LayerRegion(SF2Sample sample, Map<Integer, Short> generators) {
+        super(generators);
+        this.sample = sample;
     }
 
-    public SF2Layer(String name, SF2Region globalregion, List<SF2LayerRegion> regions) {
-        super(name);
-        this.globalregion = globalregion;
-        this.regions = regions;
+    public SF2Sample getSample() {
+        return sample;
     }
 
-    public List<SF2LayerRegion> getRegions() {
-        return regions;
+    public void setSample(SF2Sample sample) {
+        this.sample = sample;
     }
-
-    public SF2Region getGlobalRegion() {
-        return globalregion;
-    }
-
-    public void setGlobalZone(SF2Region zone) {
-        globalregion = zone;
-    }
-
 }

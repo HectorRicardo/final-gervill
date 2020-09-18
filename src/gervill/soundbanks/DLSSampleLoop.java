@@ -22,41 +22,38 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
-
-import own.main.ImmutableList;
-
-import java.util.List;
+package gervill.soundbanks;
 
 /**
- * This class stores options how to playback sampled data like pitch/tuning,
- * attenuation and loops.
- * It is stored as a "wsmp" chunk inside DLS files.
+ * This class is used to store loop points inside DLSSampleOptions class.
  *
  * @author Karl Helgason
  */
-public final class DLSSampleOptions {
+public final class DLSSampleLoop {
 
-    private final int unitynote;
-    private final short finetune;
-    private final ImmutableList<DLSSampleLoop> loops;
+    public final static int LOOP_TYPE_FORWARD = 0;
+    public final static int LOOP_TYPE_RELEASE = 1;
 
-    public DLSSampleOptions(int unitynote, short finetune, List<DLSSampleLoop> loops) {
-        this.unitynote = unitynote;
-        this.finetune = finetune;
-        this.loops = ImmutableList.create(loops);
+    private final long type;
+    private final long start;
+    private final long length;
+
+    public DLSSampleLoop(long type, long start, long length) {
+        this.type = type;
+        this.start = start;
+        this.length = length;
     }
 
-    public ImmutableList<DLSSampleLoop> getLoops() {
-        return loops;
+    public long getLength() {
+        return length;
     }
 
-    public int getUnitynote() {
-        return unitynote;
+    public long getStart() {
+        return start;
     }
 
-    public short getFinetune() {
-        return finetune;
+    public long getType() {
+        return type;
     }
 
 }

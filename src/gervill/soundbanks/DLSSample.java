@@ -22,36 +22,44 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
 
-import java.util.Map;
+import gervill.com.sun.media.sound.ModelByteBuffer;
+import gervill.javax.sound.midi.SoundbankResource;
+import gervill.javax.sound.sampled.AudioFormat;
 
 /**
- * Soundfont instrument region.
+ * This class is used to store the sample data itself.
+ * A sample is encoded as PCM audio stream
+ * and in DLS Level 1 files it is always a mono 8/16 bit stream.
+ * They are stored just like RIFF WAVE files are stored.
+ * It is stored inside a "wave" List Chunk inside DLS files.
  *
  * @author Karl Helgason
  */
-public final class SF2InstrumentRegion extends SF2Region {
+public final class DLSSample extends SoundbankResource {
 
-    private SF2Layer layer;
+    private final DLSSampleOptions sampleoptions;
+    private final ModelByteBuffer data;
+    private final AudioFormat format;
 
-    public SF2InstrumentRegion() {}
-
-    public SF2InstrumentRegion(SF2Layer layer) {
-        super();
-        this.layer = layer;
+    public DLSSample(String name, AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
+        super(name);
+        this.format = format;
+        this.data = data;
+        this.sampleoptions = sampleoptions;
     }
 
-    public SF2InstrumentRegion(SF2Layer layer, Map<Integer, Short> generators) {
-        super(generators);
-        this.layer = layer;
+    public ModelByteBuffer getDataBuffer() {
+        return data;
     }
 
-    public SF2Layer getLayer() {
-        return layer;
+    public AudioFormat getFormat() {
+        return format;
     }
 
-    public void setLayer(SF2Layer layer) {
-        this.layer = layer;
+    public DLSSampleOptions getSampleoptions() {
+        return sampleoptions;
     }
+
 }

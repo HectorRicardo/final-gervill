@@ -22,8 +22,9 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
 
+import gervill.com.sun.media.sound.*;
 import gervill.javax.sound.midi.Patch;
 
 import java.util.ArrayList;

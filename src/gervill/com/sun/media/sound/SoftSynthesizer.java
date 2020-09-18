@@ -30,6 +30,7 @@ import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.SourceDataLine;
+import gervill.soundbanks.EmergencySoundbank;
 import own.main.ImmutableList;
 
 import java.io.IOException;
