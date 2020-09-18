@@ -36,6 +36,10 @@ import java.util.Comparator;
  */
 public final class ModelInstrumentComparator implements Comparator<Instrument> {
 
+    public static final ModelInstrumentComparator COMPARATOR = new ModelInstrumentComparator();
+
+    private ModelInstrumentComparator() {}
+
     public int compare(Instrument arg0, Instrument arg1) {
         return arg0.getPatch().hashCode() - arg1.getPatch().hashCode();
     }

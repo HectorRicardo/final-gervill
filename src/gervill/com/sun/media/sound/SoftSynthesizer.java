@@ -491,7 +491,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             ModelInstrument[] inslist_array =
                     new ModelInstrument[loadedlist.values().size()];
             loadedlist.values().toArray(inslist_array);
-            Arrays.sort(inslist_array, new ModelInstrumentComparator());
+            Arrays.sort(inslist_array, ModelInstrumentComparator.COMPARATOR);
             return inslist_array;
         }
     }

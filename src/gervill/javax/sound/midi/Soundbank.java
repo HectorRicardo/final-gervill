@@ -83,7 +83,7 @@ public abstract class Soundbank {
         this.name = name;
         this.engineers = engineers;
         this.comments = comments;
-        this.instruments = new ImmutableList<>(instruments, new ModelInstrumentComparator());
+        this.instruments = new ImmutableList<>(instruments, ModelInstrumentComparator.COMPARATOR);
     }
 
     /**
