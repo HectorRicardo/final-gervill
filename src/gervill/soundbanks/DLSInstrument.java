@@ -174,15 +174,11 @@ final class DLSInstrument extends ModelInstrument {
         if (destination_id == null) return null;
 
         int scale = mod.getScale();
-        double f_scale;
-        if (scale == Integer.MIN_VALUE)
-            f_scale = Double.NEGATIVE_INFINITY;
-        else
-            f_scale = scale / 65536.0;
+        double f_scale = scale == Integer.MIN_VALUE ? Double.NEGATIVE_INFINITY : scale / 65536.0;
 
         ModelSource src = null;
         ModelSource ctrl = null;
-        ModelConnectionBlock block = new ModelConnectionBlock();
+        ModelConnectionBlock block = new ModelConnectionBlock(f_scale, new ModelDestination(destination_id));
         if (control != null) {
             ModelSource s = new ModelSource();
             if (control == ModelSource.SOURCE_MIDI_PITCH) {
@@ -211,8 +207,6 @@ final class DLSInstrument extends ModelInstrument {
             block.addSource(s);
             src = s;
         }
-        ModelDestination destination = new ModelDestination(destination_id);
-        block.setDestination(destination);
 
         if (mod.getVersion() == 1) {
             //if (mod.getTransform() ==  DLSModulator.CONN_TRN_CONCAVE) {
@@ -284,8 +278,6 @@ final class DLSInstrument extends ModelInstrument {
             */
 
         }
-
-        block.setScale(f_scale);
 
         return block;
 

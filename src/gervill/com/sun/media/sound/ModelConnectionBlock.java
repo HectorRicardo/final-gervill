@@ -41,11 +41,8 @@ public final class ModelConnectionBlock {
     //
     private final static ModelSource[] no_sources = new ModelSource[0];
     private ModelSource[] sources = no_sources;
-    private double scale = 1;
-    private ModelDestination destination;
-
-    public ModelConnectionBlock() {
-    }
+    private final double scale;
+    private final ModelDestination destination;
 
     public ModelConnectionBlock(double scale, ModelDestination destination) {
         this.scale = scale;
@@ -75,6 +72,7 @@ public final class ModelConnectionBlock {
             }
         }
         this.destination = destination;
+        scale = 1;
     }
 
     public ModelConnectionBlock(ModelSource source, ModelSource control,
@@ -97,16 +95,8 @@ public final class ModelConnectionBlock {
         return destination;
     }
 
-    public void setDestination(ModelDestination destination) {
-        this.destination = destination;
-    }
-
     public double getScale() {
         return scale;
-    }
-
-    public void setScale(double scale) {
-        this.scale = scale;
     }
 
     public ModelSource[] getSources() {

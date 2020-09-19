@@ -473,12 +473,9 @@ public final class SoftPerformer {
             }
             if (isModulationWheelConection) {
 
-                ModelConnectionBlock newconnection = new ModelConnectionBlock();
+                ModelConnectionBlock newconnection = new ModelConnectionBlock(256, connection.getDestination());
                 newconnection.setSources(connection.getSources());
-                newconnection.setDestination(connection.getDestination());
-                newconnection.addSource(new ModelSource(
-                        new ModelIdentifier("midi_rpn", "5")));
-                newconnection.setScale(connection.getScale() * 256.0);
+                newconnection.addSource(new ModelSource(new ModelIdentifier("midi_rpn", "5")));
                 performer_connections.set(j, newconnection);
             }
         }
@@ -493,11 +490,10 @@ public final class SoftPerformer {
                     ModelStandardTransform.DIRECTION_MIN2MAX,
                     ModelStandardTransform.POLARITY_UNIPOLAR,
                     ModelStandardTransform.TRANSFORM_LINEAR),
-                    50,
+                    50 * 256.0,
                     new ModelDestination(ModelDestination.DESTINATION_PITCH));
             conn.addSource(new ModelSource(new ModelIdentifier("midi_rpn",
                     "5")));
-            conn.setScale(conn.getScale() * 256.0);
             performer_connections.add(conn);
 
         }
@@ -538,9 +534,7 @@ public final class SoftPerformer {
 
         if (mod_cc_1_connection != null) {
             if (!channel_pressure_set) {
-                ModelConnectionBlock mc = new ModelConnectionBlock();
-                mc.setDestination(mod_cc_1_connection.getDestination());
-                mc.setScale(mod_cc_1_connection.getScale());
+                ModelConnectionBlock mc = new ModelConnectionBlock(mod_cc_1_connection.getScale(), mod_cc_1_connection.getDestination());
                 ModelSource[] src_list = mod_cc_1_connection.getSources();
                 ModelSource[] src_list_new = new ModelSource[src_list.length];
                 System.arraycopy(src_list, 0, src_list_new, 0, src_list_new.length);
@@ -550,9 +544,7 @@ public final class SoftPerformer {
                 connmap.put(extractKeys(mc), mc);
             }
             if (!poly_pressure) {
-                ModelConnectionBlock mc = new ModelConnectionBlock();
-                mc.setDestination(mod_cc_1_connection.getDestination());
-                mc.setScale(mod_cc_1_connection.getScale());
+                ModelConnectionBlock mc = new ModelConnectionBlock(mod_cc_1_connection.getScale(), mod_cc_1_connection.getDestination());
                 ModelSource[] src_list = mod_cc_1_connection.getSources();
                 ModelSource[] src_list_new = new ModelSource[src_list.length];
                 System.arraycopy(src_list, 0, src_list_new, 0, src_list_new.length);
