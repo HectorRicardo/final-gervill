@@ -294,14 +294,7 @@ final class DLSInstrument extends ModelInstrument {
         }
 
         for (DLSRegion zone: regions) {
-            ModelPerformer performer = new ModelPerformer();
-            performer.setSelfNonExclusive((zone.getFusoptions() &
-                    DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0);
-            performer.setExclusiveClass(zone.getExclusiveClass());
-            performer.setKeyFrom(zone.getKeyfrom());
-            performer.setKeyTo(zone.getKeyto());
-            performer.setVelFrom(zone.getVelfrom());
-            performer.setVelTo(zone.getVelto());
+            ModelPerformer performer = new ModelPerformer(zone.getKeyfrom(), zone.getKeyto(), zone.getVelfrom(), zone.getVelto(), zone.getExclusiveClass(), (zone.getFusoptions() & DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0);
 
             List<ModelConnectionBlock> blocks = performer.getConnectionBlocks();
             for (DLSModulator mod: modmap.values()) {

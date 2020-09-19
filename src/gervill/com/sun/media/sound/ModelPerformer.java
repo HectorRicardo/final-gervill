@@ -36,14 +36,22 @@ import java.util.List;
 public final class ModelPerformer {
 
     private final List<ModelByteBufferWavetable> oscillators = new ArrayList<>();
-    private final List<ModelConnectionBlock> connectionBlocks
-            = new ArrayList<>();
-    private int keyFrom = 0;
-    private int keyTo = 127;
-    private int velFrom = 0;
-    private int velTo = 127;
-    private int exclusiveClass = 0;
-    private boolean selfNonExclusive = false;
+    private final List<ModelConnectionBlock> connectionBlocks = new ArrayList<>();
+    private final int keyFrom;
+    private final int keyTo;
+    private final int velFrom;
+    private final int velTo;
+    private final int exclusiveClass;
+    private final boolean selfNonExclusive;
+
+    public ModelPerformer(int keyFrom, int keyTo, int velFrom, int velTo, int exclusiveClass, boolean selfNonExclusive) {
+        this.keyFrom = keyFrom;
+        this.keyTo = keyTo;
+        this.velFrom = velFrom;
+        this.velTo = velTo;
+        this.exclusiveClass = exclusiveClass;
+        this.selfNonExclusive = selfNonExclusive;
+    }
 
     public List<ModelConnectionBlock> getConnectionBlocks() {
         return connectionBlocks;
@@ -57,48 +65,24 @@ public final class ModelPerformer {
         return exclusiveClass;
     }
 
-    public void setExclusiveClass(int exclusiveClass) {
-        this.exclusiveClass = exclusiveClass;
-    }
-
     public boolean isSelfNonExclusive() {
         return selfNonExclusive;
-    }
-
-    public void setSelfNonExclusive(boolean selfNonExclusive) {
-        this.selfNonExclusive = selfNonExclusive;
     }
 
     public int getKeyFrom() {
         return keyFrom;
     }
 
-    public void setKeyFrom(int keyFrom) {
-        this.keyFrom = keyFrom;
-    }
-
     public int getKeyTo() {
         return keyTo;
-    }
-
-    public void setKeyTo(int keyTo) {
-        this.keyTo = keyTo;
     }
 
     public int getVelFrom() {
         return velFrom;
     }
 
-    public void setVelFrom(int velFrom) {
-        this.velFrom = velFrom;
-    }
-
     public int getVelTo() {
         return velTo;
-    }
-
-    public void setVelTo(int velTo) {
-        this.velTo = velTo;
     }
 
 }

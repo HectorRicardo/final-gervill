@@ -77,19 +77,14 @@ final class SF2Instrument extends ModelInstrument {
             SF2Layer layer = presetzone.getLayer();
             SF2Region layerglobal = layer.getGlobalRegion();
             for (SF2LayerRegion layerzone : layer.getRegions()) {
-                ModelPerformer performer = new ModelPerformer();
-
-                performers[pi++] = performer;
 
                 int keyfrom = 0;
                 int keyto = 127;
                 int velfrom = 0;
                 int velto = 127;
 
-                if (layerzone.contains(SF2Region.GENERATOR_EXCLUSIVECLASS)) {
-                    performer.setExclusiveClass(layerzone.getInteger(
-                            SF2Region.GENERATOR_EXCLUSIVECLASS));
-                }
+                int exclusiveClass = layerzone.contains(SF2Region.GENERATOR_EXCLUSIVECLASS) ? layerzone.getInteger(SF2Region.GENERATOR_EXCLUSIVECLASS) : 0;
+
                 if (layerzone.contains(SF2Region.GENERATOR_KEYRANGE)) {
                     byte[] bytes = layerzone.getBytes(
                             SF2Region.GENERATOR_KEYRANGE);
@@ -126,10 +121,9 @@ final class SF2Instrument extends ModelInstrument {
                     if (bytes[1] < velto)
                         velto = bytes[1];
                 }
-                performer.setKeyFrom(keyfrom);
-                performer.setKeyTo(keyto);
-                performer.setVelFrom(velfrom);
-                performer.setVelTo(velto);
+
+                ModelPerformer performer = new ModelPerformer(keyfrom, keyto, velfrom, velto, exclusiveClass, false);
+                performers[pi++] = performer;
 
                 int startAddrsOffset = layerzone.getShort(
                         SF2Region.GENERATOR_STARTADDRSOFFSET);
