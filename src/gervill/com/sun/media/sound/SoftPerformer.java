@@ -480,14 +480,14 @@ public final class SoftPerformer {
         }
 
         if (!isModulationWheelConectionFound) {
-            ModelConnectionBlock conn = new ModelConnectionBlock(12800, new ModelDestination(ModelDestination.DESTINATION_PITCH), new ModelSource[] {new ModelSource(ModelSource.SOURCE_LFO1,
+            ModelConnectionBlock conn = new ModelConnectionBlock(12800, new ModelDestination(ModelDestination.DESTINATION_PITCH), Arrays.asList(new ModelSource(ModelSource.SOURCE_LFO1,
                     ModelStandardTransform.DIRECTION_MIN2MAX,
                     ModelStandardTransform.POLARITY_BIPOLAR,
                     ModelStandardTransform.TRANSFORM_LINEAR), new ModelSource(new ModelIdentifier("midi_cc", "1", 0),
                     ModelStandardTransform.DIRECTION_MIN2MAX,
                     ModelStandardTransform.POLARITY_UNIPOLAR,
                     ModelStandardTransform.TRANSFORM_LINEAR), new ModelSource(new ModelIdentifier("midi_rpn",
-                    "5"))});
+                    "5"))));
             performer_connections.add(conn);
 
         }

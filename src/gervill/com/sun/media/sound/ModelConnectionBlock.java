@@ -60,12 +60,6 @@ public final class ModelConnectionBlock {
         this.sources = sources;
     }
 
-    public ModelConnectionBlock(double scale, ModelDestination destination, ModelSource[] sources) {
-        this.scale = scale;
-        this.destination = destination;
-        this.sources = ImmutableList.create(sources);
-    }
-
     public ModelConnectionBlock(ModelSource source, double scale, ModelDestination destination) {
         sources = source == null ? no_sources : ImmutableList.create(source);
         this.scale = scale;

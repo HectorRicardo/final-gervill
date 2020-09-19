@@ -32,7 +32,6 @@ package gervill.com.sun.media.sound;
  */
 public final class ModelSource {
 
-    public static final ModelIdentifier SOURCE_NONE = null;
     public static final ModelIdentifier SOURCE_NOTEON_KEYNUMBER =
             new ModelIdentifier("noteon", "keynumber");     // midi keynumber
     public static final ModelIdentifier SOURCE_NOTEON_VELOCITY =
@@ -53,12 +52,9 @@ public final class ModelSource {
 //            new ModelIdentifier("midi","mono_pressure",0);    // (0..127)
     public static final ModelIdentifier SOURCE_MIDI_POLY_PRESSURE =
             new ModelIdentifier("midi", "poly_pressure", 0);    // (0..127)
-    private ModelIdentifier source = SOURCE_NONE;
-    private final ModelTransform transform;
 
-    public ModelSource() {
-        this.transform = new ModelStandardTransform();
-    }
+    private final ModelIdentifier source;
+    private final ModelTransform transform;
 
     public ModelSource(ModelIdentifier id) {
         source = id;
@@ -84,10 +80,6 @@ public final class ModelSource {
 
     public ModelIdentifier getIdentifier() {
         return source;
-    }
-
-    public void setIdentifier(ModelIdentifier source) {
-        this.source = source;
     }
 
     public ModelTransform getTransform() {
