@@ -32,7 +32,6 @@ package gervill.com.sun.media.sound;
  */
 public final class ModelDestination {
 
-    public static final ModelIdentifier DESTINATION_NONE = null;
     public static final ModelIdentifier DESTINATION_KEYNUMBER
             = new ModelIdentifier("noteon", "keynumber");
     public static final ModelIdentifier DESTINATION_VELOCITY
@@ -87,11 +86,9 @@ public final class ModelDestination {
             = new ModelIdentifier("filter", "freq", 0); // cent
     public static final ModelIdentifier DESTINATION_FILTER_Q
             = new ModelIdentifier("filter", "q", 0); // cB
-    private ModelIdentifier destination = DESTINATION_NONE;
-    private final ModelTransform transform = new ModelStandardTransform();
 
-    public ModelDestination() {
-    }
+    private final ModelIdentifier destination;
+    private final ModelTransform transform = new ModelStandardTransform();
 
     public ModelDestination(ModelIdentifier id) {
         destination = id;
@@ -99,10 +96,6 @@ public final class ModelDestination {
 
     public ModelIdentifier getIdentifier() {
         return destination;
-    }
-
-    public void setIdentifier(ModelIdentifier destination) {
-        this.destination = destination;
     }
 
     public ModelTransform getTransform() {

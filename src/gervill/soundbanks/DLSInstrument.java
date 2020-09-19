@@ -211,8 +211,7 @@ final class DLSInstrument extends ModelInstrument {
             block.addSource(s);
             src = s;
         }
-        ModelDestination destination = new ModelDestination();
-        destination.setIdentifier(destination_id);
+        ModelDestination destination = new ModelDestination(destination_id);
         block.setDestination(destination);
 
         if (mod.getVersion() == 1) {
