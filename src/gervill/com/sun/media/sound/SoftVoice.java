@@ -25,6 +25,7 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.VoiceStatus;
+import own.main.ImmutableList;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -248,19 +249,18 @@ public final class SoftVoice extends VoiceStatus {
             return;
 
         double value = conn.getScale();
+        ImmutableList<ModelSource> srcs = conn.getSources();
         if (softchannel.keybasedcontroller_active == null) {
-            ModelSource[] srcs = conn.getSources();
-            for (int i = 0; i < srcs.length; i++) {
-                value *= transformValue(src[i][0], srcs[i]);
+            for (int i = 0; i < srcs.size(); i++) {
+                value *= transformValue(src[i][0], srcs.get(i));
                 if (value == 0)
                     break;
             }
         } else {
-            ModelSource[] srcs = conn.getSources();
             int[] src_kc = connections_src_kc[ix];
-            for (int i = 0; i < srcs.length; i++) {
+            for (int i = 0; i < srcs.size(); i++) {
                 value *= transformValue(processKeyBasedController(src[i][0],
-                        src_kc[i]), srcs[i]);
+                        src_kc[i]), srcs.get(i));
                 if (value == 0)
                     break;
             }
@@ -347,18 +347,18 @@ public final class SoftVoice extends VoiceStatus {
         for (int i = 0; i < connections.length; i++) {
             ModelConnectionBlock conn = connections[i];
             connections_last[i] = 0;
-            ModelSource[] srcs = conn.getSources();
+            ImmutableList<ModelSource> srcs = conn.getSources();
             if (connections_src[i] == null
-                    || connections_src[i].length < srcs.length) {
-                connections_src[i] = new double[srcs.length][];
-                connections_src_kc[i] = new int[srcs.length];
+                    || connections_src[i].length < srcs.size()) {
+                connections_src[i] = new double[srcs.size()][];
+                connections_src_kc[i] = new int[srcs.size()];
             }
             double[][] src = connections_src[i];
             int[] src_kc = connections_src_kc[i];
             connections_src[i] = src;
-            for (int j = 0; j < srcs.length; j++) {
-                src_kc[j] = getValueKC(srcs[j].getIdentifier());
-                src[j] = getValue(srcs[j].getIdentifier());
+            for (int j = 0; j < srcs.size(); j++) {
+                src_kc[j] = getValueKC(srcs.get(j).getIdentifier());
+                src[j] = getValue(srcs.get(j).getIdentifier());
             }
 
             if (conn.getDestination() != null)

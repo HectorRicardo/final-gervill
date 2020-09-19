@@ -24,6 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
+import own.main.ImmutableList;
+
 import java.util.*;
 
 /**
@@ -308,8 +310,7 @@ public final class SoftPerformer {
     private String extractKeys(ModelConnectionBlock conn) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        ModelSource[] srcs = conn.getSources();
-        for (ModelSource src : srcs) {
+        for (ModelSource src : conn.getSources()) {
             sb.append(src.getIdentifier());
             sb.append(";");
         }
@@ -453,10 +454,10 @@ public final class SoftPerformer {
         boolean isModulationWheelConectionFound = false;
         for (int j = 0; j < performer_connections.size(); j++) {
             ModelConnectionBlock connection = performer_connections.get(j);
-            ModelSource[] sources = connection.getSources();
+            ImmutableList<ModelSource> sources = connection.getSources();
             ModelDestination dest = connection.getDestination();
             boolean isModulationWheelConection = false;
-            if (dest != null && sources.length > 1) {
+            if (dest != null && sources.size() > 1) {
                 for (ModelSource source : sources) {
                     // check if connection block has the source "modulation
                     // wheel cc#1"
@@ -472,28 +473,21 @@ public final class SoftPerformer {
                 }
             }
             if (isModulationWheelConection) {
-
-                ModelConnectionBlock newconnection = new ModelConnectionBlock(256, connection.getDestination());
-                newconnection.setSources(connection.getSources());
-                newconnection.addSource(new ModelSource(new ModelIdentifier("midi_rpn", "5")));
-                performer_connections.set(j, newconnection);
+                ModelSource extra = new ModelSource(new ModelIdentifier("midi_rpn", "5"));
+                ModelConnectionBlock connectionBlock = new ModelConnectionBlock(256, connection.getDestination(), connection.getSources().append(extra));
+                performer_connections.set(j, connectionBlock);
             }
         }
 
         if (!isModulationWheelConectionFound) {
-            ModelConnectionBlock conn = new ModelConnectionBlock(
-                    new ModelSource(ModelSource.SOURCE_LFO1,
+            ModelConnectionBlock conn = new ModelConnectionBlock(12800, new ModelDestination(ModelDestination.DESTINATION_PITCH), new ModelSource[] {new ModelSource(ModelSource.SOURCE_LFO1,
                     ModelStandardTransform.DIRECTION_MIN2MAX,
                     ModelStandardTransform.POLARITY_BIPOLAR,
-                    ModelStandardTransform.TRANSFORM_LINEAR),
-                    new ModelSource(new ModelIdentifier("midi_cc", "1", 0),
+                    ModelStandardTransform.TRANSFORM_LINEAR), new ModelSource(new ModelIdentifier("midi_cc", "1", 0),
                     ModelStandardTransform.DIRECTION_MIN2MAX,
                     ModelStandardTransform.POLARITY_UNIPOLAR,
-                    ModelStandardTransform.TRANSFORM_LINEAR),
-                    50 * 256.0,
-                    new ModelDestination(ModelDestination.DESTINATION_PITCH));
-            conn.addSource(new ModelSource(new ModelIdentifier("midi_rpn",
-                    "5")));
+                    ModelStandardTransform.TRANSFORM_LINEAR), new ModelSource(new ModelIdentifier("midi_rpn",
+                    "5"))});
             performer_connections.add(conn);
 
         }
@@ -505,12 +499,12 @@ public final class SoftPerformer {
         int mod_cc_1_connection_src_ix = 0;
 
         for (ModelConnectionBlock connection : performer_connections) {
-            ModelSource[] sources = connection.getSources();
+            ImmutableList<ModelSource> sources = connection.getSources();
             ModelDestination dest = connection.getDestination();
             // if(dest != null && sources != null)
             if (dest != null) {
-                for (int i = 0; i < sources.length; i++) {
-                    ModelIdentifier srcid = sources[i].getIdentifier();
+                for (int i = 0; i < sources.size(); i++) {
+                    ModelIdentifier srcid = sources.get(i).getIdentifier();
                     // check if connection block has the source "modulation
                     // wheel cc#1"
                     if (srcid.getObject().equals("midi_cc")) {
@@ -534,23 +528,15 @@ public final class SoftPerformer {
 
         if (mod_cc_1_connection != null) {
             if (!channel_pressure_set) {
-                ModelConnectionBlock mc = new ModelConnectionBlock(mod_cc_1_connection.getScale(), mod_cc_1_connection.getDestination());
-                ModelSource[] src_list = mod_cc_1_connection.getSources();
-                ModelSource[] src_list_new = new ModelSource[src_list.length];
-                System.arraycopy(src_list, 0, src_list_new, 0, src_list_new.length);
-                src_list_new[mod_cc_1_connection_src_ix] = new ModelSource(
-                        new ModelIdentifier("midi", "channel_pressure"));
-                mc.setSources(src_list_new);
+                ImmutableList<ModelSource> src_list = mod_cc_1_connection.getSources();
+                ImmutableList<ModelSource> src_list_new = src_list.set(mod_cc_1_connection_src_ix, new ModelSource(new ModelIdentifier("midi", "channel_pressure")));
+                ModelConnectionBlock mc = new ModelConnectionBlock(mod_cc_1_connection.getScale(), mod_cc_1_connection.getDestination(), src_list_new);
                 connmap.put(extractKeys(mc), mc);
             }
             if (!poly_pressure) {
-                ModelConnectionBlock mc = new ModelConnectionBlock(mod_cc_1_connection.getScale(), mod_cc_1_connection.getDestination());
-                ModelSource[] src_list = mod_cc_1_connection.getSources();
-                ModelSource[] src_list_new = new ModelSource[src_list.length];
-                System.arraycopy(src_list, 0, src_list_new, 0, src_list_new.length);
-                src_list_new[mod_cc_1_connection_src_ix] = new ModelSource(
-                        new ModelIdentifier("midi", "poly_pressure"));
-                mc.setSources(src_list_new);
+                ImmutableList<ModelSource> src_list = mod_cc_1_connection.getSources();
+                ImmutableList<ModelSource> src_list_new = src_list.set(mod_cc_1_connection_src_ix, new ModelSource(new ModelIdentifier("midi", "poly_pressure")));
+                ModelConnectionBlock mc = new ModelConnectionBlock(mod_cc_1_connection.getScale(), mod_cc_1_connection.getDestination(), src_list_new);
                 connmap.put(extractKeys(mc), mc);
             }
         }
@@ -558,21 +544,21 @@ public final class SoftPerformer {
         // Enable Vibration Sound Controllers : 76, 77, 78
         ModelConnectionBlock found_vib_connection = null;
         for (ModelConnectionBlock connection : performer_connections) {
-            ModelSource[] sources = connection.getSources();
-            if (sources.length != 0
-                    && sources[0].getIdentifier().getObject().equals("lfo")) {
+            ImmutableList<ModelSource> sources = connection.getSources();
+            if (sources.size() != 0
+                    && sources.get(0).getIdentifier().getObject().equals("lfo")) {
                 if (connection.getDestination().getIdentifier().equals(
                         ModelDestination.DESTINATION_PITCH)) {
                     if (found_vib_connection == null)
                         found_vib_connection = connection;
                     else {
-                        if (found_vib_connection.getSources().length > sources.length)
+                        if (found_vib_connection.getSources().size() > sources.size())
                             found_vib_connection = connection;
-                        else if (found_vib_connection.getSources()[0]
+                        else if (found_vib_connection.getSources().get(0)
                                 .getIdentifier().getInstance() < 1) {
-                            if (found_vib_connection.getSources()[0]
+                            if (found_vib_connection.getSources().get(0)
                                     .getIdentifier().getInstance() >
-                                    sources[0].getIdentifier().getInstance()) {
+                                    sources.get(0).getIdentifier().getInstance()) {
                                 found_vib_connection = connection;
                             }
                         }
@@ -585,7 +571,7 @@ public final class SoftPerformer {
         int instance = 1;
 
         if (found_vib_connection != null) {
-            instance = found_vib_connection.getSources()[0].getIdentifier()
+            instance = found_vib_connection.getSources().get(0).getIdentifier()
                     .getInstance();
         }
         ModelConnectionBlock connection;
@@ -671,8 +657,7 @@ public final class SoftPerformer {
         }
 
         for (ModelConnectionBlock connection1 : connections) {
-            ModelSource[] srcs = connection1.getSources();
-            for (ModelSource src : srcs) {
+            for (ModelSource src : connection1.getSources()) {
                 processSource(src, ix);
             }
             ix++;

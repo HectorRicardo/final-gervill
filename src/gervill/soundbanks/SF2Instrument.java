@@ -596,11 +596,19 @@ final class SF2Instrument extends ModelInstrument {
             ((ModelStandardTransform)dst.getTransform()).setTransform(
                     ModelStandardTransform.TRANSFORM_ABSOLUTE);
         }
-        ModelConnectionBlock conn = new ModelConnectionBlock(src1, src2, amount, dst);
-        if (extrasrc[0] != null)
-            conn.addSource(extrasrc[0]);
-        connectionBlocks.add(conn);
+        List<ModelSource> sources = new ArrayList<>();
+        if (src1 != null) {
+            sources.add(src1);
+            if (src2 != null) {
+                sources.add(src2);
+            }
+        }
+        if (extrasrc[0] != null) {
+            sources.add(extrasrc[0]);
+        }
 
+        ModelConnectionBlock block = new ModelConnectionBlock(amount, dst, sources);
+        connectionBlocks.add(block);
     }
 
     private static ModelSource convertSource(int src) {

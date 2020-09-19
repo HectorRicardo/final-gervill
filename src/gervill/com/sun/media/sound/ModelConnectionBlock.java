@@ -24,7 +24,9 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.Arrays;
+import own.main.ImmutableList;
+
+import java.util.List;
 
 /**
  * Connection blocks are used to connect source variable
@@ -36,59 +38,54 @@ import java.util.Arrays;
  */
 public final class ModelConnectionBlock {
 
-    //
-    //   source1 * source2 * scale -> destination
-    //
-    private final static ModelSource[] no_sources = new ModelSource[0];
-    private ModelSource[] sources = no_sources;
+    private static final ImmutableList<ModelSource> no_sources = ImmutableList.create();
+
+    private final ImmutableList<ModelSource> sources;
     private final double scale;
     private final ModelDestination destination;
 
     public ModelConnectionBlock(double scale, ModelDestination destination) {
         this.scale = scale;
         this.destination = destination;
+        sources = no_sources;
     }
 
-    public ModelConnectionBlock(ModelSource source, double scale,
-            ModelDestination destination) {
-        if (source != null) {
-            this.sources = new ModelSource[1];
-            this.sources[0] = source;
+    public ModelConnectionBlock(double scale, ModelDestination destination, List<ModelSource> sources) {
+        this(scale, destination, ImmutableList.create(sources));
+    }
+
+    public ModelConnectionBlock(double scale, ModelDestination destination, ImmutableList<ModelSource> sources) {
+        this.scale = scale;
+        this.destination = destination;
+        this.sources = sources;
+    }
+
+    public ModelConnectionBlock(double scale, ModelDestination destination, ModelSource[] sources) {
+        this.scale = scale;
+        this.destination = destination;
+        this.sources = ImmutableList.create(sources);
+    }
+
+    public ModelConnectionBlock(ModelSource source, double scale, ModelDestination destination) {
+        sources = source == null ? no_sources : ImmutableList.create(source);
+        this.scale = scale;
+        this.destination = destination;
+    }
+
+    public ModelConnectionBlock(ModelSource source, ModelSource control, double scale, ModelDestination destination) {
+        if (source == null) {
+            sources = no_sources;
+        } else if (control == null) {
+            sources = ImmutableList.create(source);
+        } else {
+            sources = ImmutableList.create(source, control);
         }
         this.scale = scale;
         this.destination = destination;
     }
 
-    public ModelConnectionBlock(ModelSource source, ModelSource control,
-            ModelDestination destination) {
-        if (source != null) {
-            if (control == null) {
-                this.sources = new ModelSource[1];
-                this.sources[0] = source;
-            } else {
-                this.sources = new ModelSource[2];
-                this.sources[0] = source;
-                this.sources[1] = control;
-            }
-        }
-        this.destination = destination;
-        scale = 1;
-    }
-
-    public ModelConnectionBlock(ModelSource source, ModelSource control,
-            double scale, ModelDestination destination) {
-        if (source != null) {
-            if (control == null) {
-                this.sources = new ModelSource[1];
-                this.sources[0] = source;
-            } else {
-                this.sources = new ModelSource[2];
-                this.sources[0] = source;
-                this.sources[1] = control;
-            }
-        }
-        this.scale = scale;
-        this.destination = destination;
+    public ModelConnectionBlock(ModelSource source, ModelSource control, ModelDestination destination) {
+        this(source, control, 1, destination);
     }
 
     public ModelDestination getDestination() {
@@ -99,18 +96,8 @@ public final class ModelConnectionBlock {
         return scale;
     }
 
-    public ModelSource[] getSources() {
-        return Arrays.copyOf(sources, sources.length);
+    public ImmutableList<ModelSource> getSources() {
+        return sources;
     }
 
-    public void setSources(ModelSource[] source) {
-        this.sources = source == null ? no_sources : Arrays.copyOf(source, source.length);
-    }
-
-    public void addSource(ModelSource source) {
-        ModelSource[] oldsources = sources;
-        sources = new ModelSource[oldsources.length + 1];
-        System.arraycopy(oldsources, 0, sources, 0, oldsources.length);
-        sources[sources.length - 1] = source;
-    }
 }

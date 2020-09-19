@@ -175,7 +175,7 @@ final class DLSInstrument extends ModelInstrument {
 
         ModelSource src = null;
         ModelSource ctrl = null;
-        ModelConnectionBlock block = new ModelConnectionBlock(f_scale, new ModelDestination(destination_id));
+        List<ModelSource> sources = new ArrayList<>();
         if (control != null) {
             ModelSource s = new ModelSource();
             if (control == ModelSource.SOURCE_MIDI_PITCH) {
@@ -187,7 +187,7 @@ final class DLSInstrument extends ModelInstrument {
                         ModelStandardTransform.POLARITY_BIPOLAR);
             }
             s.setIdentifier(control);
-            block.addSource(s);
+            sources.add(s);
             ctrl = s;
         }
         if (source != null) {
@@ -201,9 +201,11 @@ final class DLSInstrument extends ModelInstrument {
                         ModelStandardTransform.POLARITY_BIPOLAR);
             }
             s.setIdentifier(source);
-            block.addSource(s);
+            sources.add(s);
             src = s;
         }
+
+        ModelConnectionBlock block = new ModelConnectionBlock(f_scale, new ModelDestination(destination_id), sources.toArray(new ModelSource[0]));
 
         if (mod.getVersion() == 1) {
             //if (mod.getTransform() ==  DLSModulator.CONN_TRN_CONCAVE) {
