@@ -416,6 +416,28 @@ public final class DLSSoundbank extends Soundbank {
         }
     }
 
+    private static final Set<String> FORMATS;
+    static {
+        Set<String> formats = new HashSet<>();
+        formats.add("ICRD");
+        formats.add("ITCH");
+        formats.add("ISRF");
+        formats.add("ISRC");
+        formats.add("ISBJ");
+        formats.add("IMED");
+        formats.add("IKEY");
+        formats.add("IGNR");
+        formats.add("ICMS");
+        formats.add("IART");
+        formats.add("IARL");
+        formats.add("ISFT");
+        formats.add("ICOP");
+        formats.add("IPRD");
+        formats.add("IENG");
+        formats.add("ICMT");
+        FORMATS = Collections.unmodifiableSet(formats);
+    }
+
     private static void readInsChunk(RIFFReader riff, List<Instrument> instruments, Map<DLSRegion, Integer> temp_rgnassign) throws IOException {
         String name = null;
         List<DLSRegion> regions = new ArrayList<>();
@@ -429,28 +451,11 @@ public final class DLSSoundbank extends Soundbank {
                 if (chunk.getType().equals("INFO")) {
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
-                        switch (subchunk.getFormat()) {
-                            case "INAM":
-                                name = subchunk.readString(subchunk.available());
-                                break;
-                            case "ICRD":
-                            case "ITCH":
-                            case "ISRF":
-                            case "ISRC":
-                            case "ISBJ":
-                            case "IMED":
-                            case "IKEY":
-                            case "IGNR":
-                            case "ICMS":
-                            case "IART":
-                            case "IARL":
-                            case "ISFT":
-                            case "ICOP":
-                            case "IPRD":
-                            case "IENG":
-                            case "ICMT":
-                                subchunk.readString(subchunk.available());
-                                break;
+                        String formatAux = subchunk.getFormat();
+                        if (formatAux.equals("INAM")) {
+                            name = subchunk.readString(subchunk.available());
+                        } else if (FORMATS.contains(formatAux)) {
+                            subchunk.readString(subchunk.available());
                         }
                     }
                 }
@@ -658,28 +663,9 @@ public final class DLSSoundbank extends Soundbank {
                 if (chunk.getType().equals("INFO")) {
                     while (chunk.hasNextChunk()) {
                         RIFFReader subchunk = chunk.nextChunk();
-                        switch (subchunk.getFormat()) {
-                            case "INAM":
-                                name = subchunk.readString(subchunk.available());
-                                break;
-                            case "ICRD":
-                            case "ITCH":
-                            case "ISRF":
-                            case "ISRC":
-                            case "ISBJ":
-                            case "IMED":
-                            case "IKEY":
-                            case "IGNR":
-                            case "ICMS":
-                            case "IART":
-                            case "IARL":
-                            case "ISFT":
-                            case "ICOP":
-                            case "IPRD":
-                            case "IENG":
-                            case "ICMT":
-                                subchunk.readString(subchunk.available());
-                                break;
+                        String formatAux = subchunk.getFormat();
+                        if (formatAux.equals("INAM") || FORMATS.contains(formatAux)) {
+                            subchunk.readString(subchunk.available());
                         }
                     }
                 }
