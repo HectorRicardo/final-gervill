@@ -320,8 +320,8 @@ public final class SF2Soundbank extends Soundbank {
                         throw new RuntimeException();
                     int count = chunk.available() / 22;
                     for (int i = 0; i < count; i++) {
-                        String name = chunk.readString(20);
-                        SF2Layer layer = new SF2Layer(name);
+                        chunk.readString(20);
+                        SF2Layer layer = new SF2Layer();
                         instruments_bagNdx.add(chunk.readUnsignedShort());
                         if (i != count - 1)
                             layers.add(layer);
@@ -414,7 +414,7 @@ public final class SF2Soundbank extends Soundbank {
                     int count = chunk.available() / 46;
                     for (int i = 0; i < count; i++) {
 
-                        String name = chunk.readString(20);
+                        chunk.readString(20);
                         long start = chunk.readUnsignedInt();
                         long end = chunk.readUnsignedInt();
                         ModelByteBuffer data = sampleData == null ? null : sampleData.subbuffer(start * 2, end * 2, true);
@@ -425,7 +425,7 @@ public final class SF2Soundbank extends Soundbank {
                         int originalPitch = chunk.readUnsignedByte();
                         byte pitchCorrection = chunk.readByte();
 
-                        SF2Sample sample = new SF2Sample(name, data, data24, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
+                        SF2Sample sample = new SF2Sample(data, data24, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
 
                         chunk.readUnsignedShort();
                         chunk.readUnsignedShort();

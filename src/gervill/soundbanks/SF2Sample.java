@@ -25,7 +25,6 @@
 package gervill.soundbanks;
 
 import gervill.com.sun.media.sound.ModelByteBuffer;
-import gervill.javax.sound.midi.SoundbankResource;
 import gervill.javax.sound.sampled.AudioFormat;
 
 /**
@@ -33,7 +32,7 @@ import gervill.javax.sound.sampled.AudioFormat;
  *
  * @author Karl Helgason
  */
-final class SF2Sample extends SoundbankResource {
+final class SF2Sample {
 
     private final long startLoop;
     private final long endLoop;
@@ -43,8 +42,8 @@ final class SF2Sample extends SoundbankResource {
     private final ModelByteBuffer data;
     private final ModelByteBuffer data24;
 
-    SF2Sample(String name, ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
-        super(name);
+    SF2Sample(ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
+        super();
         this.startLoop = startLoop;
         this.endLoop = endLoop;
         this.sampleRate = sampleRate;
@@ -54,12 +53,12 @@ final class SF2Sample extends SoundbankResource {
         this.data24 = data24;
     }
 
-    SF2Sample(String name, byte[] data, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
-        this(name, new ModelByteBuffer(data), null, 256, endLoop, sampleRate, originalPitch, pitchCorrection);
+    SF2Sample(byte[] data, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
+        this(new ModelByteBuffer(data), null, 256, endLoop, sampleRate, originalPitch, pitchCorrection);
     }
 
-    SF2Sample(String name, byte[] data, long endLoop, long sampleRate, int originalPitch) {
-        this(name, data, endLoop, sampleRate, originalPitch, (byte)0);
+    SF2Sample(byte[] data, long endLoop, long sampleRate, int originalPitch) {
+        this(data, endLoop, sampleRate, originalPitch, (byte)0);
     }
 
     ModelByteBuffer getDataBuffer() {

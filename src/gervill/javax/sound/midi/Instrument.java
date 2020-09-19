@@ -45,7 +45,9 @@ package gervill.javax.sound.midi;
  * @author Kara Kytle
  */
 
-public abstract class Instrument extends SoundbankResource {
+public abstract class Instrument {
+
+    private final String name;
 
 
     /**
@@ -66,9 +68,13 @@ public abstract class Instrument extends SoundbankResource {
      * see Synthesizer#loadInstrument(Instrument)
      */
     protected Instrument(Patch patch, String name) {
-
-        super(name);
+        super();
+        this.name = name;
         this.patch = patch;
+    }
+
+    public String getName() {
+        return name;
     }
 
 

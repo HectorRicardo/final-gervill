@@ -24,8 +24,6 @@
  */
 package gervill.soundbanks;
 
-import gervill.javax.sound.midi.SoundbankResource;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,19 +32,19 @@ import java.util.List;
  *
  * @author Karl Helgason
  */
-final class SF2Layer extends SoundbankResource {
+final class SF2Layer {
 
     private SF2Region globalregion;
     private final List<SF2LayerRegion> regions;
 
-    SF2Layer(String name) {
-        super(name);
+    SF2Layer() {
+        super();
         this.globalregion = null;
         this.regions = new ArrayList<>();
     }
 
-    SF2Layer(String name, SF2Region globalregion, List<SF2LayerRegion> regions) {
-        super(name);
+    SF2Layer(SF2Region globalregion, List<SF2LayerRegion> regions) {
+        super();
         this.globalregion = globalregion;
         this.regions = regions;
     }

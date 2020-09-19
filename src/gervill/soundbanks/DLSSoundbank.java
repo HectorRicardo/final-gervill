@@ -645,7 +645,6 @@ public final class DLSSoundbank extends Soundbank {
     }
 
     private static void readWaveChunk(RIFFReader riff, File sampleFile, List<DLSSample> samples) throws IOException {
-        String name = null;
         AudioFormat sampleFormat = null;
         ModelByteBuffer mbb = null;
         DLSSampleOptions sampleoptions = null;
@@ -729,7 +728,7 @@ public final class DLSSoundbank extends Soundbank {
             }
         }
 
-        samples.add(new DLSSample(name, sampleFormat, mbb, sampleoptions));
+        samples.add(new DLSSample(sampleFormat, mbb, sampleoptions));
 
     }
 

@@ -25,7 +25,6 @@
 package gervill.soundbanks;
 
 import gervill.com.sun.media.sound.ModelByteBuffer;
-import gervill.javax.sound.midi.SoundbankResource;
 import gervill.javax.sound.sampled.AudioFormat;
 
 /**
@@ -37,14 +36,14 @@ import gervill.javax.sound.sampled.AudioFormat;
  *
  * @author Karl Helgason
  */
-final class DLSSample extends SoundbankResource {
+final class DLSSample {
 
     private final DLSSampleOptions sampleoptions;
     private final ModelByteBuffer data;
     private final AudioFormat format;
 
-    DLSSample(String name, AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
-        super(name);
+    DLSSample(AudioFormat format, ModelByteBuffer data, DLSSampleOptions sampleoptions) {
+        super();
         this.format = format;
         this.data = data;
         this.sampleoptions = sampleoptions;
