@@ -446,7 +446,7 @@ public final class SoftPerformer {
 
         Map<String, ModelConnectionBlock> connmap = new HashMap<>();
 
-        List<ModelConnectionBlock> performer_connections = new ArrayList<>(performer.getConnectionBlocks());
+        List<ModelConnectionBlock> performer_connections = performer.getConnectionBlocks().toList();
 
         // Add modulation depth range (RPN 5) to the modulation wheel (cc#1)
 
@@ -686,8 +686,7 @@ public final class SoftPerformer {
         for (int i = 0; i < this.ctrl_connections.length; i++)
             this.ctrl_connections[i] = ctrl_connections_list.get(i);
 
-        oscillators = new ModelByteBufferWavetable[performer.getOscillators().size()];
-        performer.getOscillators().toArray(oscillators);
+        oscillators = performer.getOscillators().toArray(new ModelByteBufferWavetable[performer.getOscillators().size()]);
 
     }
 

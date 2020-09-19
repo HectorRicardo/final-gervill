@@ -122,8 +122,8 @@ final class SF2Instrument extends ModelInstrument {
                         velto = bytes[1];
                 }
 
-                ModelPerformer performer = new ModelPerformer(keyfrom, keyto, velfrom, velto, exclusiveClass, false);
-                performers[pi++] = performer;
+                List<ModelByteBufferWavetable> oscillators = new ArrayList<>();
+                List<ModelConnectionBlock> connectionBlocks = new ArrayList<>();
 
                 int startAddrsOffset = layerzone.getShort(
                         SF2Region.GENERATOR_STARTADDRSOFFSET);
@@ -222,7 +222,7 @@ final class SF2Instrument extends ModelInstrument {
                             osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_RELEASE);
                     }
                 }
-                performer.getOscillators().add(osc);
+                oscillators.add(osc);
 
 
                 short volDelay = getGeneratorValue(generators,
@@ -245,7 +245,7 @@ final class SF2Instrument extends ModelInstrument {
                     float fvalue = -volKeyNumToHold * 128;
                     ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                     ModelIdentifier dest = ModelDestination.DESTINATION_EG1_HOLD;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(new ModelSource(src), fvalue,
                             new ModelDestination(dest)));
                 }
@@ -256,18 +256,18 @@ final class SF2Instrument extends ModelInstrument {
                     float fvalue = -volKeyNumToDecay * 128;
                     ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                     ModelIdentifier dest = ModelDestination.DESTINATION_EG1_DECAY;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(new ModelSource(src), fvalue,
                             new ModelDestination(dest)));
                 }
 
-                addTimecentValue(performer,
+                addTimecentValue(connectionBlocks,
                         ModelDestination.DESTINATION_EG1_DELAY, volDelay);
-                addTimecentValue(performer,
+                addTimecentValue(connectionBlocks,
                         ModelDestination.DESTINATION_EG1_ATTACK, volAttack);
-                addTimecentValue(performer,
+                addTimecentValue(connectionBlocks,
                         ModelDestination.DESTINATION_EG1_HOLD, volHold);
-                addTimecentValue(performer,
+                addTimecentValue(connectionBlocks,
                         ModelDestination.DESTINATION_EG1_DECAY, volDecay);
                 //float fvolsustain = (960-volSustain)*(1000.0f/960.0f);
 
@@ -277,9 +277,9 @@ final class SF2Instrument extends ModelInstrument {
                 if (volSustain > 1000)
                     volSustain = 1000;
 
-                addValue(performer,
+                addValue(connectionBlocks,
                         ModelDestination.DESTINATION_EG1_SUSTAIN, volSustain);
-                addTimecentValue(performer,
+                addTimecentValue(connectionBlocks,
                         ModelDestination.DESTINATION_EG1_RELEASE, volRelease);
 
                 if (getGeneratorValue(generators,
@@ -307,7 +307,7 @@ final class SF2Instrument extends ModelInstrument {
                         float fvalue = -modKeyNumToHold * 128;
                         ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                         ModelIdentifier dest = ModelDestination.DESTINATION_EG2_HOLD;
-                        performer.getConnectionBlocks().add(
+                        connectionBlocks.add(
                             new ModelConnectionBlock(new ModelSource(src),
                                 fvalue, new ModelDestination(dest)));
                     }
@@ -318,26 +318,26 @@ final class SF2Instrument extends ModelInstrument {
                         float fvalue = -modKeyNumToDecay * 128;
                         ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                         ModelIdentifier dest = ModelDestination.DESTINATION_EG2_DECAY;
-                        performer.getConnectionBlocks().add(
+                        connectionBlocks.add(
                             new ModelConnectionBlock(new ModelSource(src),
                                 fvalue, new ModelDestination(dest)));
                     }
 
-                    addTimecentValue(performer,
+                    addTimecentValue(connectionBlocks,
                             ModelDestination.DESTINATION_EG2_DELAY, modDelay);
-                    addTimecentValue(performer,
+                    addTimecentValue(connectionBlocks,
                             ModelDestination.DESTINATION_EG2_ATTACK, modAttack);
-                    addTimecentValue(performer,
+                    addTimecentValue(connectionBlocks,
                             ModelDestination.DESTINATION_EG2_HOLD, modHold);
-                    addTimecentValue(performer,
+                    addTimecentValue(connectionBlocks,
                             ModelDestination.DESTINATION_EG2_DECAY, modDecay);
                     if (modSustain < 0)
                         modSustain = 0;
                     if (modSustain > 1000)
                         modSustain = 1000;
-                    addValue(performer, ModelDestination.DESTINATION_EG2_SUSTAIN,
+                    addValue(connectionBlocks, ModelDestination.DESTINATION_EG2_SUSTAIN,
                             1000 - modSustain);
-                    addTimecentValue(performer,
+                    addTimecentValue(connectionBlocks,
                             ModelDestination.DESTINATION_EG2_RELEASE, modRelease);
 
                     if (getGeneratorValue(generators,
@@ -347,7 +347,7 @@ final class SF2Instrument extends ModelInstrument {
                         ModelIdentifier src = ModelSource.SOURCE_EG2;
                         ModelIdentifier dest
                                 = ModelDestination.DESTINATION_FILTER_FREQ;
-                        performer.getConnectionBlocks().add(
+                        connectionBlocks.add(
                             new ModelConnectionBlock(new ModelSource(src),
                                 fvalue, new ModelDestination(dest)));
                     }
@@ -358,7 +358,7 @@ final class SF2Instrument extends ModelInstrument {
                                 SF2Region.GENERATOR_MODENVTOPITCH);
                         ModelIdentifier src = ModelSource.SOURCE_EG2;
                         ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
-                        performer.getConnectionBlocks().add(
+                        connectionBlocks.add(
                             new ModelConnectionBlock(new ModelSource(src),
                                 fvalue, new ModelDestination(dest)));
                     }
@@ -375,9 +375,9 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_FREQMODLFO);
                     short lfo_delay = getGeneratorValue(generators,
                             SF2Region.GENERATOR_DELAYMODLFO);
-                    addTimecentValue(performer,
+                    addTimecentValue(connectionBlocks,
                             ModelDestination.DESTINATION_LFO1_DELAY, lfo_delay);
-                    addValue(performer,
+                    addValue(connectionBlocks,
                             ModelDestination.DESTINATION_LFO1_FREQ, lfo_freq);
                 }
 
@@ -385,9 +385,9 @@ final class SF2Instrument extends ModelInstrument {
                         SF2Region.GENERATOR_FREQVIBLFO);
                 short vib_delay = getGeneratorValue(generators,
                         SF2Region.GENERATOR_DELAYVIBLFO);
-                addTimecentValue(performer,
+                addTimecentValue(connectionBlocks,
                         ModelDestination.DESTINATION_LFO2_DELAY, vib_delay);
-                addValue(performer,
+                addValue(connectionBlocks,
                         ModelDestination.DESTINATION_LFO2_FREQ, vib_freq);
 
 
@@ -397,7 +397,7 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_VIBLFOTOPITCH);
                     ModelIdentifier src = ModelSource.SOURCE_LFO2;
                     ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(
                             new ModelSource(src,
                                 ModelStandardTransform.DIRECTION_MIN2MAX,
@@ -411,7 +411,7 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_MODLFOTOFILTERFC);
                     ModelIdentifier src = ModelSource.SOURCE_LFO1;
                     ModelIdentifier dest = ModelDestination.DESTINATION_FILTER_FREQ;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(
                             new ModelSource(src,
                                 ModelStandardTransform.DIRECTION_MIN2MAX,
@@ -425,7 +425,7 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_MODLFOTOPITCH);
                     ModelIdentifier src = ModelSource.SOURCE_LFO1;
                     ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(
                             new ModelSource(src,
                                 ModelStandardTransform.DIRECTION_MIN2MAX,
@@ -439,7 +439,7 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_MODLFOTOVOLUME);
                     ModelIdentifier src = ModelSource.SOURCE_LFO1;
                     ModelIdentifier dest = ModelDestination.DESTINATION_GAIN;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(
                             new ModelSource(src,
                                 ModelStandardTransform.DIRECTION_MIN2MAX,
@@ -449,13 +449,13 @@ final class SF2Instrument extends ModelInstrument {
 
                 if (layerzone.getShort(SF2Region.GENERATOR_KEYNUM) != -1) {
                     double val = layerzone.getShort(SF2Region.GENERATOR_KEYNUM)/128.0;
-                    addValue(performer, ModelDestination.DESTINATION_KEYNUMBER, val);
+                    addValue(connectionBlocks, ModelDestination.DESTINATION_KEYNUMBER, val);
                 }
 
                 if (layerzone.getShort(SF2Region.GENERATOR_VELOCITY) != -1) {
                     double val = layerzone.getShort(SF2Region.GENERATOR_VELOCITY)
                                  / 128.0;
-                    addValue(performer, ModelDestination.DESTINATION_VELOCITY, val);
+                    addValue(connectionBlocks, ModelDestination.DESTINATION_VELOCITY, val);
                 }
 
                 if (getGeneratorValue(generators,
@@ -464,9 +464,9 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_INITIALFILTERFC);
                     short filter_q = getGeneratorValue(generators,
                             SF2Region.GENERATOR_INITIALFILTERQ);
-                    addValue(performer,
+                    addValue(connectionBlocks,
                             ModelDestination.DESTINATION_FILTER_FREQ, filter_freq);
-                    addValue(performer,
+                    addValue(connectionBlocks,
                             ModelDestination.DESTINATION_FILTER_Q, filter_q);
                 }
 
@@ -475,31 +475,31 @@ final class SF2Instrument extends ModelInstrument {
                 tune += getGeneratorValue(generators,
                         SF2Region.GENERATOR_FINETUNE);
                 if (tune != 0) {
-                    addValue(performer,
+                    addValue(connectionBlocks,
                             ModelDestination.DESTINATION_PITCH, (short) tune);
                 }
                 if (getGeneratorValue(generators, SF2Region.GENERATOR_PAN) != 0) {
                     short val = getGeneratorValue(generators,
                             SF2Region.GENERATOR_PAN);
-                    addValue(performer, ModelDestination.DESTINATION_PAN, val);
+                    addValue(connectionBlocks, ModelDestination.DESTINATION_PAN, val);
                 }
                 if (getGeneratorValue(generators, SF2Region.GENERATOR_INITIALATTENUATION) != 0) {
                     short val = getGeneratorValue(generators,
                             SF2Region.GENERATOR_INITIALATTENUATION);
-                    addValue(performer,
+                    addValue(connectionBlocks,
                             ModelDestination.DESTINATION_GAIN, -0.376287f * val);
                 }
                 if (getGeneratorValue(generators,
                         SF2Region.GENERATOR_CHORUSEFFECTSSEND) != 0) {
                     short val = getGeneratorValue(generators,
                             SF2Region.GENERATOR_CHORUSEFFECTSSEND);
-                    addValue(performer, ModelDestination.DESTINATION_CHORUS, val);
+                    addValue(connectionBlocks, ModelDestination.DESTINATION_CHORUS, val);
                 }
                 if (getGeneratorValue(generators,
                         SF2Region.GENERATOR_REVERBEFFECTSSEND) != 0) {
                     short val = getGeneratorValue(generators,
                             SF2Region.GENERATOR_REVERBEFFECTSSEND);
-                    addValue(performer, ModelDestination.DESTINATION_REVERB, val);
+                    addValue(connectionBlocks, ModelDestination.DESTINATION_REVERB, val);
                 }
                 if (getGeneratorValue(generators,
                         SF2Region.GENERATOR_SCALETUNING) != 100) {
@@ -507,25 +507,25 @@ final class SF2Instrument extends ModelInstrument {
                             SF2Region.GENERATOR_SCALETUNING);
                     if (fvalue == 0) {
                         ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
-                        performer.getConnectionBlocks().add(
+                        connectionBlocks.add(
                             new ModelConnectionBlock(null, rootkey * 100,
                                 new ModelDestination(dest)));
                     } else {
                         ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
-                        performer.getConnectionBlocks().add(
+                        connectionBlocks.add(
                             new ModelConnectionBlock(null, rootkey * (100 - fvalue),
                                 new ModelDestination(dest)));
                     }
 
                     ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                     ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
-                    performer.getConnectionBlocks().add(
+                    connectionBlocks.add(
                         new ModelConnectionBlock(new ModelSource(src),
                             128 * fvalue, new ModelDestination(dest)));
 
                 }
 
-                performer.getConnectionBlocks().add(
+                connectionBlocks.add(
                     new ModelConnectionBlock(
                         new ModelSource(ModelSource.SOURCE_NOTEON_VELOCITY,
                                 value -> {
@@ -539,7 +539,7 @@ final class SF2Instrument extends ModelInstrument {
                             ModelDestination.DESTINATION_FILTER_FREQ)));
 
 
-                performer.getConnectionBlocks().add(
+                connectionBlocks.add(
                     new ModelConnectionBlock(
                         new ModelSource(ModelSource.SOURCE_LFO2,
                             ModelStandardTransform.DIRECTION_MIN2MAX,
@@ -555,25 +555,27 @@ final class SF2Instrument extends ModelInstrument {
                 if (layer.getGlobalRegion() != null) {
                     for (SF2Modulator modulator
                             : layer.getGlobalRegion().getModulators()) {
-                        convertModulator(performer, modulator);
+                        convertModulator(connectionBlocks, modulator);
                     }
                 }
                 for (SF2Modulator modulator : layerzone.getModulators())
-                    convertModulator(performer, modulator);
+                    convertModulator(connectionBlocks, modulator);
 
                 if (presetglobal != null) {
                     for (SF2Modulator modulator : presetglobal.getModulators())
-                        convertModulator(performer, modulator);
+                        convertModulator(connectionBlocks, modulator);
                 }
                 for (SF2Modulator modulator : presetzone.getModulators())
-                    convertModulator(performer, modulator);
+                    convertModulator(connectionBlocks, modulator);
+
+                performers[pi++] = new ModelPerformer(keyfrom, keyto, velfrom, velto, exclusiveClass, false, oscillators, connectionBlocks);
 
             }
         }
         return performers;
     }
 
-    private static void convertModulator(ModelPerformer performer,
+    private static void convertModulator(List<ModelConnectionBlock> connectionBlocks,
             SF2Modulator modulator) {
         ModelSource src1 = convertSource(modulator.getSourceOperator());
         ModelSource src2 = convertSource(modulator.getAmountSourceOperator());
@@ -597,7 +599,7 @@ final class SF2Instrument extends ModelInstrument {
         ModelConnectionBlock conn = new ModelConnectionBlock(src1, src2, amount, dst);
         if (extrasrc[0] != null)
             conn.addSource(extrasrc[0]);
-        performer.getConnectionBlocks().add(conn);
+        connectionBlocks.add(conn);
 
     }
 
@@ -797,26 +799,20 @@ final class SF2Instrument extends ModelInstrument {
         return null;
     }
 
-    private static void addTimecentValue(ModelPerformer performer,
+    private static void addTimecentValue(List<ModelConnectionBlock> connectionBlocks,
             ModelIdentifier dest, short value) {
         double fvalue;
         if (value == -12000)
             fvalue = Double.NEGATIVE_INFINITY;
         else
             fvalue = value;
-        performer.getConnectionBlocks().add(
+        connectionBlocks.add(
                 new ModelConnectionBlock(fvalue, new ModelDestination(dest)));
     }
 
-    private static void addValue(ModelPerformer performer,
-            ModelIdentifier dest, short value) {
-        performer.getConnectionBlocks().add(
-                new ModelConnectionBlock(value, new ModelDestination(dest)));
-    }
-
-    private static void addValue(ModelPerformer performer,
+    private static void addValue(List<ModelConnectionBlock> connectionBlocks,
             ModelIdentifier dest, double value) {
-        performer.getConnectionBlocks().add(
+        connectionBlocks.add(
                 new ModelConnectionBlock(value, new ModelDestination(dest)));
     }
 

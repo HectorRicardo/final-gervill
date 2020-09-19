@@ -28,10 +28,7 @@ import gervill.com.sun.media.sound.*;
 import gervill.javax.sound.midi.Patch;
 import own.main.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class is used to store information to describe instrument.
@@ -294,9 +291,8 @@ final class DLSInstrument extends ModelInstrument {
         }
 
         for (DLSRegion zone: regions) {
-            ModelPerformer performer = new ModelPerformer(zone.getKeyfrom(), zone.getKeyto(), zone.getVelfrom(), zone.getVelto(), zone.getExclusiveClass(), (zone.getFusoptions() & DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0);
 
-            List<ModelConnectionBlock> blocks = performer.getConnectionBlocks();
+            List<ModelConnectionBlock> blocks = new ArrayList<>();
             for (DLSModulator mod: modmap.values()) {
                 ModelConnectionBlock p = convertToModel(mod);
                 if (p != null)
@@ -329,14 +325,12 @@ final class DLSInstrument extends ModelInstrument {
                     osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
             }
 
-            performer.getConnectionBlocks().add(
+            blocks.add(
                     new ModelConnectionBlock(SoftFilter.FILTERTYPE_LP12,
                         new ModelDestination(
                             new ModelIdentifier("filter", "type", 1))));
 
-            performer.getOscillators().add(osc);
-
-            performers.add(performer);
+            performers.add(new ModelPerformer(zone.getKeyfrom(), zone.getKeyto(), zone.getVelfrom(), zone.getVelto(), zone.getExclusiveClass(), (zone.getFusoptions() & DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0, Arrays.asList(osc), blocks));
 
         }
 

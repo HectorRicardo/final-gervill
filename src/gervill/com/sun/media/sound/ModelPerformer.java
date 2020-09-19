@@ -24,7 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.ArrayList;
+import own.main.ImmutableList;
+
 import java.util.List;
 
 /**
@@ -35,8 +36,8 @@ import java.util.List;
  */
 public final class ModelPerformer {
 
-    private final List<ModelByteBufferWavetable> oscillators = new ArrayList<>();
-    private final List<ModelConnectionBlock> connectionBlocks = new ArrayList<>();
+    private final ImmutableList<ModelByteBufferWavetable> oscillators;
+    private final ImmutableList<ModelConnectionBlock> connectionBlocks;
     private final int keyFrom;
     private final int keyTo;
     private final int velFrom;
@@ -44,20 +45,22 @@ public final class ModelPerformer {
     private final int exclusiveClass;
     private final boolean selfNonExclusive;
 
-    public ModelPerformer(int keyFrom, int keyTo, int velFrom, int velTo, int exclusiveClass, boolean selfNonExclusive) {
+    public ModelPerformer(int keyFrom, int keyTo, int velFrom, int velTo, int exclusiveClass, boolean selfNonExclusive, List<ModelByteBufferWavetable> oscillators, List<ModelConnectionBlock> connectionBlocks) {
         this.keyFrom = keyFrom;
         this.keyTo = keyTo;
         this.velFrom = velFrom;
         this.velTo = velTo;
         this.exclusiveClass = exclusiveClass;
         this.selfNonExclusive = selfNonExclusive;
+        this.oscillators = ImmutableList.create(oscillators);
+        this.connectionBlocks = ImmutableList.create(connectionBlocks);
     }
 
-    public List<ModelConnectionBlock> getConnectionBlocks() {
+    public ImmutableList<ModelConnectionBlock> getConnectionBlocks() {
         return connectionBlocks;
     }
 
-    public List<ModelByteBufferWavetable> getOscillators() {
+    public ImmutableList<ModelByteBufferWavetable> getOscillators() {
         return oscillators;
     }
 
