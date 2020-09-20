@@ -24,7 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
-import java.util.Arrays;
+import own.main.Immutable2DList;
+import own.main.ImmutableList;
 
 /**
  * A standard indexed director who chooses performers
@@ -34,44 +35,50 @@ import java.util.Arrays;
  */
 public final class ModelStandardIndexedDirector {
 
-    private final ModelPerformer[] performers;
     private final SoftChannel player;
-    private boolean noteOnUsed = false;
+    private final boolean noteOnUsed;
 
     // Variables needed for index
-    private byte[][] trantables;
-    private int[] counters;
-    private int[][] mat;
+    private final Immutable2DList<Byte> trantables;
+    private final int counter;
+    private final Immutable2DList<Integer> mat;
 
-    public ModelStandardIndexedDirector(final ModelPerformer[] performers,
-                                        final SoftChannel player) {
-        this.performers = Arrays.copyOf(performers, performers.length);
+    private ModelStandardIndexedDirector(SoftChannel player, boolean noteOnUsed, Byte[][] trantables, int counter, Integer[][] mat) {
         this.player = player;
-        for (final ModelPerformer p : this.performers) {
-            noteOnUsed = true;
-        }
-        buildindex();
+        this.noteOnUsed = noteOnUsed;
+        this.trantables = Immutable2DList.create(trantables);
+        this.counter = counter;
+        this.mat = Immutable2DList.create(mat);
     }
 
-    private int[] lookupIndex(int x, int y) {
+    public static ModelStandardIndexedDirector create(ModelPerformer[] performers, SoftChannel player) {
+        Byte[][] trantables = new Byte[2][129];
+        int[] counters = new int[trantables.length];
+        Integer[][] mat = buildindex(performers, trantables, counters);
+        return new ModelStandardIndexedDirector(player, performers.length > 0, trantables, counters[0], mat);
+    }
+
+    private ImmutableList<Integer> lookupIndex(int x, int y) {
         if ((x >= 0) && (x < 128) && (y >= 0) && (y < 128)) {
-            int xt = trantables[0][x];
-            int yt = trantables[1][y];
+            int xt = defVal(trantables.get(0, x));
+            int yt = defVal(trantables.get(1, y));
             if (xt != -1 && yt != -1) {
-                return mat[xt + yt * counters[0]];
+                return mat.get(xt + yt * counter);
             }
         }
         return null;
     }
 
-    private int restrict(int value) {
+    private static int defVal(Byte val) {
+        return val == null ? 0 : val;
+    }
+
+    private static int restrict(int value) {
         if(value < 0) return 0;
         return Math.min(value, 127);
     }
 
-    private void buildindex() {
-        trantables = new byte[2][129];
-        counters = new int[trantables.length];
+    private static Integer[][] buildindex(ModelPerformer[] performers, Byte[][] trantables, int[] counters) {
         for (ModelPerformer performer : performers) {
             int keyFrom = performer.getKeyFrom();
             int keyTo = performer.getKeyTo();
@@ -89,10 +96,10 @@ public final class ModelStandardIndexedDirector {
             trantables[1][velTo + 1] = 1;
         }
         for (int d = 0; d < trantables.length; d++) {
-            byte[] trantable = trantables[d];
+            Byte[] trantable = trantables[d];
             int transize = trantable.length;
             for (int i = transize - 1; i >= 0; i--) {
-                if (trantable[i] == 1) {
+                if (trantable[i] != null && trantable[i] == 1) {
                     trantable[i] = -1;
                     break;
                 }
@@ -100,7 +107,7 @@ public final class ModelStandardIndexedDirector {
             }
             int counter = -1;
             for (int i = 0; i < transize; i++) {
-                if (trantable[i] != 0) {
+                if (trantable[i] != null && trantable[i] != 0) {
                     counter++;
                     if (trantable[i] == -1)
                         break;
@@ -109,7 +116,7 @@ public final class ModelStandardIndexedDirector {
             }
             counters[d] = counter;
         }
-        mat = new int[counters[0] * counters[1]][];
+        Integer[][] mat = new Integer[counters[0] * counters[1]][];
         int ix = 0;
         for (ModelPerformer performer : performers) {
             int keyFrom = performer.getKeyFrom();
@@ -133,11 +140,11 @@ public final class ModelStandardIndexedDirector {
             for (int y = y_from; y < y_to; y++) {
                 int i = x_from + y * counters[0];
                 for (int x = x_from; x < x_to; x++) {
-                    int[] mprev = mat[i];
+                    Integer[] mprev = mat[i];
                     if (mprev == null) {
-                        mat[i] = new int[] { ix };
+                        mat[i] = new Integer[] { ix };
                     } else {
-                        int[] mnew = new int[mprev.length + 1];
+                        Integer[] mnew = new Integer[mprev.length + 1];
                         mnew[mnew.length - 1] = ix;
                         System.arraycopy(mprev, 0, mnew, 0, mprev.length);
                         mat[i] = mnew;
@@ -147,12 +154,13 @@ public final class ModelStandardIndexedDirector {
             }
             ix++;
         }
+        return mat;
     }
 
     public void noteOn(int noteNumber, int velocity) {
         if (!noteOnUsed)
             return;
-        int[] plist = lookupIndex(noteNumber, velocity);
+        ImmutableList<Integer> plist = lookupIndex(noteNumber, velocity);
         if(plist == null) return;
         for (int i : plist) {
             player.play(i, null);

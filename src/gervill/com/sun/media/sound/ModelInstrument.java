@@ -51,7 +51,7 @@ public abstract class ModelInstrument extends Instrument {
     }
 
     public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers, SoftChannel player) {
-        return new ModelStandardIndexedDirector(performers, player);
+        return ModelStandardIndexedDirector.create(performers, player);
     }
 
     public abstract ModelPerformer[] getPerformers();
