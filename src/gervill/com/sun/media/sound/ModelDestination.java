@@ -88,10 +88,16 @@ public final class ModelDestination {
             = new ModelIdentifier("filter", "q", 0); // cB
 
     private final ModelIdentifier destination;
-    private final ModelTransform transform = new ModelStandardTransform();
+    private final ModelTransform transform;
 
     public ModelDestination(ModelIdentifier id) {
         destination = id;
+        transform = new ModelStandardTransform();
+    }
+
+    public ModelDestination(ModelIdentifier id, ModelTransform transform) {
+        destination = id;
+        this.transform = transform;
     }
 
     public ModelIdentifier getIdentifier() {

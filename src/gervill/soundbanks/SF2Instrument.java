@@ -587,15 +587,11 @@ final class SF2Instrument extends ModelInstrument {
         double[] amountcorrection = new double[1];
         ModelSource[] extrasrc = new ModelSource[1];
         amountcorrection[0] = 1;
-        ModelDestination dst = convertDestination(
-                modulator.getDestinationOperator(), amountcorrection, extrasrc);
-        amount *= amountcorrection[0];
+        int myTransform = modulator.getTransportOperator() == SF2Modulator.TRANSFORM_ABSOLUTE ? ModelStandardTransform.TRANSFORM_ABSOLUTE : 0;
+        ModelDestination dst = convertDestination(modulator.getDestinationOperator(), amountcorrection, extrasrc, myTransform);
         if (dst == null)
             return;
-        if (modulator.getTransportOperator() == SF2Modulator.TRANSFORM_ABSOLUTE) {
-            ((ModelStandardTransform)dst.getTransform()).setTransform(
-                    ModelStandardTransform.TRANSFORM_ABSOLUTE);
-        }
+        amount *= amountcorrection[0];
         List<ModelSource> sources = new ArrayList<>();
         if (src1 != null) {
             sources.add(src1);
@@ -635,32 +631,22 @@ final class SF2Instrument extends ModelInstrument {
         if (id == null)
             return null;
 
-        ModelSource msrc = new ModelSource(id);
-        ModelStandardTransform transform
-                = (ModelStandardTransform) msrc.getTransform();
+        boolean direction = (SF2Modulator.SOURCE_DIRECTION_MAX_MIN & src) == 0 ? ModelStandardTransform.DIRECTION_MIN2MAX : ModelStandardTransform.DIRECTION_MAX2MIN;
+        boolean polarity = (SF2Modulator.SOURCE_POLARITY_BIPOLAR & src) == 0 ? ModelStandardTransform.POLARITY_UNIPOLAR : ModelStandardTransform.POLARITY_BIPOLAR;
 
-        if ((SF2Modulator.SOURCE_DIRECTION_MAX_MIN & src) != 0)
-            transform.setDirection(ModelStandardTransform.DIRECTION_MAX2MIN);
-        else
-            transform.setDirection(ModelStandardTransform.DIRECTION_MIN2MAX);
-
-        if ((SF2Modulator.SOURCE_POLARITY_BIPOLAR & src) != 0)
-            transform.setPolarity(ModelStandardTransform.POLARITY_BIPOLAR);
-        else
-            transform.setPolarity(ModelStandardTransform.POLARITY_UNIPOLAR);
-
+        int myTransform = 0;
         if ((SF2Modulator.SOURCE_TYPE_CONCAVE & src) != 0)
-            transform.setTransform(ModelStandardTransform.TRANSFORM_CONCAVE);
+            myTransform = ModelStandardTransform.TRANSFORM_CONCAVE;
         if ((SF2Modulator.SOURCE_TYPE_CONVEX & src) != 0)
-            transform.setTransform(ModelStandardTransform.TRANSFORM_CONVEX);
+            myTransform = ModelStandardTransform.TRANSFORM_CONVEX;
         if ((SF2Modulator.SOURCE_TYPE_SWITCH & src) != 0)
-            transform.setTransform(ModelStandardTransform.TRANSFORM_SWITCH);
+            myTransform = ModelStandardTransform.TRANSFORM_SWITCH;
 
-        return msrc;
+        return new ModelSource(id, new ModelStandardTransform(direction, polarity, myTransform));
     }
 
     private static ModelDestination convertDestination(int dst,
-            double[] amountcorrection, ModelSource[] extrasrc) {
+            double[] amountcorrection, ModelSource[] extrasrc, int transform) {
         ModelIdentifier id = null;
         switch (dst) {
             case SF2Region.GENERATOR_INITIALFILTERFC:
@@ -803,7 +789,7 @@ final class SF2Instrument extends ModelInstrument {
                 break;
         }
         if (id != null)
-            return new ModelDestination(id);
+            return new ModelDestination(id, new ModelStandardTransform(transform));
         return null;
     }
 

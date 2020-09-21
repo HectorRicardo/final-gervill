@@ -173,110 +173,59 @@ final class DLSInstrument extends ModelInstrument {
         int scale = mod.getScale();
         double f_scale = scale == Integer.MIN_VALUE ? Double.NEGATIVE_INFINITY : scale / 65536.0;
 
-        ModelSource src = null;
-        ModelSource ctrl = null;
         List<ModelSource> sources = new ArrayList<>();
         if (control != null) {
-            ModelSource s = new ModelSource(control);
-            if (control == ModelSource.SOURCE_MIDI_PITCH) {
-                ((ModelStandardTransform)s.getTransform()).setPolarity(
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-            } else if (control == ModelSource.SOURCE_LFO1
-                    || control == ModelSource.SOURCE_LFO2) {
-                ((ModelStandardTransform)s.getTransform()).setPolarity(
-                        ModelStandardTransform.POLARITY_BIPOLAR);
+            boolean direction = false;
+            boolean polarity = false;
+            int myTransform = 0;
+
+            if (control == ModelSource.SOURCE_MIDI_PITCH || control == ModelSource.SOURCE_LFO1 || control == ModelSource.SOURCE_LFO2) {
+                polarity = ModelStandardTransform.POLARITY_BIPOLAR;
             }
-            sources.add(s);
-            ctrl = s;
+            if (mod.getVersion() == 1) {
+                if (mod.getTransform() == DLSModulator.CONN_TRN_CONCAVE) {
+                    myTransform = ModelStandardTransform.TRANSFORM_CONCAVE;
+                    direction = ModelStandardTransform.DIRECTION_MAX2MIN;
+                }
+            } else if (mod.getVersion() == 2) {
+                int transform = mod.getTransform();
+                int ctr_transform_invert = (transform >> 9) & 1;
+                int ctr_transform_bipolar = (transform >> 8) & 1;
+
+                myTransform = ModelStandardTransform.TRANSFORM_LINEAR;
+                polarity = ctr_transform_bipolar == 1;
+                direction = ctr_transform_invert == 1;
+            }
+
+            sources.add(new ModelSource(control, new ModelStandardTransform(direction, polarity, myTransform)));
         }
         if (source != null) {
-            ModelSource s = new ModelSource(source);
-            if (source == ModelSource.SOURCE_MIDI_PITCH) {
-                ((ModelStandardTransform)s.getTransform()).setPolarity(
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-            } else if (source == ModelSource.SOURCE_LFO1
-                    || source == ModelSource.SOURCE_LFO2) {
-                ((ModelStandardTransform)s.getTransform()).setPolarity(
-                        ModelStandardTransform.POLARITY_BIPOLAR);
+            boolean myDirection = false;
+            boolean myPolarity = false;
+            int myTransform = 0;
+
+            if (source == ModelSource.SOURCE_MIDI_PITCH || source == ModelSource.SOURCE_LFO1 || source == ModelSource.SOURCE_LFO2) {
+                myPolarity = ModelStandardTransform.POLARITY_BIPOLAR;
             }
-            sources.add(s);
-            src = s;
+            if (mod.getVersion() == 1) {
+                if (mod.getTransform() == DLSModulator.CONN_TRN_CONCAVE) {
+                    myTransform = ModelStandardTransform.TRANSFORM_CONCAVE;
+                    myDirection = ModelStandardTransform.DIRECTION_MAX2MIN;
+                }
+            } else if (mod.getVersion() == 2) {
+                int transform = mod.getTransform();
+                int src_transform_invert = (transform >> 15) & 1;
+                int src_transform_bipolar = (transform >> 14) & 1;
+
+                myTransform = ModelStandardTransform.TRANSFORM_LINEAR;
+                myPolarity = src_transform_bipolar == 1;
+                myDirection = src_transform_invert == 1;
+            }
+
+            sources.add(new ModelSource(source, new ModelStandardTransform(myDirection, myPolarity, myTransform)));
         }
 
-        ModelConnectionBlock block = new ModelConnectionBlock(f_scale, new ModelDestination(destination_id), sources);
-
-        if (mod.getVersion() == 1) {
-            //if (mod.getTransform() ==  DLSModulator.CONN_TRN_CONCAVE) {
-            //    ((ModelStandardTransform)destination.getTransform())
-            //            .setTransform(
-            //            ModelStandardTransform.TRANSFORM_CONCAVE);
-            //}
-            if (mod.getTransform() == DLSModulator.CONN_TRN_CONCAVE) {
-                if (src != null) {
-                    ((ModelStandardTransform)src.getTransform())
-                            .setTransform(
-                                ModelStandardTransform.TRANSFORM_CONCAVE);
-                    ((ModelStandardTransform)src.getTransform())
-                            .setDirection(
-                                ModelStandardTransform.DIRECTION_MAX2MIN);
-                }
-                if (ctrl != null) {
-                    ((ModelStandardTransform)ctrl.getTransform())
-                            .setTransform(
-                                ModelStandardTransform.TRANSFORM_CONCAVE);
-                    ((ModelStandardTransform)ctrl.getTransform())
-                            .setDirection(
-                                ModelStandardTransform.DIRECTION_MAX2MIN);
-                }
-            }
-
-        } else if (mod.getVersion() == 2) {
-            int transform = mod.getTransform();
-            int src_transform_invert = (transform >> 15) & 1;
-            int src_transform_bipolar = (transform >> 14) & 1;
-            int ctr_transform_invert = (transform >> 9) & 1;
-            int ctr_transform_bipolar = (transform >> 8) & 1;
-
-
-            if (src != null) {
-                int trans = ModelStandardTransform.TRANSFORM_LINEAR;
-                ((ModelStandardTransform)src.getTransform())
-                        .setTransform(trans);
-                ((ModelStandardTransform)src.getTransform())
-                        .setPolarity(src_transform_bipolar == 1);
-                ((ModelStandardTransform)src.getTransform())
-                        .setDirection(src_transform_invert == 1);
-
-            }
-
-            if (ctrl != null) {
-                int trans = ModelStandardTransform.TRANSFORM_LINEAR;
-                ((ModelStandardTransform)ctrl.getTransform())
-                        .setTransform(trans);
-                ((ModelStandardTransform)ctrl.getTransform())
-                        .setPolarity(ctr_transform_bipolar == 1);
-                ((ModelStandardTransform)ctrl.getTransform())
-                        .setDirection(ctr_transform_invert == 1);
-            }
-
-            /* No output transforms are defined the DLS Level 2
-            int out_transform = transform % 8;
-            int trans = ModelStandardTransform.TRANSFORM_LINEAR;
-            if (out_transform == DLSModulator.CONN_TRN_SWITCH)
-                trans = ModelStandardTransform.TRANSFORM_SWITCH;
-            if (out_transform == DLSModulator.CONN_TRN_CONCAVE)
-                trans = ModelStandardTransform.TRANSFORM_CONCAVE;
-            if (out_transform == DLSModulator.CONN_TRN_CONVEX)
-                trans = ModelStandardTransform.TRANSFORM_CONVEX;
-            if (ctrl != null) {
-                ((ModelStandardTransform)destination.getTransform())
-                        .setTransform(trans);
-            }
-            */
-
-        }
-
-        return block;
+        return new ModelConnectionBlock(f_scale, new ModelDestination(destination_id), sources);
 
     }
 

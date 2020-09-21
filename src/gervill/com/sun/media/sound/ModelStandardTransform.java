@@ -50,20 +50,24 @@ public final class ModelStandardTransform implements ModelTransform {
     // switch: if value > avg(max,min) then max else min
     public static final int TRANSFORM_SWITCH = 3;
     public static final int TRANSFORM_ABSOLUTE = 4;
-    private boolean direction = DIRECTION_MIN2MAX;
-    private boolean polarity = POLARITY_UNIPOLAR;
-    private int transform = TRANSFORM_LINEAR;
+
+    private final boolean direction;
+    private final boolean polarity;
+    private final int transform;
 
     public ModelStandardTransform() {
+        this(DIRECTION_MIN2MAX, POLARITY_UNIPOLAR, TRANSFORM_LINEAR);
+    }
+
+    public ModelStandardTransform(int transform) {
+        this(DIRECTION_MIN2MAX, POLARITY_UNIPOLAR, transform);
     }
 
     public ModelStandardTransform(boolean direction, boolean polarity) {
-        this.direction = direction;
-        this.polarity = polarity;
+        this(direction, polarity, TRANSFORM_LINEAR);
     }
 
-    public ModelStandardTransform(boolean direction, boolean polarity,
-            int transform) {
+    public ModelStandardTransform(boolean direction, boolean polarity, int transform) {
         this.direction = direction;
         this.polarity = polarity;
         this.transform = transform;
@@ -107,17 +111,5 @@ public final class ModelStandardTransform implements ModelTransform {
         }
 
         return value;
-    }
-
-    public void setDirection(boolean direction) {
-        this.direction = direction;
-    }
-
-    public void setPolarity(boolean polarity) {
-        this.polarity = polarity;
-    }
-
-    public void setTransform(int transform) {
-        this.transform = transform;
     }
 }
