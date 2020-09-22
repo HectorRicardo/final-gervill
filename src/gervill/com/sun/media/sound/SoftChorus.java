@@ -30,7 +30,7 @@ package gervill.com.sun.media.sound;
  *
  * @author Karl Helgason
  */
-public final class SoftChorus implements SoftAudioProcessor {
+public final class SoftChorus {
 
     private static class VariableDelay {
 

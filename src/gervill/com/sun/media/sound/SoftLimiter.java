@@ -30,7 +30,7 @@ package gervill.com.sun.media.sound;
  *
  * @author Karl Helgason
  */
-public final class SoftLimiter implements SoftAudioProcessor {
+public final class SoftLimiter {
 
     float lastmax = 0;
     float gain = 1;

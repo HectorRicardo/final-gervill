@@ -31,7 +31,7 @@ package gervill.com.sun.media.sound;
  *
  * @author Karl Helgason
  */
-public final class SoftReverb implements SoftAudioProcessor {
+public final class SoftReverb {
 
     private final static class Delay {
 
