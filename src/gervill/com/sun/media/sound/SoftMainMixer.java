@@ -52,7 +52,6 @@ public final class SoftMainMixer {
     public final static int CHANNEL_RIGHT_DRY = 11;
     private boolean pusher_silent = false;
     private int pusher_silent_count = 0;
-    final boolean readfully = true;
     private final Object control_mutex;
     private final SoftSynthesizer synth;
     private final SoftVoice[] voicestatus;
@@ -60,7 +59,6 @@ public final class SoftMainMixer {
     private final SoftReverb reverb;
     private final SoftChorus chorus;
     private final SoftLimiter agc;
-    final TreeMap<Long, Object> midimessages = new TreeMap<>();
     double last_volume_left = 1.0;
     double last_volume_right = 1.0;
     private final double[] co_master_balance = new double[1];
@@ -215,23 +213,14 @@ public final class SoftMainMixer {
         if(buffers[CHANNEL_LEFT].isSilent()
             && buffers[CHANNEL_RIGHT].isSilent())
         {
-
-            int midimessages_size;
-            synchronized (control_mutex) {
-                midimessages_size = midimessages.size();
-            }
-
-            if(midimessages_size == 0)
+            pusher_silent_count++;
+            if(pusher_silent_count > 5)
             {
-                pusher_silent_count++;
-                if(pusher_silent_count > 5)
-                {
-                    pusher_silent_count = 0;
-                    synchronized (control_mutex) {
-                        pusher_silent = true;
-                        if(synth.weakstream != null)
-                            synth.weakstream.setInputStream(null);
-                    }
+                pusher_silent_count = 0;
+                synchronized (control_mutex) {
+                    pusher_silent = true;
+                    if(synth.weakstream != null)
+                        synth.weakstream.setInputStream(null);
                 }
             }
         }
@@ -326,7 +315,6 @@ public final class SoftMainMixer {
             public int read(byte[] b, int off, int len) {
                 int bbuffer_len = bbuffer.length;
                 int offlen = off + len;
-                int orgoff = off;
                 byte[] bbuffer = this.bbuffer;
                 while (off < offlen) {
                     if (available() == 0)
@@ -336,8 +324,6 @@ public final class SoftMainMixer {
                         while (off < offlen && bbuffer_pos < bbuffer_len)
                             b[off++] = bbuffer[bbuffer_pos++];
                         this.bbuffer_pos = bbuffer_pos;
-                        if (!readfully)
-                            return off - orgoff;
                     }
                 }
                 return len;
