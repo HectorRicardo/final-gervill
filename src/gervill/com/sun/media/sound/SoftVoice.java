@@ -353,12 +353,10 @@ public final class SoftVoice extends VoiceStatus {
                 connections_src[i] = new double[srcs.size()][];
                 connections_src_kc[i] = new int[srcs.size()];
             }
-            double[][] src = connections_src[i];
             int[] src_kc = connections_src_kc[i];
-            connections_src[i] = src;
             for (int j = 0; j < srcs.size(); j++) {
                 src_kc[j] = getValueKC(srcs.get(j).getIdentifier());
-                src[j] = getValue(srcs.get(j).getIdentifier());
+                connections_src[i][j] = getValue(srcs.get(j).getIdentifier());
             }
 
             if (conn.getDestination() != null)

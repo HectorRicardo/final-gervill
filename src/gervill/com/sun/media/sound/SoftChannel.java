@@ -26,6 +26,7 @@ package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.MidiChannel;
 import gervill.javax.sound.midi.Patch;
+import own.main.ImmutableList;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -117,10 +118,10 @@ public final class SoftChannel implements MidiChannel {
     boolean[][] keybasedcontroller_active = null;
     double[][] keybasedcontroller_value = null;
 
-    private class MidiControlObject implements SoftControl {
-        final double[] pitch = co_midi_pitch;
-        final double[] channel_pressure = co_midi_channel_pressure;
-        final double[] poly_pressure = new double[1];
+    private final class MidiControlObject implements SoftControl {
+        private final double[] pitch = co_midi_pitch;
+        private final double[] channel_pressure = co_midi_channel_pressure;
+        private final double[] poly_pressure = new double[1];
 
         public double[] get(int instance, String name) {
             if (name == null)
@@ -135,12 +136,7 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
-    private final SoftControl[] co_midi = new SoftControl[128];
-    {
-        for (int i = 0; i < co_midi.length; i++) {
-            co_midi[i] = new MidiControlObject();
-        }
-    }
+    private final ImmutableList<MidiControlObject> co_midi = ImmutableList.create(128, index -> new MidiControlObject());
 
     private final double[][] co_midi_cc_cc = new double[128][1];
     private final SoftControl co_midi_cc = new SoftControl() {
@@ -343,7 +339,7 @@ public final class SoftChannel implements MidiChannel {
         voice.program = program;
         voice.performer = p;
         voice.objects.clear();
-        voice.objects.put("midi", co_midi[noteNumber]);
+        voice.objects.put("midi", co_midi.get(noteNumber));
         voice.objects.put("midi_cc", co_midi_cc);
         voice.objects.put("midi_rpn", co_midi_rpn);
         voice.objects.put("midi_nrpn", co_midi_nrpn);
@@ -616,7 +612,7 @@ public final class SoftChannel implements MidiChannel {
 
         synchronized (control_mutex) {
             mainmixer.activity();
-            co_midi[noteNumber].get(0, "poly_pressure")[0] = pressure*(1.0/128.0);
+            co_midi.get(noteNumber).get(0, "poly_pressure")[0] = pressure*(1.0/128.0);
             polypressure[noteNumber] = pressure;
             for (SoftVoice voice : voices) {
                 if (voice.active && voice.note == noteNumber)
