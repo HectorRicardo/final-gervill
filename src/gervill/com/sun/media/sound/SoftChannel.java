@@ -25,7 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.MidiChannel;
-import gervill.javax.sound.midi.Patch;
 import own.main.ImmutableList;
 
 import java.util.Arrays;
@@ -108,9 +107,6 @@ public final class SoftChannel implements MidiChannel {
     private int pitchbend;
     private final double[] co_midi_pitch = new double[1];
     private final double[] co_midi_channel_pressure = new double[1];
-    SoftTuning tuning = new SoftTuning();
-    int tuning_bank = 0;
-    int tuning_program = 0;
     SoftInstrument current_instrument = null;
     ModelStandardIndexedDirector current_director = null;
 
@@ -270,7 +266,6 @@ public final class SoftChannel implements MidiChannel {
         voice.extendedConnectionBlocks = connectionBlocks;
         voice.releaseTriggered = releaseTriggered;
         voice.voiceID = voiceID;
-        voice.tuning = tuning;
         voice.exclusiveClass = p.exclusiveClass;
         voice.softchannel = this;
         voice.channel = channel;
@@ -288,17 +283,17 @@ public final class SoftChannel implements MidiChannel {
         if (releaseTriggered)
             return;
         if (controller[84] != 0) {
-            voice.co_noteon_keynumber[0]
-                    = (tuning.getTuning(controller[84]) / 100.0)
-                    * (1f / 128f);
+            int myNote = controller[84];
+            assert myNote >= 0 && myNote < 128;
+            voice.co_noteon_keynumber[0] = myNote / 128f;
             voice.portamento = true;
             controlChange(84, 0);
         } else if (portamento) {
             if (mono) {
                 if (portamento_lastnote[0] != -1) {
-                    voice.co_noteon_keynumber[0]
-                            = (tuning.getTuning(portamento_lastnote[0]) / 100.0)
-                            * (1f / 128f);
+                    int myNote = portamento_lastnote[0];
+                    assert myNote >= 0 && myNote < 128;
+                    voice.co_noteon_keynumber[0] = myNote / 128f;
                     voice.portamento = true;
                     controlChange(84, 0);
                 }
@@ -306,11 +301,9 @@ public final class SoftChannel implements MidiChannel {
             } else {
                 if (portamento_lastnote_ix != 0) {
                     portamento_lastnote_ix--;
-                    voice.co_noteon_keynumber[0]
-                            = (tuning.getTuning(
-                                    portamento_lastnote[portamento_lastnote_ix])
-                                / 100.0)
-                            * (1f / 128f);
+                    int myNote = portamento_lastnote[portamento_lastnote_ix];
+                    assert myNote >= 0 && myNote < 128;
+                    voice.co_noteon_keynumber[0] = myNote / 128f;
                     voice.portamento = true;
                 }
             }
@@ -397,13 +390,13 @@ public final class SoftChannel implements MidiChannel {
             firstVoice = true;
             voiceNo = 0;
 
-            int tunedKey = (int)(Math.round(tuning.getTuning(noteNumber)/100.0));
+            assert noteNumber >= 0 && noteNumber < 128;
             play_noteNumber = noteNumber;
             play_velocity = velocity;
             play_delay = 0;
             play_releasetriggered = false;
             lastVelocity[noteNumber] = velocity;
-            current_director.noteOn(tunedKey, velocity);
+            current_director.noteOn(noteNumber, velocity);
 
             /*
             SoftPerformer[] performers = current_instrument.getPerformers();
@@ -830,12 +823,6 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
-    public void tuningChange(int bank, int program) {
-        synchronized (control_mutex) {
-            tuning = synthesizer.getTuning(new Patch(bank, program));
-        }
-    }
-
     public void programChange(int program) {
         programChange(bank, program);
     }
@@ -945,14 +932,6 @@ public final class SoftChannel implements MidiChannel {
                 + " " + Integer.toHexString(value & 127) + ")");
          */
 
-        if (controller == 3) {
-            tuning_program = (value >> 7) & 127;
-            tuningChange(tuning_bank, tuning_program);
-        }
-        if (controller == 4) {
-            tuning_bank = (value >> 7) & 127;
-        }
-
         int[] val_i = co_midi_rpn_rpn_i.get(controller);
         double[] val_d = co_midi_rpn_rpn.get(controller);
         if (val_i == null) {
@@ -1026,10 +1005,6 @@ public final class SoftChannel implements MidiChannel {
                 rpnChange(1, 64 << 7);  // Channel fine tunning
                 rpnChange(2, 64 << 7);  // Channel Coarse Tuning
                 rpnChange(5, 64);       // Modulation Depth, +/- 50 cent
-
-                tuning_bank = 0;
-                tuning_program = 0;
-                tuning = new SoftTuning();
 
             }
 

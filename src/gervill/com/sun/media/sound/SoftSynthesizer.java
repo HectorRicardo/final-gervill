@@ -176,8 +176,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     private SoftMainMixer mainmixer;
     private final SoftVoice[] voices = new SoftVoice[MAX_POLY];
 
-    private final Map<String, SoftTuning> tunings
-            = new HashMap<>();
     private final Map<String, SoftInstrument> inslist
             = new HashMap<>();
     private final Map<String, ModelInstrument> loadedlist
@@ -307,16 +305,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     SoftVoice[] getVoices() {
         return voices;
-    }
-
-    SoftTuning getTuning(Patch patch) {
-        String t_id = patchToString(patch);
-        SoftTuning tuning = tunings.get(t_id);
-        if (tuning == null) {
-            tuning = new SoftTuning();
-            tunings.put(t_id, tuning);
-        }
-        return tuning;
     }
 
     public long getLatency() {
@@ -659,8 +647,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
             inslist.clear();
             loadedlist.clear();
-            tunings.clear();
-
         }
     }
 

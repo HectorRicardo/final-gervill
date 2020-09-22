@@ -43,7 +43,6 @@ public final class SoftVoice extends VoiceStatus {
     public boolean releaseTriggered = false;
     private int delay = 0;
     double tunedKey = 0;
-    SoftTuning tuning = null;
     SoftChannel stealer_channel = null;
     ModelConnectionBlock[] stealer_extendedConnectionBlocks = null;
     SoftPerformer stealer_performer = null;
@@ -274,7 +273,8 @@ public final class SoftVoice extends VoiceStatus {
 
     void setNote(int noteNumber) {
         note = noteNumber;
-        tunedKey = tuning.getTuning(noteNumber) / 100.0;
+        assert noteNumber >= 0 && noteNumber < 128;
+        tunedKey = noteNumber;
     }
 
     void noteOn(int noteNumber, int velocity, int delay) {

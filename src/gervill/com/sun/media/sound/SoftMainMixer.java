@@ -29,7 +29,6 @@ import gervill.javax.sound.sampled.AudioSystem;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.TreeMap;
 
 /**
  * Software synthesizer main audio mixer.
