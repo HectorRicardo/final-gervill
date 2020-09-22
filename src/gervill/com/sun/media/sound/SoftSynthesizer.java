@@ -150,14 +150,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     int voiceIDCounter = 0;
 
-    // 0: default
-    // 1: DLS Voice Allocation
-    int voice_allocation_mode = 0;
-
-    final boolean reverb_on = true;
-    final boolean chorus_on = true;
-    final boolean agc_on = true;
-
     public static final int NUMBER_OF_CHANNELS = 16;
     SoftChannel[] channels;
     final SoftChannelProxy[] external_channels = new SoftChannelProxy[NUMBER_OF_CHANNELS];
@@ -167,14 +159,9 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    // 0: GM Mode off (default)
-    // 1: GM Level 1
-    // 2: GM Level 2
-    private int gmmode = 0;
-
     private final AudioFormat format = new AudioFormat(44100, 16, 2, true);
 
-    private SourceDataLine sourceDataLine = null;
+    private final SourceDataLine sourceDataLine = new SourceDataLine();
 
     private SoftAudioPusher pusher = null;
     private AudioInputStream pusher_stream = null;
@@ -183,11 +170,11 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     private final SoftLinearResampler2 resampler = new SoftLinearResampler2();
 
-    private final int maxpoly = 64;
+    private final static int MAX_POLY = 64;
     private final long latency = 120000L;
 
     private SoftMainMixer mainmixer;
-    private SoftVoice[] voices;
+    private final SoftVoice[] voices = new SoftVoice[MAX_POLY];
 
     private final Map<String, SoftTuning> tunings
             = new HashMap<>();
@@ -318,14 +305,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         return current_instrument;
     }
 
-    int getVoiceAllocationMode() {
-        return voice_allocation_mode;
-    }
-
-    int getGeneralMidiMode() {
-        return gmmode;
-    }
-
     SoftVoice[] getVoices() {
         return voices;
     }
@@ -354,7 +333,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     public int getMaxPolyphony() {
         synchronized (control_mutex) {
-            return maxpoly;
+            return MAX_POLY;
         }
     }
 
@@ -557,15 +536,10 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
         synchronized (control_mutex) {
             try {
-
                 AudioInputStream ais = openStream();
 
                 weakstream = new WeakAudioStream(ais);
                 ais = weakstream.getAudioInputStream();
-
-                sourceDataLine = new SourceDataLine();
-
-                double latency = this.latency;
 
                 int bufferSize = getFormat().getFrameSize()
                     * (int)(getFormat().getFrameRate() * (latency/1000000f));
@@ -624,13 +598,9 @@ public final class SoftSynthesizer implements AutoCloseable {
 
         synchronized (control_mutex) {
 
-            gmmode = 0;
-            voice_allocation_mode = 0;
-
             open = true;
 
-            voices = new SoftVoice[maxpoly];
-            for (int i = 0; i < maxpoly; i++)
+            for (int i = 0; i < MAX_POLY; i++)
                 voices[i] = new SoftVoice(this);
 
             mainmixer = new SoftMainMixer(this);
@@ -680,15 +650,12 @@ public final class SoftSynthesizer implements AutoCloseable {
         synchronized (control_mutex) {
             open = false;
             mainmixer = null;
-            voices = null;
+            Arrays.fill(voices, null);
             channels = null;
 
             for (SoftChannelProxy external_channel : external_channels) external_channel.setChannel(null);
 
-            if (sourceDataLine != null) {
-                sourceDataLine.close();
-                sourceDataLine = null;
-            }
+            sourceDataLine.close();
 
             inslist.clear();
             loadedlist.clear();

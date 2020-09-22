@@ -683,16 +683,10 @@ public final class SoftVoice extends VoiceStatus {
                     out_mixer_right *= balance * 2;
             }
 
-            if (synthesizer.reverb_on) {
-                out_mixer_effect1 = (float)(co_mixer_reverb[0] * (1.0 / 1000.0));
-                out_mixer_effect1 *= gain;
-            } else
-                out_mixer_effect1 = 0;
-            if (synthesizer.chorus_on) {
-                out_mixer_effect2 = (float)(co_mixer_chorus[0] * (1.0 / 1000.0));
-                out_mixer_effect2 *= gain;
-            } else
-                out_mixer_effect2 = 0;
+            out_mixer_effect1 = (float)(co_mixer_reverb[0] * (1.0 / 1000.0));
+            out_mixer_effect1 *= gain;
+            out_mixer_effect2 = (float)(co_mixer_chorus[0] * (1.0 / 1000.0));
+            out_mixer_effect2 *= gain;
             out_mixer_end = co_mixer_active[0] < 0.5;
 
             if (!on)

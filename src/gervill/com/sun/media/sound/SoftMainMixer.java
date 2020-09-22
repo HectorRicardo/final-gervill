@@ -170,11 +170,8 @@ public final class SoftMainMixer {
         }
 
         // Run effects
-        if (synth.chorus_on)
-            chorus.processAudio();
-
-        if (synth.reverb_on)
-            reverb.processAudio();
+        chorus.processAudio();
+        reverb.processAudio();
 
         // Set Volume / Balance
         if (last_volume_left != volume_left || last_volume_right != volume_right) {
@@ -241,8 +238,7 @@ public final class SoftMainMixer {
         else
             pusher_silent_count = 0;
 
-        if (synth.agc_on)
-            agc.processAudio();
+        agc.processAudio();
 
     }
 
