@@ -118,24 +118,24 @@ public final class ModelByteBufferWavetable {
         }
     }
 
-    private float loopStart = -1;
-    private float loopLength = -1;
+    private final float loopStart;
+    private final float loopLength;
     private final ModelByteBuffer buffer;
-    private ModelByteBuffer buffer8 = null;
+    private final ModelByteBuffer buffer8;
     private final AudioFormat format;
     private final float pitchcorrection;
-    private float attenuation = 0;
-    private int loopType = LOOP_TYPE_OFF;
+    private final float attenuation;
+    private final int loopType;
 
-    public ModelByteBufferWavetable(ModelByteBuffer buffer, AudioFormat format,
-            float pitchcorrection) {
+    public ModelByteBufferWavetable(ModelByteBuffer buffer, AudioFormat format, float pitchcorrection, float attenuation, int loopStart, int loopLength, int loopType, ModelByteBuffer buffer8) {
         this.format = format;
         this.buffer = buffer;
         this.pitchcorrection = pitchcorrection;
-    }
-
-    public void set8BitExtensionBuffer(ModelByteBuffer buffer) {
-        buffer8 = buffer;
+        this.attenuation = attenuation;
+        this.loopStart = loopStart;
+        this.loopLength = loopLength;
+        this.loopType = loopType;
+        this.buffer8 = buffer8;
     }
 
     public ModelByteBuffer get8BitExtensionBuffer() {
@@ -188,29 +188,13 @@ public final class ModelByteBufferWavetable {
     public float getAttenuation() {
         return attenuation;
     }
-    // attenuation is in cB
-    public void setAttenuation(float attenuation) {
-        this.attenuation = attenuation;
-    }
 
     public float getLoopLength() {
         return loopLength;
     }
 
-    public void setLoopLength(float loopLength) {
-        this.loopLength = loopLength;
-    }
-
     public float getLoopStart() {
         return loopStart;
-    }
-
-    public void setLoopStart(float loopStart) {
-        this.loopStart = loopStart;
-    }
-
-    public void setLoopType(int loopType) {
-        this.loopType = loopType;
     }
 
     public int getLoopType() {

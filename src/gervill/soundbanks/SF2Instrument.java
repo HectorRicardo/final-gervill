@@ -183,11 +183,6 @@ final class SF2Instrument extends ModelInstrument {
                     */
                 }
 
-                ModelByteBufferWavetable osc = new ModelByteBufferWavetable(
-                        buff, sample.getFormat(), pitchcorrection);
-                if (buff24 != null)
-                    osc.set8BitExtensionBuffer(buff24);
-
                 Map<Integer, Short> generators = new HashMap<>();
                 if (layerglobal != null)
                     generators.putAll(layerglobal.getGenerators());
@@ -208,20 +203,25 @@ final class SF2Instrument extends ModelInstrument {
                 // 2 is unused but should be interpreted as indicating no loop
                 // 3 indicates a sound which loops for the duration of key
                 //   depression then proceeds to play the remainder of the sample.
+                int loopStart = -1;
+                int loopLength = -1;
+                int loopType = 0;
                 int sampleMode = getGeneratorValue(generators,
                         SF2Region.GENERATOR_SAMPLEMODES);
                 if ((sampleMode == 1) || (sampleMode == 3)) {
                     long startLoop = sample.getStartLoop();
                     long endLoop = sample.getEndLoop();
                     if (startLoop >= 0 && endLoop > 0) {
-                        osc.setLoopStart((int)(startLoop + startloopAddrsOffset));
-                        osc.setLoopLength((int)(endLoop - startLoop + endloopAddrsOffset - startloopAddrsOffset));
+                        loopStart = (int)(startLoop + startloopAddrsOffset);
+                        loopLength = (int)(endLoop - startLoop + endloopAddrsOffset - startloopAddrsOffset);
                         if (sampleMode == 1)
-                            osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
+                            loopType = ModelByteBufferWavetable.LOOP_TYPE_FORWARD;
                         if (sampleMode == 3)
-                            osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_RELEASE);
+                            loopType = ModelByteBufferWavetable.LOOP_TYPE_RELEASE;
                     }
                 }
+                ModelByteBufferWavetable osc = new ModelByteBufferWavetable(buff, sample.getFormat(), pitchcorrection, 0, loopStart, loopLength, loopType, buff24);
+
                 oscillators.add(osc);
 
 

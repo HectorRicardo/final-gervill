@@ -259,27 +259,29 @@ final class DLSInstrument extends ModelInstrument {
             float pitchcorrection = (-sampleopt.getUnitynote() * 100) +
                     sampleopt.getFinetune();
 
-            ModelByteBufferWavetable osc = new ModelByteBufferWavetable(buff,
-                    sample.getFormat(), pitchcorrection);
-            osc.setAttenuation(osc.getAttenuation() / 65536f);
+            int loopStart = -1;
+            int loopLength = -1;
+            int loopType = ModelByteBufferWavetable.LOOP_TYPE_OFF;
             if (sampleopt.getLoops().size() != 0) {
                 DLSSampleLoop loop = sampleopt.getLoops().get(0);
-                osc.setLoopStart((int)loop.getStart());
-                osc.setLoopLength((int)loop.getLength());
+                loopStart = (int)loop.getStart();
+                loopLength = (int)loop.getLength();
                 if (loop.getType() == DLSSampleLoop.LOOP_TYPE_FORWARD)
-                    osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
-                if (loop.getType() == DLSSampleLoop.LOOP_TYPE_RELEASE)
-                    osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_RELEASE);
+                    loopType = ModelByteBufferWavetable.LOOP_TYPE_FORWARD;
+                else if (loop.getType() == DLSSampleLoop.LOOP_TYPE_RELEASE)
+                    loopType = ModelByteBufferWavetable.LOOP_TYPE_RELEASE;
                 else
-                    osc.setLoopType(ModelByteBufferWavetable.LOOP_TYPE_FORWARD);
+                    loopType = ModelByteBufferWavetable.LOOP_TYPE_FORWARD;
             }
+
+            ModelByteBufferWavetable osc = new ModelByteBufferWavetable(buff, sample.getFormat(), pitchcorrection, 0, loopStart, loopLength, loopType, null);
 
             blocks.add(
                     new ModelConnectionBlock(SoftFilter.FILTERTYPE_LP12,
                         new ModelDestination(
                             new ModelIdentifier("filter", "type", 1))));
 
-            performers.add(new ModelPerformer(zone.getKeyfrom(), zone.getKeyto(), zone.getVelfrom(), zone.getVelto(), zone.getExclusiveClass(), (zone.getFusoptions() & DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0, Arrays.asList(osc), blocks));
+            performers.add(new ModelPerformer(zone.getKeyfrom(), zone.getKeyto(), zone.getVelfrom(), zone.getVelto(), zone.getExclusiveClass(), (zone.getFusoptions() & DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0, Collections.singletonList(osc), blocks));
 
         }
 
