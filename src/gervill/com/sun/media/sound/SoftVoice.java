@@ -41,7 +41,6 @@ public final class SoftVoice extends VoiceStatus {
 
     public int exclusiveClass = 0;
     public boolean releaseTriggered = false;
-    private int delay = 0;
     double tunedKey = 0;
     SoftChannel stealer_channel = null;
     ModelConnectionBlock[] stealer_extendedConnectionBlocks = null;
@@ -277,7 +276,7 @@ public final class SoftVoice extends VoiceStatus {
         tunedKey = noteNumber;
     }
 
-    void noteOn(int noteNumber, int velocity, int delay) {
+    void noteOn(int noteNumber, int velocity) {
 
         sustain = false;
         sostenuto = false;
@@ -288,8 +287,6 @@ public final class SoftVoice extends VoiceStatus {
         active = true;
         started = true;
         // volume = velocity;
-
-        this.delay = delay;
 
         lastMuteValue = 0;
         lastSoloMuteValue = 0;
@@ -550,7 +547,7 @@ public final class SoftVoice extends VoiceStatus {
 
             if (stealer_channel != null) {
                 stealer_channel.initVoice(this, stealer_performer,
-                        stealer_voiceID, stealer_noteNumber, stealer_velocity, 0,
+                        stealer_voiceID, stealer_noteNumber, stealer_velocity,
                         stealer_extendedConnectionBlocks,
                         stealer_releaseTriggered);
                 stealer_releaseTriggered = false;
@@ -708,55 +705,24 @@ public final class SoftVoice extends VoiceStatus {
     }
 
     void mixAudioStream(SoftAudioBuffer in, SoftAudioBuffer out,
-                                SoftAudioBuffer dout, float amp_from,
-                                float amp_to) {
+                        float amp_from,
+                        float amp_to) {
         int bufferlen = in.getSize();
         if (amp_from < 0.000000001 && amp_to < 0.000000001)
             return;
-        if(dout != null && delay != 0)
-        {
-            if (amp_from == amp_to) {
-                float[] fout = out.array();
-                float[] fin = in.array();
-                int j = 0;
-                for (int i = delay; i < bufferlen; i++)
-                    fout[i] += fin[j++] * amp_to;
-                fout = dout.array();
-                for (int i = 0; i < delay; i++)
-                    fout[i] += fin[j++] * amp_to;
-            } else {
-                float amp = amp_from;
-                float amp_delta = (amp_to - amp_from) / bufferlen;
-                float[] fout = out.array();
-                float[] fin = in.array();
-                int j = 0;
-                for (int i = delay; i < bufferlen; i++) {
-                    amp += amp_delta;
-                    fout[i] += fin[j++] * amp;
-                }
-                fout = dout.array();
-                for (int i = 0; i < delay; i++) {
-                    amp += amp_delta;
-                    fout[i] += fin[j++] * amp;
-                }
-            }
-        }
-        else
-        {
-            if (amp_from == amp_to) {
-                float[] fout = out.array();
-                float[] fin = in.array();
-                for (int i = 0; i < bufferlen; i++)
-                    fout[i] += fin[i] * amp_to;
-            } else {
-                float amp = amp_from;
-                float amp_delta = (amp_to - amp_from) / bufferlen;
-                float[] fout = out.array();
-                float[] fin = in.array();
-                for (int i = 0; i < bufferlen; i++) {
-                    amp += amp_delta;
-                    fout[i] += fin[i] * amp;
-                }
+        if (amp_from == amp_to) {
+            float[] fout = out.array();
+            float[] fin = in.array();
+            for (int i = 0; i < bufferlen; i++)
+                fout[i] += fin[i] * amp_to;
+        } else {
+            float amp = amp_from;
+            float amp_delta = (amp_to - amp_from) / bufferlen;
+            float[] fout = out.array();
+            float[] fin = in.array();
+            for (int i = 0; i < bufferlen; i++) {
+                amp += amp_delta;
+                fout[i] += fin[i] * amp;
             }
         }
 
@@ -793,12 +759,6 @@ public final class SoftVoice extends VoiceStatus {
         SoftAudioBuffer eff1 = buffer[SoftMainMixer.CHANNEL_EFFECT1];
         SoftAudioBuffer eff2 = buffer[SoftMainMixer.CHANNEL_EFFECT2];
 
-        SoftAudioBuffer dleft = buffer[SoftMainMixer.CHANNEL_DELAY_LEFT];
-        SoftAudioBuffer dright = buffer[SoftMainMixer.CHANNEL_DELAY_RIGHT];
-        SoftAudioBuffer dmono = buffer[SoftMainMixer.CHANNEL_DELAY_MONO];
-        SoftAudioBuffer deff1 = buffer[SoftMainMixer.CHANNEL_DELAY_EFFECT1];
-        SoftAudioBuffer deff2 = buffer[SoftMainMixer.CHANNEL_DELAY_EFFECT2];
-
         SoftAudioBuffer leftdry = buffer[SoftMainMixer.CHANNEL_LEFT_DRY];
         SoftAudioBuffer rightdry = buffer[SoftMainMixer.CHANNEL_RIGHT_DRY];
 
@@ -813,42 +773,42 @@ public final class SoftVoice extends VoiceStatus {
 
         if (nrofchannels == 1) {
             out_mixer_left = (out_mixer_left + out_mixer_right) / 2;
-            mixAudioStream(leftdry, left, dleft, last_out_mixer_left, out_mixer_left);
+            mixAudioStream(leftdry, left, last_out_mixer_left, out_mixer_left);
             if (rightdry != null)
-                mixAudioStream(rightdry, left, dleft, last_out_mixer_left,
+                mixAudioStream(rightdry, left, last_out_mixer_left,
                         out_mixer_left);
         } else {
             if(rightdry == null &&
                     last_out_mixer_left == last_out_mixer_right &&
                     out_mixer_left == out_mixer_right)
             {
-                mixAudioStream(leftdry, mono, dmono, last_out_mixer_left, out_mixer_left);
+                mixAudioStream(leftdry, mono, last_out_mixer_left, out_mixer_left);
             }
             else
             {
-                mixAudioStream(leftdry, left, dleft, last_out_mixer_left, out_mixer_left);
+                mixAudioStream(leftdry, left, last_out_mixer_left, out_mixer_left);
                 if (rightdry != null)
-                    mixAudioStream(rightdry, right, dright, last_out_mixer_right,
+                    mixAudioStream(rightdry, right, last_out_mixer_right,
                         out_mixer_right);
                 else
-                    mixAudioStream(leftdry, right, dright, last_out_mixer_right,
+                    mixAudioStream(leftdry, right, last_out_mixer_right,
                         out_mixer_right);
             }
         }
 
         if (rightdry == null) {
-            mixAudioStream(leftdry, eff1, deff1, last_out_mixer_effect1,
+            mixAudioStream(leftdry, eff1, last_out_mixer_effect1,
                     out_mixer_effect1);
-            mixAudioStream(leftdry, eff2, deff2, last_out_mixer_effect2,
+            mixAudioStream(leftdry, eff2, last_out_mixer_effect2,
                     out_mixer_effect2);
         } else {
-            mixAudioStream(leftdry, eff1, deff1, last_out_mixer_effect1 * 0.5f,
+            mixAudioStream(leftdry, eff1, last_out_mixer_effect1 * 0.5f,
                     out_mixer_effect1 * 0.5f);
-            mixAudioStream(leftdry, eff2, deff2, last_out_mixer_effect2 * 0.5f,
+            mixAudioStream(leftdry, eff2, last_out_mixer_effect2 * 0.5f,
                     out_mixer_effect2 * 0.5f);
-            mixAudioStream(rightdry, eff1, deff1, last_out_mixer_effect1 * 0.5f,
+            mixAudioStream(rightdry, eff1, last_out_mixer_effect1 * 0.5f,
                     out_mixer_effect1 * 0.5f);
-            mixAudioStream(rightdry, eff2, deff2, last_out_mixer_effect2 * 0.5f,
+            mixAudioStream(rightdry, eff2, last_out_mixer_effect2 * 0.5f,
                     out_mixer_effect2 * 0.5f);
         }
 

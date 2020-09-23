@@ -246,7 +246,7 @@ public final class SoftChannel implements MidiChannel {
     }
 
     void initVoice(SoftVoice voice, SoftPerformer p, int voiceID,
-                   int noteNumber, int velocity, int delay, ModelConnectionBlock[] connectionBlocks,
+                   int noteNumber, int velocity, ModelConnectionBlock[] connectionBlocks,
                    boolean releaseTriggered) {
         if (voice.active) {
             // Voice is active , we must steal the voice
@@ -277,7 +277,7 @@ public final class SoftChannel implements MidiChannel {
         voice.objects.put("midi_cc", co_midi_cc);
         voice.objects.put("midi_rpn", co_midi_rpn);
         voice.objects.put("midi_nrpn", co_midi_nrpn);
-        voice.noteOn(noteNumber, velocity, delay);
+        voice.noteOn(noteNumber, velocity);
         voice.setMute(mute);
         voice.setSoloMute(solomute);
         if (releaseTriggered)
@@ -393,7 +393,6 @@ public final class SoftChannel implements MidiChannel {
             assert noteNumber >= 0 && noteNumber < 128;
             play_noteNumber = noteNumber;
             play_velocity = velocity;
-            play_delay = 0;
             play_releasetriggered = false;
             lastVelocity[noteNumber] = velocity;
             current_director.noteOn(noteNumber, velocity);
@@ -485,7 +484,6 @@ public final class SoftChannel implements MidiChannel {
             play_noteNumber = noteNumber;
             play_velocity = lastVelocity[noteNumber];
             play_releasetriggered = true;
-            play_delay = 0;
             if (current_director == null) {
                 throw new NullPointerException("current_director");
             }
@@ -498,14 +496,12 @@ public final class SoftChannel implements MidiChannel {
     private int voiceNo = 0;
     private int play_noteNumber = 0;
     private int play_velocity = 0;
-    private int play_delay = 0;
     private boolean play_releasetriggered = false;
 
     public void play(int performerIndex, ModelConnectionBlock[] connectionBlocks) {
 
         int noteNumber = play_noteNumber;
         int velocity = play_velocity;
-        int delay = play_delay;
         boolean releasetriggered = play_releasetriggered;
 
         SoftPerformer p = current_instrument.getPerformers().get(performerIndex);
@@ -529,7 +525,7 @@ public final class SoftChannel implements MidiChannel {
         if (voiceNo == -1)
             return;
 
-        initVoice(voices[voiceNo], p, prevVoiceID, noteNumber, velocity, delay,
+        initVoice(voices[voiceNo], p, prevVoiceID, noteNumber, velocity,
                 connectionBlocks, releasetriggered);
     }
 
