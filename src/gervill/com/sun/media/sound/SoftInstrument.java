@@ -35,18 +35,17 @@ import own.main.ImmutableList;
 public final class SoftInstrument extends Instrument {
 
     private final ImmutableList<SoftPerformer> performers;
-    private final ImmutableList<ModelPerformer> modelperformers;
     private final ModelInstrument ins;
 
     public SoftInstrument(ModelInstrument ins) {
         super(ins.getPatch(), ins.getName());
         this.ins = ins;
-        modelperformers = ins.getPerformers();
+        ImmutableList<ModelPerformer> modelperformers = ins.getPerformers();
         performers = ImmutableList.create(modelperformers.size(), index -> new SoftPerformer(modelperformers.get(index)));
     }
 
     public ModelStandardIndexedDirector getDirector(SoftChannel player) {
-        return ins.getDirector(modelperformers, player);
+        return ins.getDirector(ins.getPerformers(), player);
     }
 
     public ImmutableList<SoftPerformer> getPerformers() {

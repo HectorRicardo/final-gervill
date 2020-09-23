@@ -29,6 +29,7 @@ import own.main.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -109,7 +110,7 @@ public final class SoftVoice {
     private float last_out_mixer_effect1 = 0;
     private float last_out_mixer_effect2 = 0;
     ModelConnectionBlock[] extendedConnectionBlocks = null;
-    private ModelConnectionBlock[] connections;
+    private ImmutableList<ModelConnectionBlock> connections;
     // Last value added to destination
     private double[] connections_last = new double[50];
     // Pointer to source value
@@ -268,7 +269,7 @@ public final class SoftVoice {
     }
 
     private void processConnection(int ix) {
-        ModelConnectionBlock conn = connections[ix];
+        ModelConnectionBlock conn = connections.get(ix);
         double[][] src = connections_src[ix];
         double[] dst = connections_dst[ix];
         if (dst == null || Double.isInfinite(dst[0]))
@@ -370,7 +371,7 @@ public final class SoftVoice {
             connections_dst = new double[connections.length][];
         }
         for (int i = 0; i < connections.length; i++) {
-            ModelConnectionBlock conn = connections[i];
+            ModelConnectionBlock conn = connections.get(i);
             connections_last[i] = 0;
             ImmutableList<ModelSource> srcs = conn.getSources();
             if (connections_src[i] == null
@@ -436,7 +437,7 @@ public final class SoftVoice {
     void setPolyPressure() {
         if(performer == null)
             return;
-        int[] c = performer.midi_connections[2];
+        ImmutableList<Integer> c = performer.midi_connections.get(2);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -445,7 +446,7 @@ public final class SoftVoice {
     void setChannelPressure() {
         if(performer == null)
             return;
-        int[] c = performer.midi_connections[1];
+        ImmutableList<Integer> c = performer.midi_connections.get(1);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -454,7 +455,7 @@ public final class SoftVoice {
     void controlChange(int controller) {
         if(performer == null)
             return;
-        int[] c = performer.midi_ctrl_connections[controller];
+        ImmutableList<Integer> c = performer.midi_ctrl_connections.get(controller);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -463,7 +464,7 @@ public final class SoftVoice {
     void nrpnChange(int controller) {
         if(performer == null)
             return;
-        int[] c = performer.midi_nrpn_connections.get(controller);
+        ImmutableList<Integer> c = performer.midi_nrpn_connections.get(controller);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -472,7 +473,7 @@ public final class SoftVoice {
     void rpnChange(int controller) {
         if(performer == null)
             return;
-        int[] c = performer.midi_rpn_connections.get(controller);
+        ImmutableList<Integer> c = performer.midi_rpn_connections.get(controller);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -481,7 +482,7 @@ public final class SoftVoice {
     void setPitchBend() {
         if(performer == null)
             return;
-        int[] c = performer.midi_connections[0];
+        ImmutableList<Integer> c = performer.midi_connections.get(0);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -508,7 +509,7 @@ public final class SoftVoice {
 
         if(performer == null)
             return;
-        int[] c = performer.midi_connections[3];
+        ImmutableList<Integer> c = performer.midi_connections.get(3);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -535,7 +536,7 @@ public final class SoftVoice {
 
         if(performer == null)
             return;
-        int[] c = performer.midi_connections[3];
+        ImmutableList<Integer> c = performer.midi_connections.get(3);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -552,7 +553,7 @@ public final class SoftVoice {
 
         if(performer == null)
             return;
-        int[] c = performer.midi_connections[3];
+        ImmutableList<Integer> c = performer.midi_connections.get(3);
         if (c == null)
             return;
         for (int j : c) processConnection(j);
@@ -590,7 +591,7 @@ public final class SoftVoice {
         if (started) {
             audiostarted = true;
 
-            ModelByteBufferWavetable osc = performer.oscillators[0];
+            ModelByteBufferWavetable osc = performer.oscillators.get(0);
 
             osc_stream_off_transmitted = false;
             if (osc != null) {
@@ -624,7 +625,7 @@ public final class SoftVoice {
                     co_noteon_keynumber[0] += note_delta * (1.0 / 128.0);
                 }
 
-                int[] c = performer.midi_connections[4];
+                ImmutableList<Integer> c = performer.midi_connections.get(4);
                 if (c == null)
                     return;
                 for (int j : c) processConnection(j);
@@ -634,7 +635,7 @@ public final class SoftVoice {
             lfo.processControlLogic();
 
             for (int i = 0; i < performer.ctrl_connections.length; i++)
-                processConnection(performer.ctrl_connections[i]);
+                processConnection(performer.ctrl_connections.get(i));
 
             osc_stream.setPitch((float)co_osc_pitch[0]);
 

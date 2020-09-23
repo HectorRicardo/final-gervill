@@ -25,6 +25,7 @@
 package gervill.com.sun.media.sound;
 
 import own.main.ImmutableList;
+import own.main.ImmutableMap;
 
 import java.util.*;
 
@@ -294,18 +295,17 @@ public final class SoftPerformer {
 
     }
 
-    public int exclusiveClass;
-    public boolean selfNonExclusive;
-    public boolean forcedVelocity = false;
-    public boolean forcedKeynumber = false;
-    public ModelConnectionBlock[] connections;
-    public ModelByteBufferWavetable[] oscillators;
-    public final Map<Integer, int[]> midi_rpn_connections = new HashMap<>();
-    public final Map<Integer, int[]> midi_nrpn_connections = new HashMap<>();
-    public int[][] midi_ctrl_connections;
-    public int[][] midi_connections;
-    public int[] ctrl_connections;
-    private final List<Integer> ctrl_connections_list = new ArrayList<>();
+    public final int exclusiveClass;
+    public final boolean selfNonExclusive;
+    public final boolean forcedVelocity;
+    public final boolean forcedKeynumber;
+    public final ImmutableList<ModelConnectionBlock> connections;
+    public final ImmutableList<ModelByteBufferWavetable> oscillators;
+    public final ImmutableMap<Integer, ImmutableList<Integer>> midi_rpn_connections;
+    public final ImmutableMap<Integer, ImmutableList<Integer>> midi_nrpn_connections;
+    public final ImmutableList<ImmutableList<Integer>> midi_ctrl_connections;
+    public final ImmutableList<ImmutableList<Integer>> midi_connections;
+    public final ImmutableList<Integer> ctrl_connections;
 
     private String extractKeys(ModelConnectionBlock conn) {
         StringBuilder sb = new StringBuilder();
@@ -323,24 +323,24 @@ public final class SoftPerformer {
         return sb.toString();
     }
 
-    private void processSource(ModelSource src, int ix) {
+    private static void processSource(ModelSource src, int ix, List<Integer> ctrl_connections_list, Map<Integer, ImmutableList<Integer>> midi_nrpn_connections,  Map<Integer, ImmutableList<Integer>> midi_rpn_connections, List<ImmutableList<Integer>> midi_ctrl_connections, List<ImmutableList<Integer>> midi_connections) {
         ModelIdentifier id = src.getIdentifier();
         String o = id.getObject();
         switch (o) {
             case "midi_cc":
-                processMidiControlSource(src, ix);
+                processMidiControlSource(src, ix, midi_ctrl_connections);
                 break;
             case "midi_rpn":
-                processMidiRpnSource(src, ix);
+                processMidiRpnSource(src, ix, midi_rpn_connections);
                 break;
             case "midi_nrpn":
-                processMidiNrpnSource(src, ix);
+                processMidiNrpnSource(src, ix, midi_nrpn_connections);
                 break;
             case "midi":
-                processMidiSource(src, ix);
+                processMidiSource(src, ix, midi_connections);
                 break;
             case "noteon":
-                processNoteOnSource(src, ix);
+                processNoteOnSource(src, ix, midi_connections);
                 break;
             case "osc":
             case "mixer":
@@ -351,23 +351,21 @@ public final class SoftPerformer {
         }
     }
 
-    private void processMidiControlSource(ModelSource src, int ix) {
+    private static void processMidiControlSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_ctrl_connections) {
         String v = src.getIdentifier().getVariable();
         if (v == null)
             return;
         int c = Integer.parseInt(v);
-        if (midi_ctrl_connections[c] == null)
-            midi_ctrl_connections[c] = new int[]{ix};
+        if (midi_ctrl_connections.get(c) == null)
+            midi_ctrl_connections.set(c, ImmutableList.create(ix));
         else {
-            int[] olda = midi_ctrl_connections[c];
-            int[] newa = new int[olda.length + 1];
-            System.arraycopy(olda, 0, newa, 0, olda.length);
-            newa[newa.length - 1] = ix;
-            midi_ctrl_connections[c] = newa;
+            ImmutableList<Integer> olda = midi_ctrl_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, i -> ix);
+            midi_ctrl_connections.set(c, newa);
         }
     }
 
-    private void processNoteOnSource(ModelSource src, int ix) {
+    private static void processNoteOnSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_connections) {
         String v = src.getIdentifier().getVariable();
         int c = -1;
         if (v.equals("on"))
@@ -376,18 +374,16 @@ public final class SoftPerformer {
             c = 4;
         if (c == -1)
             return;
-        if (midi_connections[c] == null)
-            midi_connections[c] = new int[]{ix};
+        if (midi_connections.get(c) == null)
+            midi_connections.set(c, ImmutableList.create(ix));
         else {
-            int[] olda = midi_connections[c];
-            int[] newa = new int[olda.length + 1];
-            System.arraycopy(olda, 0, newa, 0, olda.length);
-            newa[newa.length - 1] = ix;
-            midi_connections[c] = newa;
+            ImmutableList<Integer> olda = midi_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
+            midi_connections.set(c, newa);
         }
     }
 
-    private void processMidiSource(ModelSource src, int ix) {
+    private static void processMidiSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_connections) {
         String v = src.getIdentifier().getVariable();
         int c = -1;
         if (v.equals("pitch"))
@@ -398,45 +394,39 @@ public final class SoftPerformer {
             c = 2;
         if (c == -1)
             return;
-        if (midi_connections[c] == null)
-            midi_connections[c] = new int[]{ix};
+        if (midi_connections.get(c) == null)
+            midi_connections.set(c, ImmutableList.create(ix));
         else {
-            int[] olda = midi_connections[c];
-            int[] newa = new int[olda.length + 1];
-            System.arraycopy(olda, 0, newa, 0, olda.length);
-            newa[newa.length - 1] = ix;
-            midi_connections[c] = newa;
+            ImmutableList<Integer> olda = midi_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
+            midi_connections.set(c, newa);
         }
     }
 
-    private void processMidiRpnSource(ModelSource src, int ix) {
+    private static void processMidiRpnSource(ModelSource src, int ix,  Map<Integer, ImmutableList<Integer>> midi_rpn_connections) {
         String v = src.getIdentifier().getVariable();
         if (v == null)
             return;
         int c = Integer.parseInt(v);
         if (midi_rpn_connections.get(c) == null)
-            midi_rpn_connections.put(c, new int[]{ix});
+            midi_rpn_connections.put(c, ImmutableList.create(ix));
         else {
-            int[] olda = midi_rpn_connections.get(c);
-            int[] newa = new int[olda.length + 1];
-            System.arraycopy(olda, 0, newa, 0, olda.length);
-            newa[newa.length - 1] = ix;
+            ImmutableList<Integer> olda = midi_rpn_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
             midi_rpn_connections.put(c, newa);
         }
     }
 
-    private void processMidiNrpnSource(ModelSource src, int ix) {
+    private static void processMidiNrpnSource(ModelSource src, int ix, Map<Integer, ImmutableList<Integer>> midi_nrpn_connections) {
         String v = src.getIdentifier().getVariable();
         if (v == null)
             return;
         int c = Integer.parseInt(v);
         if (midi_nrpn_connections.get(c) == null)
-            midi_nrpn_connections.put(c, new int[]{ix});
+            midi_nrpn_connections.put(c, ImmutableList.create(ix));
         else {
-            int[] olda = midi_nrpn_connections.get(c);
-            int[] newa = new int[olda.length + 1];
-            System.arraycopy(olda, 0, newa, 0, olda.length);
-            newa[newa.length - 1] = ix;
+            ImmutableList<Integer> olda = midi_nrpn_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
             midi_nrpn_connections.put(c, newa);
         }
     }
@@ -629,13 +619,14 @@ public final class SoftPerformer {
         // Control Time
         List<ModelConnectionBlock> connections = new ArrayList<>();
 
-        midi_ctrl_connections = new int[128][];
-        Arrays.fill(midi_ctrl_connections, null);
-        midi_connections = new int[5][];
-        Arrays.fill(midi_connections, null);
+        List<ImmutableList<Integer>> midi_ctrl_connections = new ArrayList<>(Collections.nCopies(128, null));
+        List<ImmutableList<Integer>> midi_connections = new ArrayList<>(Collections.nCopies(5, null));
 
         int ix = 0;
         boolean mustBeOnTop = false;
+
+        boolean forcedVelocity = false;
+        boolean forcedKeynumber = false;
 
         for (ModelConnectionBlock connection1 : connmap.values()) {
             if (connection1.getDestination() != null) {
@@ -656,23 +647,27 @@ public final class SoftPerformer {
                 connections.add(connection1);
         }
 
+        this.forcedVelocity = forcedVelocity;
+        this.forcedKeynumber = forcedKeynumber;
+
+        List<Integer> ctrl_connections_list = new ArrayList<>();
+        Map<Integer, ImmutableList<Integer>> midi_rpn_connections = new HashMap<>();
+        Map<Integer, ImmutableList<Integer>> midi_nrpn_connections = new HashMap<>();
+
         for (ModelConnectionBlock connection1 : connections) {
             for (ModelSource src : connection1.getSources()) {
-                processSource(src, ix);
+                processSource(src, ix, ctrl_connections_list, midi_nrpn_connections, midi_rpn_connections, midi_ctrl_connections, midi_connections);
             }
             ix++;
         }
 
-        this.connections = new ModelConnectionBlock[connections.size()];
-        connections.toArray(this.connections);
-
-        this.ctrl_connections = new int[ctrl_connections_list.size()];
-
-        for (int i = 0; i < this.ctrl_connections.length; i++)
-            this.ctrl_connections[i] = ctrl_connections_list.get(i);
-
-        oscillators = performer.getOscillators().toArray(new ModelByteBufferWavetable[performer.getOscillators().size()]);
-
+        this.midi_nrpn_connections = ImmutableMap.create(midi_nrpn_connections);
+        this.midi_rpn_connections = ImmutableMap.create(midi_rpn_connections);
+        this.midi_ctrl_connections = ImmutableList.create(midi_ctrl_connections);
+        this.midi_connections = ImmutableList.create(midi_connections);
+        ctrl_connections = ImmutableList.create(ctrl_connections_list.size(), ctrl_connections_list::get);
+        this.connections = ImmutableList.create(connections);
+        oscillators = performer.getOscillators();
     }
 
 }
