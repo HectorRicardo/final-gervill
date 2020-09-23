@@ -138,14 +138,6 @@ public final class ModelByteBufferWavetable {
         this.buffer8 = buffer8;
     }
 
-    public ModelByteBuffer get8BitExtensionBuffer() {
-        return buffer8;
-    }
-
-    public ModelByteBuffer getBuffer() {
-        return buffer;
-    }
-
     public AudioFormat getFormat() {
         return format;
     }

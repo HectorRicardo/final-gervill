@@ -25,7 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import java.io.*;
-import java.util.Collection;
 
 /**
  * This class is a pointer to a binary array either in memory or on disk.
@@ -37,8 +36,8 @@ public final class ModelByteBuffer {
     private final ModelByteBuffer root;
     private final File file;
     private final long fileoffset;
-    private byte[] buffer;
-    private long offset;
+    private final byte[] buffer;
+    private final long offset;
     private final long len;
 
     private class RandomFileInputStream extends InputStream {
@@ -221,50 +220,6 @@ public final class ModelByteBuffer {
 
     public long capacity() {
         return len;
-    }
-
-    public static void loadAll(Collection<ModelByteBuffer> col)
-            throws IOException {
-        File selfile = null;
-        RandomAccessFile raf = null;
-        try {
-            for (ModelByteBuffer mbuff : col) {
-                mbuff = mbuff.root;
-                if (mbuff.file == null)
-                    continue;
-                if (mbuff.buffer != null)
-                    continue;
-                if (selfile == null || !selfile.equals(mbuff.file)) {
-                    if (raf != null) {
-                        raf.close();
-                        raf = null;
-                    }
-                    selfile = mbuff.file;
-                    raf = new RandomAccessFile(mbuff.file, "r");
-                }
-                raf.seek(mbuff.fileoffset);
-                byte[] buffer = new byte[(int) mbuff.capacity()];
-
-                int read = 0;
-                int avail = buffer.length;
-                while (read != avail) {
-                    if (avail - read > 65536) {
-                        raf.readFully(buffer, read, 65536);
-                        read += 65536;
-                    } else {
-                        raf.readFully(buffer, read, avail - read);
-                        read = avail;
-                    }
-
-                }
-
-                mbuff.buffer = buffer;
-                mbuff.offset = 0;
-            }
-        } finally {
-            if (raf != null)
-                raf.close();
-        }
     }
 
 }

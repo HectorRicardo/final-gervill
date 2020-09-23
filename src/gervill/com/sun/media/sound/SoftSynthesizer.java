@@ -177,40 +177,8 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     private final Map<String, SoftInstrument> inslist = new HashMap<>();
 
-    private void getBuffers(ModelInstrument instrument,
-            List<ModelByteBuffer> buffers) {
-        for (ModelPerformer performer : instrument.getPerformers()) {
-            if (performer.getOscillators() != null) {
-                for (ModelByteBufferWavetable osc : performer.getOscillators()) {
-                    if (osc != null) {
-                        ModelByteBuffer buff = osc.getBuffer();
-                        if (buff != null)
-                            buffers.add(buff);
-                        buff = osc.get8BitExtensionBuffer();
-                        if (buff != null)
-                            buffers.add(buff);
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean loadSamples(List<ModelInstrument> instruments) {
-        List<ModelByteBuffer> buffers = new ArrayList<>();
-        for (ModelInstrument instrument : instruments)
-            getBuffers(instrument, buffers);
-        try {
-            ModelByteBuffer.loadAll(buffers);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
-    }
-
     private boolean loadInstruments(List<ModelInstrument> instruments) {
         if (!isOpen())
-            return false;
-        if (!loadSamples(instruments))
             return false;
 
         synchronized (control_mutex) {
@@ -222,9 +190,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                 }
             for (Instrument instrument : instruments) {
                 String pat = patchToString(instrument.getPatch());
-                SoftInstrument softins
-                        = new SoftInstrument((ModelInstrument) instrument);
-                inslist.put(pat, softins);
+                inslist.put(pat, new SoftInstrument((ModelInstrument) instrument));
             }
         }
 
