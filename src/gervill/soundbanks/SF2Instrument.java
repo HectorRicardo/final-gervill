@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-final class SF2Instrument extends ParsedInstrument {
+final class SF2Instrument extends ModelInstrument {
 
     private SF2Region globalregion;
     private final List<SF2InstrumentRegion> regions;

@@ -224,7 +224,6 @@ public class SynthesizerPlayer {
             System.out.println(synthesizer.loadAllInstruments(soundbank));
             System.out.println(synthesizer.loadInstrument(instrument));
             System.out.println(synthesizer.loadInstruments(soundbank, new Patch[] { new Patch(1, 2) }));
-            System.out.println(synthesizer.remapInstrument(instrument, instrument));
             synthesizer.unloadAllInstruments(soundbank);
             synthesizer.unloadInstrument(instrument);
             synthesizer.unloadInstruments(soundbank, new Patch[] { new Patch(1, 2) });

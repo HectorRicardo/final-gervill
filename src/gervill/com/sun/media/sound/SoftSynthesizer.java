@@ -403,33 +403,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    public boolean remapInstrument(Instrument from, Instrument to) {
-
-        if (from == null)
-            throw new NullPointerException();
-        if (to == null)
-            throw new NullPointerException();
-        if (!(from instanceof ModelInstrument)) {
-            throw new IllegalArgumentException("Unsupported instrument: " +
-                    from.toString());
-        }
-        if (!(to instanceof ModelInstrument)) {
-            throw new IllegalArgumentException("Unsupported instrument: " +
-                    to.toString());
-        }
-        if (!isOpen())
-            return false;
-
-        synchronized (control_mutex) {
-            if (!loadedlist.containsValue(to))
-                throw new IllegalArgumentException("Instrument to is not loaded.");
-            unloadInstrument(from);
-            ModelMappedInstrument mfrom = new ModelMappedInstrument(
-                    (ModelInstrument)to, from.getPatch());
-            return loadInstrument(mfrom);
-        }
-    }
-
     public Soundbank getDefaultSoundbank() {
         synchronized (SoftSynthesizer.class) {
             if (defaultSoundBank != null)

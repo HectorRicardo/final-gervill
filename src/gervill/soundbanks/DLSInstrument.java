@@ -38,7 +38,7 @@ import java.util.*;
  *
  * @author Karl Helgason
  */
-final class DLSInstrument extends ParsedInstrument {
+final class DLSInstrument extends ModelInstrument {
 
     private final ImmutableList<DLSRegion> regions;
     private final ImmutableList<DLSModulator> modulators;

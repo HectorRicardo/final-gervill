@@ -47,6 +47,8 @@ import own.main.ImmutableList;
  */
 public abstract class ModelInstrument extends Instrument {
 
+    private ImmutableList<ModelPerformer> performers;
+
     protected ModelInstrument(Patch patch, String name) {
         super(patch, name);
     }
@@ -55,6 +57,13 @@ public abstract class ModelInstrument extends Instrument {
         return ModelStandardIndexedDirector.create(performers, player);
     }
 
-    public abstract ImmutableList<ModelPerformer> getPerformers();
+    public ImmutableList<ModelPerformer> getPerformers() {
+        if (performers == null) {
+            performers = ImmutableList.create(buildPerformers());
+        }
+        return performers;
+    }
+
+    protected abstract ModelPerformer[] buildPerformers();
 
 }
