@@ -508,7 +508,7 @@ public final class SoftChannel implements MidiChannel {
         int delay = play_delay;
         boolean releasetriggered = play_releasetriggered;
 
-        SoftPerformer p = current_instrument.getPerformer(performerIndex);
+        SoftPerformer p = current_instrument.getPerformers().get(performerIndex);
 
         if (firstVoice) {
             firstVoice = false;

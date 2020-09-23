@@ -25,6 +25,7 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.Instrument;
+import own.main.ImmutableList;
 
 /**
  * Software synthesizer internal instrument.
@@ -33,33 +34,22 @@ import gervill.javax.sound.midi.Instrument;
  */
 public final class SoftInstrument extends Instrument {
 
-    private SoftPerformer[] performers;
-    private ModelPerformer[] modelperformers;
+    private final ImmutableList<SoftPerformer> performers;
+    private final ModelPerformer[] modelperformers;
     private final ModelInstrument ins;
 
     public SoftInstrument(ModelInstrument ins) {
         super(ins.getPatch(), ins.getName());
         this.ins = ins;
-        initPerformers(ins.getPerformers());
-    }
-
-    private void initPerformers(ModelPerformer[] modelperformers) {
-        this.modelperformers = modelperformers;
-        performers = new SoftPerformer[modelperformers.length];
-        for (int i = 0; i < modelperformers.length; i++)
-            performers[i] = new SoftPerformer(modelperformers[i]);
+        modelperformers = ins.getPerformers();
+        performers = ImmutableList.create(modelperformers.length, index -> new SoftPerformer(modelperformers[index]));
     }
 
     public ModelStandardIndexedDirector getDirector(SoftChannel player) {
         return ins.getDirector(modelperformers, player);
     }
 
-    /* am: currently getPerformers() is not used (replaced with getPerformer(int))
-    public SoftPerformer[] getPerformers() {
+    public ImmutableList<SoftPerformer> getPerformers() {
         return performers;
-    }
-    */
-    public SoftPerformer getPerformer(int index) {
-        return performers[index];
     }
 }
