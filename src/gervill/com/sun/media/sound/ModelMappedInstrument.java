@@ -25,6 +25,7 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.Patch;
+import own.main.ImmutableList;
 
 /**
  * This class is used to map instrument to another patch.
@@ -40,7 +41,7 @@ public final class ModelMappedInstrument extends ModelInstrument {
         this.ins = ins;
     }
 
-    public ModelPerformer[] getPerformers() {
+    public ImmutableList<ModelPerformer> getPerformers() {
         return ins.getPerformers();
     }
 

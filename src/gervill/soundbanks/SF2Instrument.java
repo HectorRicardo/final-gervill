@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-final class SF2Instrument extends ModelInstrument {
+final class SF2Instrument extends ParsedInstrument {
 
     private SF2Region globalregion;
     private final List<SF2InstrumentRegion> regions;
@@ -61,7 +61,7 @@ final class SF2Instrument extends ModelInstrument {
     }
 
     @Override
-    public ModelPerformer[] getPerformers() {
+    protected ModelPerformer[] buildPerformers() {
         int performercount = 0;
         for (SF2InstrumentRegion presetzone : regions)
             performercount += presetzone.getLayer().getRegions().size();

@@ -38,7 +38,7 @@ import java.util.*;
  *
  * @author Karl Helgason
  */
-final class DLSInstrument extends ModelInstrument {
+final class DLSInstrument extends ParsedInstrument {
 
     private final ImmutableList<DLSRegion> regions;
     private final ImmutableList<DLSModulator> modulators;
@@ -230,7 +230,7 @@ final class DLSInstrument extends ModelInstrument {
     }
 
     @Override
-    public ModelPerformer[] getPerformers() {
+    protected ModelPerformer[] buildPerformers() {
         List<ModelPerformer> performers = new ArrayList<>();
 
         Map<String, DLSModulator> modmap = new HashMap<>();

@@ -26,6 +26,7 @@ package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
+import own.main.ImmutableList;
 
 /**
  * The model instrument class.
@@ -50,10 +51,10 @@ public abstract class ModelInstrument extends Instrument {
         super(patch, name);
     }
 
-    public ModelStandardIndexedDirector getDirector(ModelPerformer[] performers, SoftChannel player) {
+    public ModelStandardIndexedDirector getDirector(ImmutableList<ModelPerformer> performers, SoftChannel player) {
         return ModelStandardIndexedDirector.create(performers, player);
     }
 
-    public abstract ModelPerformer[] getPerformers();
+    public abstract ImmutableList<ModelPerformer> getPerformers();
 
 }

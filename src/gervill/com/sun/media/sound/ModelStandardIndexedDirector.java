@@ -51,11 +51,11 @@ public final class ModelStandardIndexedDirector {
         this.mat = Immutable2DList.create(mat);
     }
 
-    public static ModelStandardIndexedDirector create(ModelPerformer[] performers, SoftChannel player) {
+    public static ModelStandardIndexedDirector create(ImmutableList<ModelPerformer> performers, SoftChannel player) {
         Byte[][] trantables = new Byte[2][129];
         int[] counters = new int[trantables.length];
         Integer[][] mat = buildindex(performers, trantables, counters);
-        return new ModelStandardIndexedDirector(player, performers.length > 0, trantables, counters[0], mat);
+        return new ModelStandardIndexedDirector(player, performers.size() > 0, trantables, counters[0], mat);
     }
 
     private ImmutableList<Integer> lookupIndex(int x, int y) {
@@ -78,7 +78,7 @@ public final class ModelStandardIndexedDirector {
         return Math.min(value, 127);
     }
 
-    private static Integer[][] buildindex(ModelPerformer[] performers, Byte[][] trantables, int[] counters) {
+    private static Integer[][] buildindex(ImmutableList<ModelPerformer> performers, Byte[][] trantables, int[] counters) {
         for (ModelPerformer performer : performers) {
             int keyFrom = performer.getKeyFrom();
             int keyTo = performer.getKeyTo();
