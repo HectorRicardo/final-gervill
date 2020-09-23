@@ -31,7 +31,6 @@ import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.SourceDataLine;
 import gervill.soundbanks.EmergencySoundbank;
-import own.main.ImmutableList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -171,15 +170,11 @@ public final class SoftSynthesizer implements AutoCloseable {
     private final SoftLinearResampler2 resampler = new SoftLinearResampler2();
 
     private final static int MAX_POLY = 64;
-    private final long latency = 120000L;
 
     private SoftMainMixer mainmixer;
     private final SoftVoice[] voices = new SoftVoice[MAX_POLY];
 
-    private final Map<String, SoftInstrument> inslist
-            = new HashMap<>();
-    private final Map<String, ModelInstrument> loadedlist
-            = new HashMap<>();
+    private final Map<String, SoftInstrument> inslist = new HashMap<>();
 
     private void getBuffers(ModelInstrument instrument,
             List<ModelByteBuffer> buffers) {
@@ -229,7 +224,6 @@ public final class SoftSynthesizer implements AutoCloseable {
                 SoftInstrument softins
                         = new SoftInstrument((ModelInstrument) instrument);
                 inslist.put(pat, softins);
-                loadedlist.put(pat, (ModelInstrument) instrument);
             }
         }
 
@@ -307,21 +301,9 @@ public final class SoftSynthesizer implements AutoCloseable {
         return voices;
     }
 
-    public long getLatency() {
-        synchronized (control_mutex) {
-            return latency;
-        }
-    }
-
     public AudioFormat getFormat() {
         synchronized (control_mutex) {
             return format;
-        }
-    }
-
-    public int getMaxPolyphony() {
-        synchronized (control_mutex) {
-            return MAX_POLY;
         }
     }
 
@@ -335,7 +317,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     public VoiceStatus[] getVoiceStatus() {
         if (!isOpen()) {
             VoiceStatus[] tempVoiceStatusArray
-                    = new VoiceStatus[getMaxPolyphony()];
+                    = new VoiceStatus[MAX_POLY];
             for (int i = 0; i < tempVoiceStatusArray.length; i++) {
                 VoiceStatus b = new VoiceStatus();
                 b.active = false;
@@ -396,7 +378,6 @@ public final class SoftSynthesizer implements AutoCloseable {
             for (SoftChannel c: channels)
                 c.current_instrument = null;
             inslist.remove(pat);
-            loadedlist.remove(pat);
             for (SoftChannel channel : channels) {
                 channel.allSoundOff();
             }
@@ -417,24 +398,6 @@ public final class SoftSynthesizer implements AutoCloseable {
             }
         }
         return defaultSoundBank;
-    }
-
-    public ImmutableList<Instrument> getAvailableInstruments() {
-        Soundbank defsbk = getDefaultSoundbank();
-        return defsbk == null ? null : defsbk.getInstruments();
-    }
-
-    public Instrument[] getLoadedInstruments() {
-        if (!isOpen())
-            return new Instrument[0];
-
-        synchronized (control_mutex) {
-            ModelInstrument[] inslist_array =
-                    new ModelInstrument[loadedlist.values().size()];
-            loadedlist.values().toArray(inslist_array);
-            Arrays.sort(inslist_array, ModelInstrumentComparator.COMPARATOR);
-            return inslist_array;
-        }
     }
 
     public boolean loadAllInstruments(Soundbank soundbank) {
@@ -502,8 +465,9 @@ public final class SoftSynthesizer implements AutoCloseable {
                 weakstream = new WeakAudioStream(ais);
                 ais = weakstream.getAudioInputStream();
 
+                long latency = 120000L;
                 int bufferSize = getFormat().getFrameSize()
-                    * (int)(getFormat().getFrameRate() * (latency/1000000f));
+                    * (int)(getFormat().getFrameRate() * (latency /1000000f));
                 // can throw LineUnavailableException,
                 // IllegalArgumentException, SecurityException
                 sourceDataLine.open(getFormat(), bufferSize);
@@ -619,7 +583,6 @@ public final class SoftSynthesizer implements AutoCloseable {
             sourceDataLine.close();
 
             inslist.clear();
-            loadedlist.clear();
         }
     }
 

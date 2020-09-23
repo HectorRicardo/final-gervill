@@ -207,16 +207,7 @@ public class SynthesizerPlayer {
             System.out.println(soundbank.getVersion());
 
             // Synthesizer
-            for (Instrument instrument : synthesizer.getAvailableInstruments()) {
-                System.out.println(instrument.getName());
-            }
-
             soundbank = synthesizer.getDefaultSoundbank();
-            System.out.println(synthesizer.getLatency());
-            for (Instrument instrument : synthesizer.getLoadedInstruments()) {
-                System.out.println(instrument.getName());
-            }
-            System.out.println(synthesizer.getMaxPolyphony());
             for (VoiceStatus vs : synthesizer.getVoiceStatus()) {
                 System.out.println(vs.active);
             }
