@@ -39,6 +39,8 @@ import java.util.*;
  */
 public final class EmergencySoundbank {
 
+    private static final AudioFormat SAMPLE_FORMAT = new AudioFormat(44100, 16, 1, true);
+
     private EmergencySoundbank() {}
 
     private final static String[] general_midi_instruments = {
@@ -2367,8 +2369,7 @@ public final class EmergencySoundbank {
     private static SF2Sample newSimpleFFTSample(double[] data, double base, int fadeuptime) {
 
         int fftsize = data.length / 2;
-        AudioFormat format = new AudioFormat(44100, 16, 1, true);
-        double basefreq = (base / fftsize) * format.getSampleRate() * 0.5;
+        double basefreq = (base / fftsize) * SAMPLE_FORMAT.getSampleRate() * 0.5;
 
         randomPhase(data);
         ifft(data);
@@ -2377,7 +2378,7 @@ public final class EmergencySoundbank {
         float[] fdata = toFloat(data);
         fdata = loopExtend(fdata, fdata.length + 512);
         fadeUp(fdata, fadeuptime);
-        byte[] bdata = toBytes(fdata, format);
+        byte[] bdata = toBytes(fdata, SAMPLE_FORMAT);
 
         /*
          * Create SoundFont2 sample.
@@ -2385,14 +2386,13 @@ public final class EmergencySoundbank {
 
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
 
-        return new SF2Sample(bdata, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
+        return new SF2Sample(bdata, fftsize + 256, (long) SAMPLE_FORMAT.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
     }
 
     private static SF2Sample newSimpleFFTSample_dist(double[] data, double base) {
 
         int fftsize = data.length / 2;
-        AudioFormat format = new AudioFormat(44100, 16, 1, true);
-        double basefreq = (base / fftsize) * format.getSampleRate() * 0.5;
+        double basefreq = (base / fftsize) * SAMPLE_FORMAT.getSampleRate() * 0.5;
 
         randomPhase(data);
         ifft(data);
@@ -2407,28 +2407,27 @@ public final class EmergencySoundbank {
         float[] fdata = toFloat(data);
         fdata = loopExtend(fdata, fdata.length + 512);
         fadeUp(fdata, 80);
-        byte[] bdata = toBytes(fdata, format);
+        byte[] bdata = toBytes(fdata, SAMPLE_FORMAT);
 
         /*
          * Create SoundFont2 sample.
          */
         double orgnote = (69 + 12) + (12 * Math.log(basefreq / 440.0) / Math.log(2));
 
-        return new SF2Sample(bdata, fftsize + 256, (long) format.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
+        return new SF2Sample(bdata, fftsize + 256, (long) SAMPLE_FORMAT.getSampleRate(), (int) orgnote, (byte) (-(orgnote - (int) orgnote) * 100.0));
     }
 
     private static SF2Sample newSimpleDrumSample(double[] data, int originalPitch) {
 
         int fftsize = data.length;
-        AudioFormat format = new AudioFormat(44100, 16, 1, true);
 
-        byte[] bdata = toBytes(toFloat(realPart(data)), format);
+        byte[] bdata = toBytes(toFloat(realPart(data)), SAMPLE_FORMAT);
 
         /*
          * Create SoundFont2 sample.
          */
 
-        return new SF2Sample(bdata, fftsize + 256, (long) format.getSampleRate(), originalPitch);
+        return new SF2Sample(bdata, fftsize + 256, (long) SAMPLE_FORMAT.getSampleRate(), originalPitch);
     }
 
     private static SF2Layer newLayer(SF2Region globalRegion, SF2Sample sample, Map<Integer, Short> generators) {

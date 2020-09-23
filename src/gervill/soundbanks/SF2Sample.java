@@ -36,21 +36,21 @@ final class SF2Sample {
 
     private final long startLoop;
     private final long endLoop;
-    private final long sampleRate;
     private final int originalPitch;
     private final byte pitchCorrection;
     private final ModelByteBuffer data;
     private final ModelByteBuffer data24;
+    private final AudioFormat audioFormat;
 
     SF2Sample(ModelByteBuffer data, ModelByteBuffer data24, long startLoop, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
         super();
         this.startLoop = startLoop;
         this.endLoop = endLoop;
-        this.sampleRate = sampleRate;
         this.originalPitch = originalPitch;
         this.pitchCorrection = pitchCorrection;
         this.data = data;
         this.data24 = data24;
+        this.audioFormat = new AudioFormat(sampleRate, 16, 1, true);
     }
 
     SF2Sample(byte[] data, long endLoop, long sampleRate, int originalPitch, byte pitchCorrection) {
@@ -70,7 +70,7 @@ final class SF2Sample {
     }
 
     AudioFormat getFormat() {
-        return new AudioFormat(sampleRate, 16, 1, true);
+        return audioFormat;
     }
 
     long getEndLoop() {
