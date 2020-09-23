@@ -314,40 +314,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    public VoiceStatus[] getVoiceStatus() {
-        if (!isOpen()) {
-            VoiceStatus[] tempVoiceStatusArray
-                    = new VoiceStatus[MAX_POLY];
-            for (int i = 0; i < tempVoiceStatusArray.length; i++) {
-                VoiceStatus b = new VoiceStatus();
-                b.active = false;
-                b.bank = 0;
-                b.channel = 0;
-                b.note = 0;
-                b.program = 0;
-                b.volume = 0;
-                tempVoiceStatusArray[i] = b;
-            }
-            return tempVoiceStatusArray;
-        }
-
-        synchronized (control_mutex) {
-            VoiceStatus[] tempVoiceStatusArray = new VoiceStatus[voices.length];
-            for (int i = 0; i < voices.length; i++) {
-                VoiceStatus a = voices[i];
-                VoiceStatus b = new VoiceStatus();
-                b.active = a.active;
-                b.bank = a.bank;
-                b.channel = a.channel;
-                b.note = a.note;
-                b.program = a.program;
-                b.volume = a.volume;
-                tempVoiceStatusArray[i] = b;
-            }
-            return tempVoiceStatusArray;
-        }
-    }
-
     public boolean isSoundbankSupported(Soundbank soundbank) {
         for (Instrument ins: soundbank.getInstruments())
             if (!(ins instanceof ModelInstrument))

@@ -208,9 +208,6 @@ public class SynthesizerPlayer {
 
             // Synthesizer
             soundbank = synthesizer.getDefaultSoundbank();
-            for (VoiceStatus vs : synthesizer.getVoiceStatus()) {
-                System.out.println(vs.active);
-            }
             System.out.println(synthesizer.isSoundbankSupported(soundbank));
             System.out.println(synthesizer.loadAllInstruments(soundbank));
             System.out.println(synthesizer.loadInstrument(instrument));

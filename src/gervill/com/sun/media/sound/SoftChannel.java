@@ -269,8 +269,6 @@ public final class SoftChannel implements MidiChannel {
         voice.exclusiveClass = p.exclusiveClass;
         voice.softchannel = this;
         voice.channel = channel;
-        voice.bank = bank;
-        voice.program = program;
         voice.performer = p;
         voice.objects.clear();
         voice.objects.put("midi", co_midi.get(noteNumber));

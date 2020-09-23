@@ -24,7 +24,6 @@
  */
 package gervill.com.sun.media.sound;
 
-import gervill.javax.sound.midi.VoiceStatus;
 import own.main.ImmutableList;
 
 import java.io.IOException;
@@ -37,7 +36,36 @@ import java.util.Map;
  *
  * @author Karl Helgason
  */
-public final class SoftVoice extends VoiceStatus {
+public final class SoftVoice {
+
+    /**
+     * Indicates whether the voice is currently processing a MIDI note.
+     * See the explanation of
+     * <A HREF="#description_of_active">active and inactive voices</A>.
+     */
+    boolean active = false;
+
+
+    /**
+     * The MIDI channel on which this voice is playing.  The value is a
+     * zero-based channel number if the voice is active, or
+     * unspecified if the voice is inactive.
+     *
+     * see MidiChannel
+     * see #active
+     */
+    int channel = 0;
+
+
+    /**
+     * The MIDI note that this voice is playing.  The range for an active voice
+     * is from 0 to 127 in semitones, with 60 referring to Middle C.
+     * The value is unspecified if the voice is inactive.
+     *
+     * see MidiChannel#noteOn
+     * see #active
+     */
+    int note = 0;
 
     public int exclusiveClass = 0;
     public boolean releaseTriggered = false;
@@ -652,8 +680,6 @@ public final class SoftVoice extends VoiceStatus {
                  *   co_mixer_gain[0] -= 960;
                  */
             }
-
-            volume = (int)(Math.sqrt(gain) * 128);
 
             // gain *= 0.2;
 
