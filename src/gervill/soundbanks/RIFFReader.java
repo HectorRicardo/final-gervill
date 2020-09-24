@@ -40,17 +40,13 @@ final class RIFFReader extends InputStream {
     private long filepointer = 0;
     private final String fourcc;
     private String riff_type = null;
-    private InputStream stream;
+    private final InputStream stream;
     private long avail;
     private RIFFReader lastiterator = null;
 
     RIFFReader(InputStream stream) throws IOException {
         avail = Integer.MAX_VALUE;
-        if (stream instanceof RIFFReader) {
-            root = ((RIFFReader) stream).root;
-        } else {
-            root = this;
-        }
+        root = stream instanceof RIFFReader ? (((RIFFReader) stream).root) : this;
 
         this.stream = stream;
 
@@ -297,6 +293,5 @@ final class RIFFReader extends InputStream {
         finish();
         if (this == root)
             stream.close();
-        stream = null;
     }
 }

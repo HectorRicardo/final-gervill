@@ -155,13 +155,8 @@ public final class DLSSoundbank extends Soundbank {
     private static final DLSID DLSID_SamplePlaybackRate = new DLSID(0x2a91f713,
             0xa4bf, 0x11d2, 0xbb, 0xdf, 0x60, 0x8, 0x33, 0xdb, 0xd8);
 
-    private final long major;
-    private final long minor;
-
-    DLSSoundbank(String name, String engineers, String comments, long major, long minor, List<Instrument> instruments) {
-        super(name, engineers, comments, instruments);
-        this.major = major;
-        this.minor = minor;
+    DLSSoundbank(List<Instrument> instruments) {
+        super(instruments);
     }
 
     public static DLSSoundbank createSoundbank(URL url) throws IOException {
@@ -191,69 +186,27 @@ public final class DLSSoundbank extends Soundbank {
 
         Map<DLSRegion, Integer> temp_rgnassign = new HashMap<>();
 
-        String name = "untitled";
-        String engineers = null;
-        String comments = null;
-        long major = -1;
-        long minor = -1;
         List<DLSSample> samples = new ArrayList<>();
         List<Instrument> instruments = new ArrayList<>();
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
-            if (chunk.getFormat().equals("LIST")) {
-                if (chunk.getType().equals("INFO")) {
-                    name = null;
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        String format = subchunk.getFormat();
-                        switch (format) {
-                            case "INAM":
-                                name = subchunk.readString(subchunk.available());
-                                break;
-                            case "ICRD":
-                            case "ITCH":
-                            case "ISRF":
-                            case "ISRC":
-                            case "ISBJ":
-                            case "IMED":
-                            case "IKEY":
-                            case "IGNR":
-                            case "ICMS":
-                            case "IART":
-                            case "IARL":
-                            case "ISFT":
-                            case "ICOP":
-                            case "IPRD":
-                                subchunk.readString(subchunk.available());
-                                break;
-                            case "IENG":
-                                engineers = subchunk.readString(subchunk.available());
-                                break;
-                            case "ICMT":
-                                comments = subchunk.readString(subchunk.available());
-                                break;
-                        }
-                    }
+            String format = chunk.getFormat();
+            if (format.equals("cdl ")) {
+                if (readCdlChunkInverted(chunk)) {
+                    throw new RuntimeException("DLS file isn't supported!");
                 }
-                if (chunk.getType().equals("lins"))
-                    readLinsChunk(chunk, instruments, temp_rgnassign);
-                if (chunk.getType().equals("wvpl"))
-                    readWvplChunk(chunk, sampleFile, samples);
-            } else {
-                if (chunk.getFormat().equals("cdl ")) {
-                    if (readCdlChunkInverted(chunk)) {
-                        throw new RuntimeException("DLS file isn't supported!");
-                    }
-                }
-                // skipped because we will load the entire bank into memory
-                // long instrumentcount = chunk.readUnsignedInt();
-                // System.out.println("instrumentcount = "+ instrumentcount);
-                // Pool Table Chunk
-                // skipped because we will load the entire bank into memory
-                if (chunk.getFormat().equals("vers")) {
-                    major = chunk.readUnsignedInt();
-                    minor = chunk.readUnsignedInt();
+            } else if (format.equals("LIST")) {
+                switch (chunk.getType()) {
+                    case "INFO":
+                        chunk.finish();
+                        break;
+                    case "lins":
+                        readLinsChunk(chunk, instruments, temp_rgnassign);
+                        break;
+                    case "wvpl":
+                        readWvplChunk(chunk, sampleFile, samples);
+                        break;
                 }
             }
         }
@@ -262,7 +215,7 @@ public final class DLSSoundbank extends Soundbank {
             entry.getKey().setSample(samples.get(entry.getValue()));
         }
 
-        return new DLSSoundbank(name, engineers, comments, major, minor, instruments);
+        return new DLSSoundbank(instruments);
     }
 
     private static boolean cdlIsQuerySupported(DLSID uuid) {
@@ -403,33 +356,10 @@ public final class DLSSoundbank extends Soundbank {
     private static void readLinsChunk(RIFFReader riff, List<Instrument> instruments, Map<DLSRegion, Integer> temp_rgnassign) throws IOException {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
-            if (chunk.getFormat().equals("LIST")) {
-                if (chunk.getType().equals("ins "))
-                    readInsChunk(chunk, instruments, temp_rgnassign);
+            if (chunk.getFormat().equals("LIST") && chunk.getType().equals("ins ")) {
+                readInsChunk(chunk, instruments, temp_rgnassign);
             }
         }
-    }
-
-    private static final Set<String> FORMATS;
-    static {
-        Set<String> formats = new HashSet<>();
-        formats.add("ICRD");
-        formats.add("ITCH");
-        formats.add("ISRF");
-        formats.add("ISRC");
-        formats.add("ISBJ");
-        formats.add("IMED");
-        formats.add("IKEY");
-        formats.add("IGNR");
-        formats.add("ICMS");
-        formats.add("IART");
-        formats.add("IARL");
-        formats.add("ISFT");
-        formats.add("ICOP");
-        formats.add("IPRD");
-        formats.add("IENG");
-        formats.add("ICMT");
-        FORMATS = Collections.unmodifiableSet(formats);
     }
 
     private static void readInsChunk(RIFFReader riff, List<Instrument> instruments, Map<DLSRegion, Integer> temp_rgnassign) throws IOException {
@@ -440,72 +370,68 @@ public final class DLSSoundbank extends Soundbank {
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
-            String format = chunk.getFormat();
-            if (format.equals("LIST")) {
-                if (chunk.getType().equals("INFO")) {
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        String formatAux = subchunk.getFormat();
-                        if (formatAux.equals("INAM")) {
-                            name = subchunk.readString(subchunk.available());
-                        } else if (FORMATS.contains(formatAux)) {
-                            subchunk.readString(subchunk.available());
-                        }
-                    }
-                }
-                if (chunk.getType().equals("lrgn")) {
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        if (subchunk.getFormat().equals("LIST")) {
-                            if (subchunk.getType().equals("rgn ")) {
-                                DLSRegion split = readRgnChunk(subchunk, temp_rgnassign);
-                                if (split != null)
-                                    regions.add(split);
+            switch (chunk.getFormat()) {
+                case "LIST":
+                    switch (chunk.getType()) {
+                        case "INFO":
+                            while (chunk.hasNextChunk()) {
+                                RIFFReader subchunk = chunk.nextChunk();
+                                String formatAux = subchunk.getFormat();
+                                if (formatAux.equals("INAM")) {
+                                    name = subchunk.readString(subchunk.available());
+                                } else {
+                                    subchunk.finish();
+                                }
                             }
-                            if (subchunk.getType().equals("rgn2")) {
-                                // support for DLS level 2 regions
-                                DLSRegion split = readRgnChunk(subchunk, temp_rgnassign);
-                                if (split != null)
-                                    regions.add(split);
+                            break;
+                        case "lrgn":
+                            while (chunk.hasNextChunk()) {
+                                RIFFReader subchunk = chunk.nextChunk();
+                                if (subchunk.getFormat().equals("LIST")) {
+                                    if (subchunk.getType().equals("rgn ")) {
+                                        DLSRegion split = readRgnChunk(subchunk, temp_rgnassign);
+                                        if (split != null)
+                                            regions.add(split);
+                                    }
+                                    if (subchunk.getType().equals("rgn2")) {
+                                        // support for DLS level 2 regions
+                                        DLSRegion split = readRgnChunk(subchunk, temp_rgnassign);
+                                        if (split != null)
+                                            regions.add(split);
+                                    }
+                                }
                             }
-                        }
+                            break;
+                        case "lart":
+                            while (chunk.hasNextChunk()) {
+                                RIFFReader subchunk = chunk.nextChunk();
+                                if (subchunk.getFormat().equals("art1"))
+                                    readArtChunk(modulators, subchunk, 1);
+                            }
+                            break;
+                        case "lar2":
+                            // support for DLS level 2 ART
+                            while (chunk.hasNextChunk()) {
+                                RIFFReader subchunk = chunk.nextChunk();
+                                if (subchunk.getFormat().equals("art2"))
+                                    readArtChunk(modulators, subchunk, 2);
+                            }
+                            break;
                     }
-                }
-                if (chunk.getType().equals("lart")) {
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        if (subchunk.getFormat().equals("art1"))
-                            readArtChunk(modulators, subchunk, 1);
-                    }
-                }
-                if (chunk.getType().equals("lar2")) {
-                    // support for DLS level 2 ART
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        if (subchunk.getFormat().equals("art2"))
-                            readArtChunk(modulators, subchunk, 2);
-                    }
-                }
-            } else {
-                if (format.equals("dlid")) {
-                    chunk.readFully(new byte[16]);
-                }
-                if (format.equals("insh")) {
-                    chunk.readUnsignedInt(); // Read Region Count - ignored
-
+                    break;
+                case "insh":
+                    chunk.skip(4); // Read Region Count - ignored
                     int bank = chunk.read();             // LSB
                     bank += (chunk.read() & 127) << 7;   // MSB
-                    chunk.read(); // Read Reserved byte
+                    chunk.skip(1);
                     int drumins = chunk.read();          // Drum Instrument
-
                     int id = chunk.read() & 127; // Read only first 7 bits
-                    chunk.read(); // Read Reserved byte
-                    chunk.read(); // Read Reserved byte
-                    chunk.read(); // Read Reserved byte
-
+                    chunk.skip(3);
                     patch = new Patch(bank, id, (drumins & 128) > 0);
-                }
-
+                    break;
+                case "dlid":
+                    chunk.skip(16);
+                    break;
             }
         }
 
@@ -539,13 +465,7 @@ public final class DLSSoundbank extends Soundbank {
         if (size - 8 != 0)
             riff.skip(size - 8);
 
-        for (int i = 0; i < count; i++) {
-            riff.readUnsignedShort();
-            riff.readUnsignedShort();
-            riff.readUnsignedShort();
-            riff.readUnsignedShort();
-            riff.readInt();
-        }
+        riff.skip(12 * count);
     }
 
     private static DLSRegion readRgnChunk(RIFFReader riff, Map<DLSRegion, Integer> temp_rgnassign)
@@ -562,43 +482,46 @@ public final class DLSSoundbank extends Soundbank {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
-            if (format.equals("LIST")) {
-                if (chunk.getType().equals("lart")) {
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        if (subchunk.getFormat().equals("art1"))
-                            readArtChunkSkip(subchunk);
+            switch (format) {
+                case "cdl ":
+                    if (readCdlChunkInverted(chunk)) {
+                        return null;
                     }
-                }
-                if (chunk.getType().equals("lar2")) {
-                    // support for DLS level 2 ART
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        if (subchunk.getFormat().equals("art2"))
-                            readArtChunkSkip(subchunk);
+                    break;
+                case "LIST":
+                    if (chunk.getType().equals("lart")) {
+                        while (chunk.hasNextChunk()) {
+                            RIFFReader subchunk = chunk.nextChunk();
+                            if (subchunk.getFormat().equals("art1"))
+                                readArtChunkSkip(subchunk);
+                        }
                     }
-                }
-            } else {
-                if (format.equals("cdl ") && readCdlChunkInverted(chunk)) {
-                    return null;
-                }
-                if (format.equals("rgnh")) {
+                    if (chunk.getType().equals("lar2")) {
+                        // support for DLS level 2 ART
+                        while (chunk.hasNextChunk()) {
+                            RIFFReader subchunk = chunk.nextChunk();
+                            if (subchunk.getFormat().equals("art2"))
+                                readArtChunkSkip(subchunk);
+                        }
+                    }
+                    break;
+                case "rgnh":
                     keyfrom = chunk.readUnsignedShort();
                     keyto = chunk.readUnsignedShort();
                     velfrom = chunk.readUnsignedShort();
                     velto = chunk.readUnsignedShort();
                     chunk.readUnsignedShort();
                     exclusiveClass = chunk.readUnsignedShort();
-                }
-                if (format.equals("wlnk")) {
+                    break;
+                case "wlnk":
                     fusoptions = chunk.readUnsignedShort();
                     chunk.readUnsignedShort();
                     chunk.readUnsignedInt();
-                    sampleid = (int)chunk.readUnsignedInt();
-                }
-                if (format.equals("wsmp")) {
+                    sampleid = (int) chunk.readUnsignedInt();
+                    break;
+                case "wsmp":
                     sampleoptions = readWsmpChunk(chunk);
-                }
+                    break;
             }
         }
 
@@ -654,13 +577,7 @@ public final class DLSSoundbank extends Soundbank {
             String format = chunk.getFormat();
             if (format.equals("LIST")) {
                 if (chunk.getType().equals("INFO")) {
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        String formatAux = subchunk.getFormat();
-                        if (formatAux.equals("INAM") || FORMATS.contains(formatAux)) {
-                            subchunk.readString(subchunk.available());
-                        }
-                    }
+                    chunk.finish();
                 }
             } else {
                 if (format.equals("dlid")) {
@@ -730,11 +647,6 @@ public final class DLSSoundbank extends Soundbank {
 
         samples.add(new DLSSample(sampleFormat, mbb, sampleoptions));
 
-    }
-
-    @Override
-    public String getVersion() {
-        return major + "." + minor;
     }
 
 }

@@ -197,14 +197,10 @@ public class SynthesizerPlayer {
             System.out.println(instrument.getPatch().getBank());
 
             // Soundbank
-            System.out.println(soundbank.getDescription());
             instrument = soundbank.getInstrument(instrument.getPatch());
             for (Instrument instrument : soundbank.getInstruments()) {
                 System.out.println(instrument.getName());
             }
-            System.out.println(soundbank.getName());
-            System.out.println(soundbank.getVendor());
-            System.out.println(soundbank.getVersion());
 
             // Synthesizer
             soundbank = synthesizer.getDefaultSoundbank();

@@ -451,7 +451,7 @@ public final class EmergencySoundbank {
         newInstrument(new Patch(0, 126), instruments, crash_cymbal);
         newInstrument(new Patch(0, 127), instruments, side_stick);
 
-        return new SF2Soundbank("Emergency GM sound set", "Generated", "Emergency generated soundbank", 2, 1, instruments);
+        return new SF2Soundbank(instruments);
     }
 
     private static SF2Layer new_bell(List<SF2Layer> layers, List<SF2Sample> samples) {

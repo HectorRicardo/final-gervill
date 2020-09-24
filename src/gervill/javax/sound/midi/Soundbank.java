@@ -74,47 +74,10 @@ import java.util.List;
 
 public abstract class Soundbank {
 
-    private final String name;
-    private final String engineers;
-    private final String comments;
     private final ImmutableList<Instrument> instruments;
 
-    protected Soundbank(String name, String engineers, String comments, List<Instrument> instruments) {
-        this.name = name;
-        this.engineers = engineers;
-        this.comments = comments;
+    protected Soundbank(List<Instrument> instruments) {
         this.instruments = ImmutableList.create(instruments, ModelInstrumentComparator.COMPARATOR);
-    }
-
-    /**
-     * Obtains the name of the sound bank.
-     * @return a <code>String</code> naming the sound bank
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Obtains the version string for the sound bank.
-     * @return a <code>String</code> that indicates the sound bank's version
-     */
-    public abstract String getVersion();
-
-    /**
-     * Obtains a <code>string</code> naming the company that provides the
-     * sound bank
-     * @return the vendor string
-     */
-    public String getVendor() {
-        return engineers;
-    }
-
-    /**
-     * Obtains a textual description of the sound bank, suitable for display.
-     * @return a <code>String</code> that describes the sound bank
-     */
-    public String getDescription() {
-        return comments;
     }
 
 

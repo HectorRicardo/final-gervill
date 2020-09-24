@@ -49,14 +49,8 @@ import java.util.List;
  */
 public final class SF2Soundbank extends Soundbank {
 
-    // version of the Sound Font RIFF file
-    private final int major;
-    private final int minor;
-
-    SF2Soundbank(String name, String engineers, String comments, int major, int minor, List<Instrument> instruments) {
-        super(name, engineers, comments, instruments);
-        this.major = major;
-        this.minor = minor;
+    SF2Soundbank(List<Instrument> instruments) {
+        super(instruments);
     }
 
     public static SF2Soundbank createSoundbank(URL url) throws IOException {
@@ -84,73 +78,35 @@ public final class SF2Soundbank extends Soundbank {
             throw new RuntimeException("Input stream is not a valid SoundFont!");
         }
 
-        // Sound Font Bank Name
-        String name = "untitled";
-        // Sound Designers and Engineers for the Bank
-        String engineers = null;
-        // Comments
-        String comments = null;
-
-        // version of the Sound Font RIFF file
-        int major = 2;
-        int minor = 1;
-
         ModelByteBuffer[] datas = new ModelByteBuffer[2];
         List<Instrument> instruments = new ArrayList<>();
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             if (chunk.getFormat().equals("LIST")) {
-                if (chunk.getType().equals("INFO")) {
-                    while (chunk.hasNextChunk()) {
-                        RIFFReader subchunk = chunk.nextChunk();
-                        String format = subchunk.getFormat();
-                        switch (format) {
-                            case "ifil":
-                                major = subchunk.readUnsignedShort();
-                                minor = subchunk.readUnsignedShort();
-                                break;
-                            case "isng":
-                            case "ISFT":
-                            case "ICOP":
-                            case "IPRD":
-                            case "ICRD":
-                            case "irom":
-                                subchunk.readString(subchunk.available());
-                                break;
-                            case "INAM":
-                                name = subchunk.readString(subchunk.available());
-                                break;
-                            case "iver":
-                                subchunk.readUnsignedShort();
-                                subchunk.readUnsignedShort();
-                                break;
-                            case "IENG":
-                                engineers = subchunk.readString(subchunk.available());
-                                break;
-                            case "ICMT":
-                                comments = subchunk.readString(subchunk.available());
-                                break;
-                        }
-                    }
-                }
-                if (chunk.getType().equals("sdta")) {
-                    readSdtaChunk(chunk, sampleFile, datas);
-                }
-                if (chunk.getType().equals("pdta")) {
-                    readPdtaChunk(chunk, datas[0], datas[1], instruments);
+                switch (chunk.getType()) {
+                    case "INFO":
+                        chunk.finish();
+                        break;
+                    case "sdta":
+                        readSdtaChunk(chunk, sampleFile, datas);
+                        break;
+                    case "pdta":
+                        readPdtaChunk(chunk, datas[0], datas[1], instruments);
+                        break;
                 }
             }
         }
 
-        return new SF2Soundbank(name, engineers, comments, major, minor, instruments);
+        return new SF2Soundbank(instruments);
     }
 
     private static void readSdtaChunk(RIFFReader riff, File sampleFile, ModelByteBuffer[] datas) throws IOException {
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
-            if (chunk.getFormat().equals("smpl")) {
+            String format = chunk.getFormat();
+            if (format.equals("smpl")) {
                 if (sampleFile == null) {
                     byte[] sampleData = new byte[chunk.available()];
 
@@ -171,8 +127,7 @@ public final class SF2Soundbank extends Soundbank {
                 } else {
                     datas[0] = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
                 }
-            }
-            if (chunk.getFormat().equals("sm24")) {
+            } else if (format.equals("sm24")) {
                 if (sampleFile == null) {
                     byte[] sampleData24 = new byte[chunk.available()];
                     //chunk.read(sampleData24);
@@ -216,8 +171,7 @@ public final class SF2Soundbank extends Soundbank {
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
-            String format = chunk.getFormat();
-            switch (format) {
+            switch (chunk.getFormat()) {
                 case "phdr": {
                     // Preset Header / Instrument
                     if (chunk.available() % 38 != 0)
@@ -228,9 +182,7 @@ public final class SF2Soundbank extends Soundbank {
                         int program = chunk.readUnsignedShort();
                         int bank = chunk.readUnsignedShort();
                         presets_bagNdx.add(chunk.readUnsignedShort());
-                        chunk.readUnsignedInt();
-                        chunk.readUnsignedInt();
-                        chunk.readUnsignedInt();
+                        chunk.skip(12);
                         if (i != count - 1) {
                             Patch patch = bank == 128 ? new Patch(0, program, true) : new Patch(bank << 7, program, false);
                             instruments.add(new SF2Instrument(name, patch));
@@ -320,7 +272,7 @@ public final class SF2Soundbank extends Soundbank {
                         throw new RuntimeException();
                     int count = chunk.available() / 22;
                     for (int i = 0; i < count; i++) {
-                        chunk.readString(20);
+                        chunk.skip(20);
                         SF2Layer layer = new SF2Layer();
                         instruments_bagNdx.add(chunk.readUnsignedShort());
                         if (i != count - 1)
@@ -414,7 +366,7 @@ public final class SF2Soundbank extends Soundbank {
                     int count = chunk.available() / 46;
                     for (int i = 0; i < count; i++) {
 
-                        chunk.readString(20);
+                        chunk.skip(20);
                         long start = chunk.readUnsignedInt();
                         long end = chunk.readUnsignedInt();
                         ModelByteBuffer data = sampleData == null ? null : sampleData.subbuffer(start * 2, end * 2, true);
@@ -427,8 +379,7 @@ public final class SF2Soundbank extends Soundbank {
 
                         SF2Sample sample = new SF2Sample(data, data24, startLoop, endLoop, sampleRate, originalPitch, pitchCorrection);
 
-                        chunk.readUnsignedShort();
-                        chunk.readUnsignedShort();
+                        chunk.skip(4);
                         if (i != count - 1)
                             samples.add(sample);
                     }
@@ -488,8 +439,4 @@ public final class SF2Soundbank extends Soundbank {
 
     }
 
-    @Override
-    public String getVersion() {
-        return major + "." + minor;
-    }
 }
