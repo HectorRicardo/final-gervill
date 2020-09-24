@@ -52,21 +52,17 @@ public final class SF2SoundbankParser {
 
     public static ImmutableList<Instrument> parseSoundbank(URL url) throws IOException {
         try (InputStream is = url.openStream()) {
-            return parseSoundbank(is, null);
+            return parseSoundbank(is);
         }
     }
 
     public static ImmutableList<Instrument> parseSoundbank(File file) throws IOException {
         try (InputStream is = new FileInputStream(file)) {
-            return parseSoundbank(is, file);
+            return parseSoundbank(is);
         }
     }
 
     public static ImmutableList<Instrument> parseSoundbank(InputStream inputstream) throws IOException {
-        return parseSoundbank(inputstream, null);
-    }
-
-    private static ImmutableList<Instrument> parseSoundbank(InputStream inputstream, File sampleFile) throws IOException {
         RIFFReader riff = new RIFFReader(inputstream);
         if (!riff.getFormat().equals("RIFF")) {
             throw new RuntimeException("Input stream is not a valid RIFF stream!");
@@ -86,7 +82,7 @@ public final class SF2SoundbankParser {
                         chunk.finish();
                         break;
                     case "sdta":
-                        readSdtaChunk(chunk, sampleFile, datas);
+                        readSdtaChunk(chunk, datas);
                         break;
                     case "pdta":
                         readPdtaChunk(chunk, datas[0], datas[1], instruments);
@@ -98,53 +94,45 @@ public final class SF2SoundbankParser {
         return ImmutableList.create(instruments, ModelInstrumentComparator.COMPARATOR);
     }
 
-    private static void readSdtaChunk(RIFFReader riff, File sampleFile, ModelByteBuffer[] datas) throws IOException {
+    private static void readSdtaChunk(RIFFReader riff, ModelByteBuffer[] datas) throws IOException {
 
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             String format = chunk.getFormat();
             if (format.equals("smpl")) {
-                if (sampleFile == null) {
-                    byte[] sampleData = new byte[chunk.available()];
+                byte[] sampleData = new byte[chunk.available()];
 
-                    int read = 0;
-                    int avail = chunk.available();
-                    while (read != avail) {
-                        if (avail - read > 65536) {
-                            chunk.readFully(sampleData, read, 65536);
-                            read += 65536;
-                        } else {
-                            chunk.readFully(sampleData, read, avail - read);
-                            read = avail;
-                        }
-
+                int read = 0;
+                int avail = chunk.available();
+                while (read != avail) {
+                    if (avail - read > 65536) {
+                        chunk.readFully(sampleData, read, 65536);
+                        read += 65536;
+                    } else {
+                        chunk.readFully(sampleData, read, avail - read);
+                        read = avail;
                     }
-                    datas[0] = new ModelByteBuffer(sampleData);
-                    //chunk.read(sampleData);
-                } else {
-                    datas[0] = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
+
                 }
+                datas[0] = new ModelByteBuffer(sampleData);
+                //chunk.read(sampleData);
             } else if (format.equals("sm24")) {
-                if (sampleFile == null) {
-                    byte[] sampleData24 = new byte[chunk.available()];
-                    //chunk.read(sampleData24);
+                byte[] sampleData24 = new byte[chunk.available()];
+                //chunk.read(sampleData24);
 
-                    int read = 0;
-                    int avail = chunk.available();
-                    while (read != avail) {
-                        if (avail - read > 65536) {
-                            chunk.readFully(sampleData24, read, 65536);
-                            read += 65536;
-                        } else {
-                            chunk.readFully(sampleData24, read, avail - read);
-                            read = avail;
-                        }
-
+                int read = 0;
+                int avail = chunk.available();
+                while (read != avail) {
+                    if (avail - read > 65536) {
+                        chunk.readFully(sampleData24, read, 65536);
+                        read += 65536;
+                    } else {
+                        chunk.readFully(sampleData24, read, avail - read);
+                        read = avail;
                     }
-                    datas[1] = new ModelByteBuffer(sampleData24);
-                } else {
-                    datas[1] = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
+
                 }
+                datas[1] = new ModelByteBuffer(sampleData24);
             }
         }
     }

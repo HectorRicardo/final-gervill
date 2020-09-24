@@ -158,21 +158,17 @@ public final class DLSSoundbankParser {
 
     public static ImmutableList<Instrument> parseSoundbank(URL url) throws IOException {
         try (InputStream is = url.openStream()) {
-            return parseSoundbank(is, null);
+            return parseSoundbank(is);
         }
     }
 
     public static ImmutableList<Instrument> parseSoundbank(File file) throws IOException {
         try (InputStream is = new FileInputStream(file)) {
-            return parseSoundbank(is, file);
+            return parseSoundbank(is);
         }
     }
 
     public static ImmutableList<Instrument> parseSoundbank(InputStream inputstream) throws IOException {
-        return parseSoundbank(inputstream, null);
-    }
-
-    private static ImmutableList<Instrument> parseSoundbank(InputStream inputstream, File sampleFile) throws IOException {
         RIFFReader riff = new RIFFReader(inputstream);
         if (!riff.getFormat().equals("RIFF")) {
             throw new RuntimeException("Input stream is not a valid RIFF stream!");
@@ -202,7 +198,7 @@ public final class DLSSoundbankParser {
                         readLinsChunk(chunk, instruments, temp_rgnassign);
                         break;
                     case "wvpl":
-                        readWvplChunk(chunk, sampleFile, samples);
+                        readWvplChunk(chunk, samples);
                         break;
                 }
             }
@@ -554,17 +550,17 @@ public final class DLSSoundbankParser {
         return new DLSSampleOptions(unitynote, finetune, loopsList);
     }
 
-    private static void readWvplChunk(RIFFReader riff, File sampleFile, List<DLSSample> samples) throws IOException {
+    private static void readWvplChunk(RIFFReader riff, List<DLSSample> samples) throws IOException {
         while (riff.hasNextChunk()) {
             RIFFReader chunk = riff.nextChunk();
             if (chunk.getFormat().equals("LIST")) {
                 if (chunk.getType().equals("wave"))
-                    readWaveChunk(chunk, sampleFile, samples);
+                    readWaveChunk(chunk, samples);
             }
         }
     }
 
-    private static void readWaveChunk(RIFFReader riff, File sampleFile, List<DLSSample> samples) throws IOException {
+    private static void readWaveChunk(RIFFReader riff, List<DLSSample> samples) throws IOException {
         AudioFormat sampleFormat = null;
         ModelByteBuffer mbb = null;
         DLSSampleOptions sampleoptions = null;
@@ -616,24 +612,21 @@ public final class DLSSoundbankParser {
                 }
 
                 if (format.equals("data")) {
-                    if (sampleFile != null) {
-                        mbb = new ModelByteBuffer(sampleFile, chunk.getFilePointer(), chunk.available());
-                    } else {
-                        byte[] buffer = new byte[chunk.available()];
-                        mbb = new ModelByteBuffer(buffer);
+                    byte[] buffer = new byte[chunk.available()];
 
-                        int read = 0;
-                        int avail = chunk.available();
-                        while (read != avail) {
-                            if (avail - read > 65536) {
-                                chunk.readFully(buffer, read, 65536);
-                                read += 65536;
-                            } else {
-                                chunk.readFully(buffer, read, avail - read);
-                                read = avail;
-                            }
+                    int read = 0;
+                    int avail = chunk.available();
+                    while (read != avail) {
+                        if (avail - read > 65536) {
+                            chunk.readFully(buffer, read, 65536);
+                            read += 65536;
+                        } else {
+                            chunk.readFully(buffer, read, avail - read);
+                            read = avail;
                         }
                     }
+
+                    mbb = new ModelByteBuffer(buffer);
                 }
 
                 if (format.equals("wsmp")) {
