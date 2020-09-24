@@ -27,6 +27,7 @@ package gervill.com.sun.media.sound;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
+import own.main.ImmutableList;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -173,15 +174,15 @@ public abstract class AudioFloatInputStream {
         return new DirectAudioFloatInputStream(stream);
     }
 
-    public static AudioFloatInputStream getInputStream(AudioFormat format,
-            byte[] buffer, int offset, int len) {
+    public static AudioFloatInputStream getInputStream(AudioFormat format, ImmutableList<Byte> buffer, int offset, int len) {
         AudioFloatConverter converter = AudioFloatConverter
                 .getConverter(format);
-        if (converter != null)
-            return new BytaArrayAudioFloatInputStream(converter, buffer,
-                    offset, len);
 
-        InputStream stream = new ByteArrayInputStream(buffer, offset, len);
+        byte[] realBuffer = ImmutableList.toArray(buffer);
+        if (converter != null)
+            return new BytaArrayAudioFloatInputStream(converter, realBuffer, offset, len);
+
+        InputStream stream = new ByteArrayInputStream(realBuffer, offset, len);
         long aLen = format.getFrameSize() == AudioSystem.NOT_SPECIFIED
                 ? AudioSystem.NOT_SPECIFIED : len / format.getFrameSize();
         AudioInputStream astream = new AudioInputStream(stream, format, aLen);

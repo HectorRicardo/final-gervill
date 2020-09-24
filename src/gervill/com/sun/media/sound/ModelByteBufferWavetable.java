@@ -27,6 +27,7 @@ package gervill.com.sun.media.sound;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioFormat.Encoding;
 import gervill.javax.sound.sampled.AudioInputStream;
+import own.main.ImmutableList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,13 +61,15 @@ public final class ModelByteBufferWavetable {
                 return -1;
             if (len > avail)
                 len = avail;
-            byte[] buff1 = buffer.array();
-            byte[] buff2 = buffer8.array();
+            ImmutableList<Byte> buff1 = buffer.array();
+            ImmutableList<Byte> buff2 = buffer8.array();
             pos += buffer.arrayOffset();
             pos2 += buffer8.arrayOffset();
             for (int i = 0; i < len; i += (framesize_pc + 1)) {
-                System.arraycopy(buff2, pos2, b, i, 1);
-                System.arraycopy(buff1, pos, b, i + 1, framesize_pc);
+                b[i] = buff2.get(pos2);
+                for (int j = 0; j < framesize_pc; j++) {
+                    b[i + 1 + j] = buff1.get(pos + j);
+                }
                 pos += framesize_pc;
                 pos2 += 1;
             }

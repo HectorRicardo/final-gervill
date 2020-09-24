@@ -79,8 +79,8 @@ public final class ModelByteBuffer {
         return new ModelByteBuffer(this, beginIndex, endIndex, independent);
     }
 
-    public byte[] array() {
-        return root.buffer == null ? null : ImmutableList.toArray(root.buffer);
+    public ImmutableList<Byte> array() {
+        return root.buffer;
     }
 
     public long arrayOffset(ModelByteBuffer root, long offset) {

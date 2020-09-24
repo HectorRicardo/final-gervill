@@ -37,7 +37,6 @@ import java.nio.charset.StandardCharsets;
 final class RIFFReader extends InputStream {
 
     private final RIFFReader root;
-    private long filepointer = 0;
     private final String fourcc;
     private String riff_type = null;
     private final InputStream stream;
@@ -80,10 +79,6 @@ final class RIFFReader extends InputStream {
         }
     }
 
-    long getFilePointer() {
-        return root.filepointer;
-    }
-
     boolean hasNextChunk() throws IOException {
         if (lastiterator != null)
             lastiterator.finish();
@@ -117,7 +112,6 @@ final class RIFFReader extends InputStream {
             return -1;
         }
         avail--;
-        filepointer++;
         return b;
     }
 
@@ -127,8 +121,6 @@ final class RIFFReader extends InputStream {
         }
         if (len > avail) {
             int rlen = stream.read(b, offset, (int)avail);
-            if (rlen != -1)
-                filepointer += rlen;
             avail = 0;
             return rlen;
         } else {
@@ -138,7 +130,6 @@ final class RIFFReader extends InputStream {
                 return -1;
             }
             avail -= ret;
-            filepointer += ret;
             return ret;
         }
     }
@@ -183,7 +174,6 @@ final class RIFFReader extends InputStream {
             }
             remaining -= ret;
             avail -= ret;
-            filepointer += ret;
         }
         return n - remaining;
     }
