@@ -53,8 +53,8 @@ public abstract class ModelInstrument extends Instrument {
         super(patch, name);
     }
 
-    public ModelStandardIndexedDirector getDirector(ImmutableList<ModelPerformer> performers, SoftChannel player) {
-        return ModelStandardIndexedDirector.create(performers, player);
+    public ModelStandardIndexedDirector getDirector(SoftChannel player) {
+        return ModelStandardIndexedDirector.create(getPerformers(), player);
     }
 
     public ImmutableList<ModelPerformer> getPerformers() {

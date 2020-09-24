@@ -45,7 +45,7 @@ public final class SoftInstrument extends Instrument {
     }
 
     public ModelStandardIndexedDirector getDirector(SoftChannel player) {
-        return ins.getDirector(ins.getPerformers(), player);
+        return ins.getDirector(player);
     }
 
     public ImmutableList<SoftPerformer> getPerformers() {
