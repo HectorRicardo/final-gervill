@@ -1,8 +1,8 @@
 package own.main;
 
-import gervill.soundbanks.DLSSoundbank;
-import gervill.soundbanks.SF2Soundbank;
-import gervill.javax.sound.midi.Soundbank;
+import gervill.javax.sound.midi.Instrument;
+import gervill.soundbanks.DLSSoundbankParser;
+import gervill.soundbanks.SF2SoundbankParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,14 +15,14 @@ public class Main {
         final SynthesizerPlayer player = new SynthesizerPlayer();
 
         // Step 2. Repeat operations
-        openPlayAndClose(player, SF2Soundbank.createSoundbank(new File("assets/gm.sf2")));
-        openPlayAndClose(player, DLSSoundbank.createSoundbank(new File("assets/gm.dls")));
+        openPlayAndClose(player, SF2SoundbankParser.parseSoundbank(new File("assets/gm.sf2")));
+        openPlayAndClose(player, DLSSoundbankParser.parseSoundbank(new File("assets/gm.dls")));
         openPlayAndClose(player, null);
     }
 
-    public static void openPlayAndClose(SynthesizerPlayer player, Soundbank soundbank) {
+    public static void openPlayAndClose(SynthesizerPlayer player, ImmutableList<Instrument> soundbankInstruments) {
         // Open synthesizer
-        player.open(soundbank);
+        player.open(soundbankInstruments);
 
         // Play something
         if (player.readyToStartPlaying()) { // will always be true

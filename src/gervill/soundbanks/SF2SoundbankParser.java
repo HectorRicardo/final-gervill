@@ -25,9 +25,10 @@
 package gervill.soundbanks;
 
 import gervill.com.sun.media.sound.ModelByteBuffer;
+import gervill.com.sun.media.sound.ModelInstrumentComparator;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
-import gervill.javax.sound.midi.Soundbank;
+import own.main.ImmutableList;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,29 +48,25 @@ import java.util.List;
  *
  * @author Karl Helgason
  */
-public final class SF2Soundbank extends Soundbank {
+public final class SF2SoundbankParser {
 
-    SF2Soundbank(List<Instrument> instruments) {
-        super(instruments);
-    }
-
-    public static SF2Soundbank createSoundbank(URL url) throws IOException {
+    public static ImmutableList<Instrument> parseSoundbank(URL url) throws IOException {
         try (InputStream is = url.openStream()) {
-            return readSoundbank(is, null);
+            return parseSoundbank(is, null);
         }
     }
 
-    public static SF2Soundbank createSoundbank(File file) throws IOException {
+    public static ImmutableList<Instrument> parseSoundbank(File file) throws IOException {
         try (InputStream is = new FileInputStream(file)) {
-            return readSoundbank(is, file);
+            return parseSoundbank(is, file);
         }
     }
 
-    public static SF2Soundbank createSoundbank(InputStream inputstream) throws IOException {
-        return readSoundbank(inputstream, null);
+    public static ImmutableList<Instrument> parseSoundbank(InputStream inputstream) throws IOException {
+        return parseSoundbank(inputstream, null);
     }
 
-    private static SF2Soundbank readSoundbank(InputStream inputstream, File sampleFile) throws IOException {
+    private static ImmutableList<Instrument> parseSoundbank(InputStream inputstream, File sampleFile) throws IOException {
         RIFFReader riff = new RIFFReader(inputstream);
         if (!riff.getFormat().equals("RIFF")) {
             throw new RuntimeException("Input stream is not a valid RIFF stream!");
@@ -98,7 +95,7 @@ public final class SF2Soundbank extends Soundbank {
             }
         }
 
-        return new SF2Soundbank(instruments);
+        return ImmutableList.create(instruments, ModelInstrumentComparator.COMPARATOR);
     }
 
     private static void readSdtaChunk(RIFFReader riff, File sampleFile, ModelByteBuffer[] datas) throws IOException {

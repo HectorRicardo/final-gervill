@@ -25,11 +25,12 @@
 package gervill.soundbanks;
 
 import gervill.com.sun.media.sound.ModelByteBuffer;
+import gervill.com.sun.media.sound.ModelInstrumentComparator;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
-import gervill.javax.sound.midi.Soundbank;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioFormat.Encoding;
+import own.main.ImmutableList;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +44,7 @@ import java.util.*;
  *
  * @author Karl Helgason
  */
-public final class DLSSoundbank extends Soundbank {
+public final class DLSSoundbankParser {
 
     private static class DLSID {
         private final long i1;
@@ -155,27 +156,23 @@ public final class DLSSoundbank extends Soundbank {
     private static final DLSID DLSID_SamplePlaybackRate = new DLSID(0x2a91f713,
             0xa4bf, 0x11d2, 0xbb, 0xdf, 0x60, 0x8, 0x33, 0xdb, 0xd8);
 
-    DLSSoundbank(List<Instrument> instruments) {
-        super(instruments);
-    }
-
-    public static DLSSoundbank createSoundbank(URL url) throws IOException {
+    public static ImmutableList<Instrument> parseSoundbank(URL url) throws IOException {
         try (InputStream is = url.openStream()) {
-            return readSoundbank(is, null);
+            return parseSoundbank(is, null);
         }
     }
 
-    public static DLSSoundbank createSoundbank(File file) throws IOException {
+    public static ImmutableList<Instrument> parseSoundbank(File file) throws IOException {
         try (InputStream is = new FileInputStream(file)) {
-            return readSoundbank(is, file);
+            return parseSoundbank(is, file);
         }
     }
 
-    public static DLSSoundbank createSoundbank(InputStream inputstream) throws IOException {
-        return readSoundbank(inputstream, null);
+    public static ImmutableList<Instrument> parseSoundbank(InputStream inputstream) throws IOException {
+        return parseSoundbank(inputstream, null);
     }
 
-    private static DLSSoundbank readSoundbank(InputStream inputstream, File sampleFile) throws IOException {
+    private static ImmutableList<Instrument> parseSoundbank(InputStream inputstream, File sampleFile) throws IOException {
         RIFFReader riff = new RIFFReader(inputstream);
         if (!riff.getFormat().equals("RIFF")) {
             throw new RuntimeException("Input stream is not a valid RIFF stream!");
@@ -215,7 +212,7 @@ public final class DLSSoundbank extends Soundbank {
             entry.getKey().setSample(samples.get(entry.getValue()));
         }
 
-        return new DLSSoundbank(instruments);
+        return ImmutableList.create(instruments, ModelInstrumentComparator.COMPARATOR);
     }
 
     private static boolean cdlIsQuerySupported(DLSID uuid) {

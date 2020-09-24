@@ -1,9 +1,9 @@
 package own.main;
 
-import gervill.soundbanks.DLSSoundbank;
-import gervill.soundbanks.SF2Soundbank;
 import gervill.com.sun.media.sound.SoftSynthesizer;
 import gervill.javax.sound.midi.*;
+import gervill.soundbanks.DLSSoundbankParser;
+import gervill.soundbanks.SF2SoundbankParser;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,7 +19,7 @@ public class SynthesizerPlayer {
     private static final int PORTAMENTO_LEVEL = 80;
 
     private final SoftSynthesizer synthesizer = new SoftSynthesizer();
-    private Soundbank soundbank;
+    private ImmutableList<Instrument> soundbankInstruments;
     private final MidiChannel channel = synthesizer.getChannels()[0];
     private Instrument instrument;
 
@@ -38,11 +38,11 @@ public class SynthesizerPlayer {
         return (int) (Math.random() * topExclusive);
     }
 
-    public void open(Soundbank soundbank) {
+    public void open(ImmutableList<Instrument> soundbank) {
         if (!synthesizer.isOpen()) {
             synthesizer.open();
         }
-        this.soundbank = soundbank == null ? synthesizer.getDefaultSoundbank() : soundbank;
+        this.soundbankInstruments = soundbank == null ? synthesizer.getDefaultSoundbank() : soundbank;
         ready = true;
     }
 
@@ -61,16 +61,14 @@ public class SynthesizerPlayer {
     public String[] sample1() {
         playing = true;
 
-        ImmutableList<Instrument> instruments = soundbank.getInstruments();
-
         int index1 = random(10);
         int index2 = random(11);
 
-        Instrument instrument1 = instruments.get(index1);
+        Instrument instrument1 = soundbankInstruments.get(index1);
         changeInstrument(instrument1);
         playMelody();
 
-        Instrument instrument2 = instruments.get(index2);
+        Instrument instrument2 = soundbankInstruments.get(index2);
         changeInstrument(instrument2);
         playMelody();
 
@@ -83,7 +81,7 @@ public class SynthesizerPlayer {
         if (FALSE) {
             playing = true;
 
-            for (Instrument instrument : soundbank.getInstruments()) {
+            for (Instrument instrument : soundbankInstruments) {
                 changeInstrument(instrument);
                 playMelody();
                 synthesizer.unloadInstrument(instrument);
@@ -197,20 +195,13 @@ public class SynthesizerPlayer {
             System.out.println(instrument.getPatch().getBank());
 
             // Soundbank
-            instrument = soundbank.getInstrument(instrument.getPatch());
-            for (Instrument instrument : soundbank.getInstruments()) {
+            for (Instrument instrument : soundbankInstruments) {
                 System.out.println(instrument.getName());
             }
 
             // Synthesizer
-            soundbank = synthesizer.getDefaultSoundbank();
-            System.out.println(synthesizer.isSoundbankSupported(soundbank));
-            System.out.println(synthesizer.loadAllInstruments(soundbank));
             System.out.println(synthesizer.loadInstrument(instrument));
-            System.out.println(synthesizer.loadInstruments(soundbank, new Patch[] { new Patch(1, 2) }));
-            synthesizer.unloadAllInstruments(soundbank);
             synthesizer.unloadInstrument(instrument);
-            synthesizer.unloadInstruments(soundbank, new Patch[] { new Patch(1, 2) });
 
             if (!synthesizer.isOpen()) {
                 try {
@@ -220,13 +211,13 @@ public class SynthesizerPlayer {
                     FileInputStream fis = new FileInputStream(file);
                     URL url = new URL("https://google.com");
 
-                    soundbank = SF2Soundbank.createSoundbank(fis);
-                    soundbank = SF2Soundbank.createSoundbank(file);
-                    soundbank = SF2Soundbank.createSoundbank(url);
+                    soundbankInstruments = SF2SoundbankParser.parseSoundbank(fis);
+                    soundbankInstruments = SF2SoundbankParser.parseSoundbank(file);
+                    soundbankInstruments = SF2SoundbankParser.parseSoundbank(url);
 
-                    soundbank = DLSSoundbank.createSoundbank(fis);
-                    soundbank = DLSSoundbank.createSoundbank(file);
-                    soundbank = DLSSoundbank.createSoundbank(url);
+                    soundbankInstruments = DLSSoundbankParser.parseSoundbank(fis);
+                    soundbankInstruments = DLSSoundbankParser.parseSoundbank(file);
+                    soundbankInstruments = DLSSoundbankParser.parseSoundbank(url);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -119,10 +119,6 @@ public class Patch {
         return percussion;
     }
 
-    public boolean equals(Patch patch) {
-        return bank == patch.bank && program == patch.program && percussion == patch.percussion;
-    }
-
     public int hashCode() {
         return 128 * bank + program + (percussion ? 2097152 : 0);
     }

@@ -25,9 +25,11 @@
 package gervill.soundbanks;
 
 import gervill.com.sun.media.sound.AudioFloatConverter;
+import gervill.com.sun.media.sound.ModelInstrumentComparator;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.sampled.AudioFormat;
+import own.main.ImmutableList;
 
 import java.util.*;
 
@@ -174,7 +176,7 @@ public final class EmergencySoundbank {
         "Gunshot"
     };
 
-    public static SF2Soundbank createSoundbank() {
+    public static ImmutableList<Instrument> createSoundbank() {
         List<SF2Layer> layers = new ArrayList<>();
         List<SF2Sample> samples = new ArrayList<>();
         List<Instrument> instruments = new ArrayList<>();
@@ -451,7 +453,7 @@ public final class EmergencySoundbank {
         newInstrument(new Patch(0, 126), instruments, crash_cymbal);
         newInstrument(new Patch(0, 127), instruments, side_stick);
 
-        return new SF2Soundbank(instruments);
+        return ImmutableList.create(instruments, ModelInstrumentComparator.COMPARATOR);
     }
 
     private static SF2Layer new_bell(List<SF2Layer> layers, List<SF2Sample> samples) {

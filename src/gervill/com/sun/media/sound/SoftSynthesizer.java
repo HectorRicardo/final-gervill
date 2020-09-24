@@ -31,6 +31,7 @@ import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.SourceDataLine;
 import gervill.soundbanks.EmergencySoundbank;
+import own.main.ImmutableList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -141,7 +142,7 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private static Soundbank defaultSoundBank = null;
+    private static ImmutableList<Instrument> defaultInstruments = null;
 
     WeakAudioStream weakstream = null;
 
@@ -314,13 +315,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    public boolean isSoundbankSupported(Soundbank soundbank) {
-        for (Instrument ins: soundbank.getInstruments())
-            if (!(ins instanceof ModelInstrument))
-                return false;
-        return true;
-    }
-
     public boolean loadInstrument(Instrument instrument) {
         if ((!(instrument instanceof ModelInstrument))) {
             throw new IllegalArgumentException("Unsupported instrument: " +
@@ -350,74 +344,20 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    public Soundbank getDefaultSoundbank() {
+    public ImmutableList<Instrument> getDefaultSoundbank() {
         synchronized (SoftSynthesizer.class) {
-            if (defaultSoundBank != null)
-                return defaultSoundBank;
+            if (defaultInstruments != null)
+                return defaultInstruments;
 
             try {
                 /*
                  * Generate emergency soundbank
                  */
-                defaultSoundBank = EmergencySoundbank.createSoundbank();
+                defaultInstruments = EmergencySoundbank.createSoundbank();
             } catch (Exception ignored) {
             }
         }
-        return defaultSoundBank;
-    }
-
-    public boolean loadAllInstruments(Soundbank soundbank) {
-        List<ModelInstrument> instruments = new ArrayList<>();
-        for (Instrument ins: soundbank.getInstruments()) {
-            if (!(ins instanceof ModelInstrument)) {
-                throw new IllegalArgumentException(
-                        "Unsupported instrument: " + ins);
-            }
-            instruments.add((ModelInstrument)ins);
-        }
-        return loadInstruments(instruments);
-    }
-
-    public void unloadAllInstruments(Soundbank soundbank) {
-        if (soundbank == null || !isSoundbankSupported(soundbank))
-            throw new IllegalArgumentException("Unsupported soundbank: " + soundbank);
-
-        if (!isOpen())
-            return;
-
-        for (Instrument ins: soundbank.getInstruments()) {
-            if (ins instanceof ModelInstrument) {
-                unloadInstrument(ins);
-            }
-        }
-    }
-
-    public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        List<ModelInstrument> instruments = new ArrayList<>();
-        for (Patch patch: patchList) {
-            Instrument ins = soundbank.getInstrument(patch);
-            if (!(ins instanceof ModelInstrument)) {
-                throw new IllegalArgumentException(
-                        "Unsupported instrument: " + ins);
-            }
-            instruments.add((ModelInstrument)ins);
-        }
-        return loadInstruments(instruments);
-    }
-
-    public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        if (soundbank == null || !isSoundbankSupported(soundbank))
-            throw new IllegalArgumentException("Unsupported soundbank: " + soundbank);
-
-        if (!isOpen())
-            return;
-
-        for (Patch pat: patchList) {
-            Instrument ins = soundbank.getInstrument(pat);
-            if (ins instanceof ModelInstrument) {
-                unloadInstrument(ins);
-            }
-        }
+        return defaultInstruments;
     }
 
     public void open() {
