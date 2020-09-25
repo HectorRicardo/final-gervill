@@ -49,9 +49,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     protected static final class WeakAudioStream extends InputStream
     {
         private volatile AudioInputStream stream;
-        public SoftAudioPusher pusher = null;
-        public AudioInputStream jitter_stream = null;
-        public SourceDataLine sourceDataLine = null;
         public final AtomicLong silent_samples = new AtomicLong(0);
         private final int framesize;
         private final WeakReference<AudioInputStream> weak_stream_link;
@@ -91,32 +88,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
                  silent_samples.addAndGet(len / framesize);
 
-                 if(pusher != null)
-                 if(weak_stream_link.get() == null)
-                 {
-                     Runnable runnable = new Runnable()
-                     {
-                         final SoftAudioPusher _pusher = pusher;
-                         final AudioInputStream _jitter_stream = jitter_stream;
-                         final SourceDataLine _sourceDataLine = sourceDataLine;
-                         public void run()
-                         {
-                             _pusher.stop();
-                             if(_jitter_stream != null)
-                                try {
-                                    _jitter_stream.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                             if(_sourceDataLine != null)
-                                 _sourceDataLine.close();
-                         }
-                     };
-                     pusher = null;
-                     jitter_stream = null;
-                     sourceDataLine = null;
-                     new Thread(runnable).start();
-                 }
                  return len;
              }
         }
@@ -366,13 +337,9 @@ public final class SoftSynthesizer implements AutoCloseable {
 
                 ais = new SoftJitterCorrector(ais, buffersize,
                         controlbuffersize);
-                weakstream.jitter_stream = ais;
                 pusher = new SoftAudioPusher(sourceDataLine, ais, controlbuffersize);
                 pusher_stream = ais;
                 pusher.start();
-
-                weakstream.pusher = pusher;
-                weakstream.sourceDataLine = sourceDataLine;
 
             } catch (final SecurityException
                     | IllegalArgumentException e) {
