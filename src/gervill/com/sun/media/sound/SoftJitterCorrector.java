@@ -112,8 +112,8 @@ public final class SoftJitterCorrector extends AudioInputStream {
             }
         }
 
-        JitterStream(AudioInputStream s, int buffersize,
-                int smallbuffersize) {
+        JitterStream(AudioInputStream s, int buffersize) {
+            int smallbuffersize = 1200;
             this.w_count = 10 * (buffersize / smallbuffersize);
             if (w_count < 100)
                 w_count = 100;
@@ -265,9 +265,8 @@ public final class SoftJitterCorrector extends AudioInputStream {
         }
     }
 
-    public SoftJitterCorrector(AudioInputStream stream, int buffersize,
-            int smallbuffersize) {
-        super(new JitterStream(stream, buffersize, smallbuffersize),
-                stream.getFormat(), stream.getFrameLength());
+    public SoftJitterCorrector(AudioInputStream stream, int buffersize) {
+        super(new JitterStream(stream, buffersize),
+                SoftSynthesizer.SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
     }
 }

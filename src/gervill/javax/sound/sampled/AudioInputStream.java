@@ -57,7 +57,7 @@ import java.io.InputStream;
  * see Clip#open(AudioInputStream) Clip.open(AudioInputStream)
  * @since 1.3
  */
-public class AudioInputStream extends InputStream {
+public class AudioInputStream {
 
     public static final int NOT_SPECIFIED = -1;
 
@@ -146,42 +146,6 @@ public class AudioInputStream extends InputStream {
      */
     public AudioFormat getFormat() {
         return format;
-    }
-
-
-    /**
-     * Obtains the length of the stream, expressed in sample frames rather than bytes.
-     * @return the length in sample frames
-     */
-    public long getFrameLength() {
-        return frameLength;
-    }
-
-
-    /**
-     * Reads the next byte of data from the audio input stream.  The audio input
-     * stream's frame size must be one byte, or an <code>IOException</code>
-     * will be thrown.
-     *
-     * @return the next byte of data, or -1 if the end of the stream is reached
-     * throws IOException if an input or output error occurs
-     * see #read(byte[], int, int)
-     * see #read(byte[])
-     * see #available
-     * <p>
-     */
-    public int read() throws IOException {
-        if( frameSize != 1 ) {
-            throw new IOException("cannot read a single byte if frame size > 1");
-        }
-
-        byte[] data = new byte[1];
-        int temp = read(data);
-        if (temp <= 0) {
-            // we have a weird situation if read(byte[]) returns 0!
-            return -1;
-        }
-        return data[0] & 0xFF;
     }
 
 

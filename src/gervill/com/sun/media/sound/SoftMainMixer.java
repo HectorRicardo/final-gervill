@@ -250,12 +250,10 @@ public final class SoftMainMixer {
         co_master_coarse_tuning[0] = 0.5;
         co_master_fine_tuning[0] = 0.5;
 
-        int buffersize = 300;
-
         control_mutex = synth.control_mutex;
         buffers = new SoftAudioBuffer[14];
         for (int i = 0; i < buffers.length; i++) {
-            buffers[i] = new SoftAudioBuffer(buffersize, SoftSynthesizer.SYNTH_FORMAT);
+            buffers[i] = new SoftAudioBuffer(300, SoftSynthesizer.SYNTH_FORMAT);
         }
         voicestatus = synth.getVoices();
 
@@ -286,7 +284,7 @@ public final class SoftMainMixer {
         InputStream in = new InputStream() {
 
             private final SoftAudioBuffer[] buffers = SoftMainMixer.this.buffers;
-            private final byte[] bbuffer = new byte[4 * buffers[0].getSize()];
+            private final byte[] bbuffer = new byte[1200];
             private int bbuffer_pos = 0;
             private final byte[] single = new byte[1];
 
@@ -322,7 +320,7 @@ public final class SoftMainMixer {
             }
 
             public int available() {
-                return bbuffer.length - bbuffer_pos;
+                return 1200 - bbuffer_pos;
             }
 
             public void close() {

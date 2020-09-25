@@ -42,10 +42,9 @@ public final class SoftAudioPusher implements Runnable {
     private final AudioInputStream ais;
     private final byte[] buffer;
 
-    public SoftAudioPusher(SourceDataLine sourceDataLine, AudioInputStream ais,
-            int workbuffersizer) {
+    public SoftAudioPusher(SourceDataLine sourceDataLine, AudioInputStream ais) {
         this.ais = ais;
-        this.buffer = new byte[workbuffersizer];
+        this.buffer = new byte[1200];
         this.sourceDataLine = sourceDataLine;
     }
 

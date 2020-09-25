@@ -290,81 +290,52 @@ public final class SoftSynthesizer implements AutoCloseable {
             return;
         }
         synchronized (control_mutex) {
-            try {
-                AudioInputStream ais = openStream();
+            AudioInputStream ais = openStream();
 
-                weakstream = new WeakAudioStream(ais);
-                ais = weakstream.getAudioInputStream();
+            weakstream = new WeakAudioStream(ais);
+            ais = weakstream.getAudioInputStream();
 
-                // can throw LineUnavailableException,
-                // IllegalArgumentException, SecurityException
-                sourceDataLine.open(SYNTH_FORMAT, 21168);
+            // can throw LineUnavailableException,
+            // IllegalArgumentException, SecurityException
+            sourceDataLine.open(SYNTH_FORMAT, 21168);
+            sourceDataLine.start();
 
-                sourceDataLine.start();
+            // Tell mixer not fill read buffers fully.
+            // This lowers latency, and tells DataPusher
+            // to read in smaller amounts.
+            //mainmixer.readfully = false;
+            //pusher = new DataPusher(line, ais);
 
-                int controlbuffersize = 512;
-                try {
-                    controlbuffersize = ais.available();
-                } catch (IOException ignored) {
-                }
+            int buffersize = sourceDataLine.getBufferSize();
+            buffersize -= buffersize % 1200;
+            buffersize = Math.max(3600, buffersize);
 
-                // Tell mixer not fill read buffers fully.
-                // This lowers latency, and tells DataPusher
-                // to read in smaller amounts.
-                //mainmixer.readfully = false;
-                //pusher = new DataPusher(line, ais);
-
-                int buffersize = sourceDataLine.getBufferSize();
-                buffersize -= buffersize % controlbuffersize;
-
-                if (buffersize < 3 * controlbuffersize)
-                    buffersize = 3 * controlbuffersize;
-
-                ais = new SoftJitterCorrector(ais, buffersize,
-                        controlbuffersize);
-                pusher = new SoftAudioPusher(sourceDataLine, ais, controlbuffersize);
-                pusher_stream = ais;
-                pusher.start();
-
-            } catch (final SecurityException
-                    | IllegalArgumentException e) {
-                if (isOpen()) {
-                    close();
-                }
-                // am: need MidiUnavailableException(Throwable) ctor!
-                RuntimeException ex = new RuntimeException(
-                        "Can not open line");
-                ex.initCause(e);
-                throw ex;
-            }
+            ais = new SoftJitterCorrector(ais, buffersize);
+            pusher = new SoftAudioPusher(sourceDataLine, ais);
+            pusher_stream = ais;
+            pusher.start();
         }
     }
 
     private AudioInputStream openStream() {
 
-        if (isOpen())
-            throw new RuntimeException("Synthesizer is already open");
+        open = true;
 
-        synchronized (control_mutex) {
+        for (int i = 0; i < MAX_POLY; i++)
+            voices[i] = new SoftVoice(this);
 
-            open = true;
+        mainmixer = new SoftMainMixer(this);
 
-            for (int i = 0; i < MAX_POLY; i++)
-                voices[i] = new SoftVoice(this);
-
-            mainmixer = new SoftMainMixer(this);
-
-            channels = new SoftChannel[NUMBER_OF_CHANNELS];
-            for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
-                channels[i] = new SoftChannel(this, i);
-                external_channels[i].setChannel(channels[i]);
-            }
-
-            for (SoftVoice voice: getVoices())
-                voice.resampler = resampler.openStreamer();
-
-            return mainmixer.getInputStream();
+        channels = new SoftChannel[NUMBER_OF_CHANNELS];
+        for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+            channels[i] = new SoftChannel(this, i);
+            external_channels[i].setChannel(channels[i]);
         }
+
+        for (SoftVoice voice: getVoices())
+            voice.resampler = resampler.openStreamer();
+
+        return mainmixer.getInputStream();
     }
 
     public void close() {
