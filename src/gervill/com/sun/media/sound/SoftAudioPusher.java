@@ -88,4 +88,8 @@ public final class SoftAudioPusher implements Runnable {
         }
 
     }
+
+    public AudioInputStream getAudioInputStream() {
+        return ais;
+    }
 }

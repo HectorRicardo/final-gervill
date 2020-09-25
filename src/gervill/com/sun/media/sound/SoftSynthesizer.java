@@ -121,7 +121,6 @@ public final class SoftSynthesizer implements AutoCloseable {
     private final SourceDataLine sourceDataLine = new SourceDataLine();
 
     private SoftAudioPusher pusher = null;
-    private AudioInputStream pusher_stream = null;
 
     private boolean open = false;
 
@@ -302,9 +301,8 @@ public final class SoftSynthesizer implements AutoCloseable {
             buffersize -= buffersize % 1200;
             buffersize = Math.max(3600, buffersize);
 
-            ais = new SoftJitterCorrector(ais, buffersize);
+            ais = new AudioInputStream(new JitterStream(ais, buffersize), SoftSynthesizer.SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
             pusher = new SoftAudioPusher(sourceDataLine, ais);
-            pusher_stream = ais;
             pusher.start();
         }
     }
@@ -336,13 +334,10 @@ public final class SoftSynthesizer implements AutoCloseable {
             return;
 
         SoftAudioPusher pusher_to_be_closed = null;
-        AudioInputStream pusher_stream_to_be_closed = null;
         synchronized (control_mutex) {
             if (pusher != null) {
                 pusher_to_be_closed = pusher;
-                pusher_stream_to_be_closed = pusher_stream;
                 pusher = null;
-                pusher_stream = null;
             }
         }
 
@@ -353,7 +348,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             pusher_to_be_closed.stop();
 
             try {
-                pusher_stream_to_be_closed.close();
+                pusher_to_be_closed.getAudioInputStream().close();
             } catch (IOException e) {
                 //e.printStackTrace();
             }
