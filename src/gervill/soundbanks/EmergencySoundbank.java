@@ -2503,11 +2503,11 @@ public final class EmergencySoundbank {
             if (-datum > maxvalue)
                 maxvalue = -datum;
         }
-        if (maxvalue == 0)
-            return;
-        double gain = target / maxvalue;
-        for (int i = 0; i < data.length; i++)
-            data[i] *= gain;
+        if (maxvalue != 0) {
+            double gain = target / maxvalue;
+            for (int i = 0; i < data.length; i++)
+                data[i] *= gain;
+        }
     }
 
     private static double[] realPart(double[] in) {
