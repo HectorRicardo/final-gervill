@@ -291,33 +291,6 @@ public class AudioInputStream {
 
 
     /**
-     * Returns the maximum number of bytes that can be read (or skipped over) from this
-     * audio input stream without blocking.  This limit applies only to the next invocation of
-     * a <code>read</code> or <code>skip</code> method for this audio input stream; the limit
-     * can vary each time these methods are invoked.
-     * Depending on the underlying stream,an IOException may be thrown if this
-     * stream is closed.
-     * @return the number of bytes that can be read from this audio input stream without blocking
-     * throws IOException if an input or output error occurs
-     * see #read(byte[], int, int)
-     * see #read(byte[])
-     * see #read()
-     * see #skip
-     */
-    public int available() throws IOException {
-
-        int temp = stream.available();
-
-        // don't return greater than our set length in frames
-        if( (frameLength != NOT_SPECIFIED) && ( (temp/frameSize) > (frameLength-framePos)) ) {
-            return (int) (frameLength-framePos) * frameSize;
-        } else {
-            return temp;
-        }
-    }
-
-
-    /**
      * Closes this audio input stream and releases any system resources associated
      * with the stream.
      * throws IOException if an input or output error occurs

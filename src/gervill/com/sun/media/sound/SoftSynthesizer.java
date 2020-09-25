@@ -59,18 +59,8 @@ public final class SoftSynthesizer implements AutoCloseable {
             this.stream = stream;
         }
 
-        public int available() throws IOException {
-            AudioInputStream local_stream = stream;
-            if(local_stream != null)
-                return local_stream.available();
-            return 0;
-        }
-
-        public int read() throws IOException {
-             byte[] b = new byte[1];
-             if (read(b) == -1)
-                  return -1;
-             return b[0] & 0xFF;
+        public int read() {
+             throw new RuntimeException();
         }
 
         public int read(byte[] b, int off, int len) throws IOException {
