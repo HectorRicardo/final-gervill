@@ -26,7 +26,6 @@ package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
-import gervill.javax.sound.sampled.AudioSystem;
 import own.main.ImmutableList;
 
 import java.io.ByteArrayInputStream;
@@ -109,30 +108,13 @@ public abstract class AudioFloatInputStream {
             extends AudioFloatInputStream {
 
         private final AudioInputStream stream;
-        private AudioFloatConverter converter;
+        private final AudioFloatConverter converter;
         private final int framesize_pc; // framesize / channels
         private byte[] buffer;
 
         DirectAudioFloatInputStream(AudioInputStream stream) {
             converter = AudioFloatConverter.getConverter(stream.getFormat());
-            if (converter == null) {
-                AudioFormat format = stream.getFormat();
-                AudioFormat newformat;
-
-                float samplerate = format.getSampleRate();
-                int samplesizeinbits = 16;
-                int framesize = format.getChannels() * (samplesizeinbits / 8);
-
-                newformat = new AudioFormat(
-                        AudioFormat.Encoding.PCM_SIGNED, samplerate,
-                        samplesizeinbits, format.getChannels(), framesize,
-                        samplerate);
-
-                AudioSystem.getAudioInputStream(newformat, stream);
-                converter = AudioFloatConverter.getConverter(stream.getFormat());
-            }
-            framesize_pc = stream.getFormat().getFrameSize()
-                    / stream.getFormat().getChannels();
+            framesize_pc = stream.getFormat().getFrameSize() / stream.getFormat().getChannels();
             this.stream = stream;
         }
 
@@ -183,8 +165,8 @@ public abstract class AudioFloatInputStream {
             return new BytaArrayAudioFloatInputStream(converter, realBuffer, offset, len);
 
         InputStream stream = new ByteArrayInputStream(realBuffer, offset, len);
-        long aLen = format.getFrameSize() == AudioSystem.NOT_SPECIFIED
-                ? AudioSystem.NOT_SPECIFIED : len / format.getFrameSize();
+        long aLen = format.getFrameSize() == AudioInputStream.NOT_SPECIFIED
+                ? AudioInputStream.NOT_SPECIFIED : len / format.getFrameSize();
         AudioInputStream astream = new AudioInputStream(stream, format, aLen);
         return getInputStream(astream);
     }

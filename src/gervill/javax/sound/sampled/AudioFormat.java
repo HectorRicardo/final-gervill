@@ -199,8 +199,8 @@ public class AudioFormat {
              sampleRate,
              sampleSizeInBits,
              channels,
-             (channels == AudioSystem.NOT_SPECIFIED || sampleSizeInBits == AudioSystem.NOT_SPECIFIED)?
-             AudioSystem.NOT_SPECIFIED:
+             (channels == AudioInputStream.NOT_SPECIFIED || sampleSizeInBits == AudioInputStream.NOT_SPECIFIED)?
+             AudioInputStream.NOT_SPECIFIED:
              ((sampleSizeInBits + 7) / 8) * channels,
              sampleRate
         );
@@ -323,32 +323,4 @@ public class AudioFormat {
     }
 
 
-    /**
-     * Indicates whether this format matches the one specified.
-     * To match, two formats must have the same encoding,
-     * and consistent values of the number of channels, sample rate, sample size,
-     * frame rate, and frame size.
-     * The values of the property are consistent if they are equal
-     * or the specified format has the property value
-     * {@code AudioSystem.NOT_SPECIFIED}.
-     * The byte order (big-endian or little-endian) must be the same
-     * if the sample size is greater than one byte.
-     *
-     * @param format format to test for match
-     * @return {@code true} if this format matches the one specified,
-     *         {@code false} otherwise.
-     */
-    public boolean matches(AudioFormat format) {
-        return format.getEncoding().equals(getEncoding())
-                && (format.getChannels() == AudioSystem.NOT_SPECIFIED
-                || format.getChannels() == getChannels())
-                && (format.getSampleRate() == (float) AudioSystem.NOT_SPECIFIED
-                || format.getSampleRate() == getSampleRate())
-                && (format.getSampleSizeInBits() == AudioSystem.NOT_SPECIFIED
-                || format.getSampleSizeInBits() == getSampleSizeInBits())
-                && (format.getFrameRate() == (float) AudioSystem.NOT_SPECIFIED
-                || format.getFrameRate() == getFrameRate())
-                && (format.getFrameSize() == AudioSystem.NOT_SPECIFIED
-                || format.getFrameSize() == getFrameSize());
-    }
 }

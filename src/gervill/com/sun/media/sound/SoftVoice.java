@@ -203,13 +203,11 @@ public final class SoftVoice {
         }
     };
     SoftResamplerStreamer resampler;
-    private final int nrofchannels;
 
     public SoftVoice(SoftSynthesizer synth) {
         synthesizer = synth;
-        filter_left = new SoftFilter(synth.getFormat().getSampleRate());
-        filter_right = new SoftFilter(synth.getFormat().getSampleRate());
-        nrofchannels = synth.getFormat().getChannels();
+        filter_left = new SoftFilter(44100);
+        filter_right = new SoftFilter(44100);
     }
 
     private int getValueKC(ModelIdentifier id) {
@@ -596,8 +594,7 @@ public final class SoftVoice {
             osc_stream_off_transmitted = false;
             if (osc != null) {
                 try {
-                    resampler.open(osc,
-                            synthesizer.getFormat().getSampleRate());
+                    resampler.open(osc, 44100);
                     osc_stream = resampler;
                 } catch (IOException e) {
                     //e.printStackTrace();
@@ -763,8 +760,7 @@ public final class SoftVoice {
 
         try {
             osc_buff[0] = buffer[SoftMainMixer.CHANNEL_LEFT_DRY].array();
-            if (nrofchannels != 1)
-                osc_buff[1] = buffer[SoftMainMixer.CHANNEL_RIGHT_DRY].array();
+            osc_buff[1] = buffer[SoftMainMixer.CHANNEL_RIGHT_DRY].array();
             int ret = osc_stream.read(osc_buff, 0, bufferlen);
             if (ret == -1) {
                 stopping = true;
@@ -772,8 +768,7 @@ public final class SoftVoice {
             }
             if (ret != bufferlen) {
                 Arrays.fill(osc_buff[0], ret, bufferlen, 0f);
-                if (nrofchannels != 1)
-                    Arrays.fill(osc_buff[1], ret, bufferlen, 0f);
+                Arrays.fill(osc_buff[1], ret, bufferlen, 0f);
             }
 
         } catch (IOException e) {
@@ -798,29 +793,21 @@ public final class SoftVoice {
                 filter_right.processAudio(rightdry);
         }
 
-        if (nrofchannels == 1) {
-            out_mixer_left = (out_mixer_left + out_mixer_right) / 2;
+        if(rightdry == null &&
+                last_out_mixer_left == last_out_mixer_right &&
+                out_mixer_left == out_mixer_right)
+        {
+            mixAudioStream(leftdry, mono, last_out_mixer_left, out_mixer_left);
+        }
+        else
+        {
             mixAudioStream(leftdry, left, last_out_mixer_left, out_mixer_left);
             if (rightdry != null)
-                mixAudioStream(rightdry, left, last_out_mixer_left,
-                        out_mixer_left);
-        } else {
-            if(rightdry == null &&
-                    last_out_mixer_left == last_out_mixer_right &&
-                    out_mixer_left == out_mixer_right)
-            {
-                mixAudioStream(leftdry, mono, last_out_mixer_left, out_mixer_left);
-            }
+                mixAudioStream(rightdry, right, last_out_mixer_right,
+                    out_mixer_right);
             else
-            {
-                mixAudioStream(leftdry, left, last_out_mixer_left, out_mixer_left);
-                if (rightdry != null)
-                    mixAudioStream(rightdry, right, last_out_mixer_right,
-                        out_mixer_right);
-                else
-                    mixAudioStream(leftdry, right, last_out_mixer_right,
-                        out_mixer_right);
-            }
+                mixAudioStream(leftdry, right, last_out_mixer_right,
+                    out_mixer_right);
         }
 
         if (rightdry == null) {

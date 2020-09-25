@@ -25,7 +25,6 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.sampled.AudioInputStream;
-import gervill.javax.sound.sampled.AudioSystem;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -251,13 +250,12 @@ public final class SoftMainMixer {
         co_master_coarse_tuning[0] = 0.5;
         co_master_fine_tuning[0] = 0.5;
 
-        int buffersize = (int) (synth.getFormat().getSampleRate()
-                                / 147f);
+        int buffersize = 300;
 
         control_mutex = synth.control_mutex;
         buffers = new SoftAudioBuffer[14];
         for (int i = 0; i < buffers.length; i++) {
-            buffers[i] = new SoftAudioBuffer(buffersize, synth.getFormat());
+            buffers[i] = new SoftAudioBuffer(buffersize, SoftSynthesizer.SYNTH_FORMAT);
         }
         voicestatus = synth.getVoices();
 
@@ -265,7 +263,7 @@ public final class SoftMainMixer {
         chorus = new SoftChorus();
         agc = new SoftLimiter();
 
-        float samplerate = synth.getFormat().getSampleRate();
+        float samplerate = 44100;
         float controlrate = 147f;
         reverb.init(samplerate);
         chorus.init(samplerate, controlrate);
@@ -288,26 +286,14 @@ public final class SoftMainMixer {
         InputStream in = new InputStream() {
 
             private final SoftAudioBuffer[] buffers = SoftMainMixer.this.buffers;
-            private final int nrofchannels
-                    = SoftMainMixer.this.synth.getFormat().getChannels();
-            private final int buffersize = buffers[0].getSize();
-            private final byte[] bbuffer = new byte[buffersize
-                    * (SoftMainMixer.this.synth.getFormat()
-                        .getSampleSizeInBits() / 8)
-                    * nrofchannels];
+            private final byte[] bbuffer = new byte[4 * buffers[0].getSize()];
             private int bbuffer_pos = 0;
             private final byte[] single = new byte[1];
 
             public void fillBuffer() {
-                /*
-                boolean pusher_silent2;
-                synchronized (control_mutex) {
-                    pusher_silent2 = pusher_silent;
-                }
-                if(!pusher_silent2)*/
                 processAudioBuffers();
-                for (int i = 0; i < nrofchannels; i++)
-                    buffers[i].get(bbuffer, i);
+                buffers[0].get(bbuffer, 0);
+                buffers[1].get(bbuffer, 1);
                 bbuffer_pos = 0;
             }
 
@@ -344,7 +330,7 @@ public final class SoftMainMixer {
             }
         };
 
-        ais = new AudioInputStream(in, synth.getFormat(), AudioSystem.NOT_SPECIFIED);
+        ais = new AudioInputStream(in, SoftSynthesizer.SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
 
     }
 

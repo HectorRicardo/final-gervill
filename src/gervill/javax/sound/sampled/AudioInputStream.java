@@ -59,6 +59,8 @@ import java.io.InputStream;
  */
 public class AudioInputStream extends InputStream {
 
+    public static final int NOT_SPECIFIED = -1;
+
     /**
      * The <code>InputStream</code> from which this <code>AudioInputStream</code>
      * object was constructed.
@@ -236,7 +238,7 @@ public class AudioInputStream extends InputStream {
             }
         }
 
-        if( frameLength != AudioSystem.NOT_SPECIFIED ) {
+        if( frameLength != NOT_SPECIFIED ) {
             if( framePos >= frameLength ) {
                 return -1;
             } else {
@@ -304,7 +306,7 @@ public class AudioInputStream extends InputStream {
             n -= (n%frameSize);
         }
 
-        if( frameLength != AudioSystem.NOT_SPECIFIED ) {
+        if( frameLength != NOT_SPECIFIED ) {
             // don't skip more than our set length in frames.
             if( (n/frameSize) > (frameLength-framePos) ) {
                 n = (frameLength-framePos) * frameSize;
@@ -343,7 +345,7 @@ public class AudioInputStream extends InputStream {
         int temp = stream.available();
 
         // don't return greater than our set length in frames
-        if( (frameLength != AudioSystem.NOT_SPECIFIED) && ( (temp/frameSize) > (frameLength-framePos)) ) {
+        if( (frameLength != NOT_SPECIFIED) && ( (temp/frameSize) > (frameLength-framePos)) ) {
             return (int) (frameLength-framePos) * frameSize;
         } else {
             return temp;

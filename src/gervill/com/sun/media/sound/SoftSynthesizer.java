@@ -28,7 +28,6 @@ package gervill.com.sun.media.sound;
 import gervill.javax.sound.midi.*;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
-import gervill.javax.sound.sampled.AudioSystem;
 import gervill.javax.sound.sampled.SourceDataLine;
 import gervill.soundbanks.EmergencySoundbank;
 import own.main.ImmutableList;
@@ -50,11 +49,8 @@ public final class SoftSynthesizer implements AutoCloseable {
     {
         private volatile AudioInputStream stream;
         public final AtomicLong silent_samples = new AtomicLong(0);
-        private final int framesize;
         private final WeakReference<AudioInputStream> weak_stream_link;
-        private final AudioFloatConverter converter;
         private float[] silentbuffer = null;
-        private final int samplesize;
 
         public void setInputStream(AudioInputStream stream)
         {
@@ -81,12 +77,12 @@ public final class SoftSynthesizer implements AutoCloseable {
                  return local_stream.read(b, off, len);
              else
              {
-                 int flen = len / samplesize;
+                 int flen = len / 2;
                  if(silentbuffer == null || silentbuffer.length < flen)
                      silentbuffer = new float[flen];
-                 converter.toByteArray(silentbuffer, flen, b, off);
+                 SYNTH_CONVERTER.toByteArray(silentbuffer, flen, b, off);
 
-                 silent_samples.addAndGet(len / framesize);
+                 silent_samples.addAndGet(len / 4);
 
                  return len;
              }
@@ -95,14 +91,11 @@ public final class SoftSynthesizer implements AutoCloseable {
         public WeakAudioStream(AudioInputStream stream) {
             this.stream = stream;
             weak_stream_link = new WeakReference<>(stream);
-            converter = AudioFloatConverter.getConverter(stream.getFormat());
-            samplesize = stream.getFormat().getFrameSize() / stream.getFormat().getChannels();
-            framesize = stream.getFormat().getFrameSize();
         }
 
         public AudioInputStream getAudioInputStream()
         {
-            return new AudioInputStream(this, stream.getFormat(), AudioSystem.NOT_SPECIFIED);
+            return new AudioInputStream(this, SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
         }
 
         public void close() throws IOException
@@ -130,7 +123,8 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
     }
 
-    private final AudioFormat format = new AudioFormat(44100, 16, 2, true);
+    public static final AudioFormat SYNTH_FORMAT = new AudioFormat(44100, 16, 2, true);
+    public static final AudioFloatConverter SYNTH_CONVERTER = AudioFloatConverter.getConverter(SYNTH_FORMAT);
 
     private final SourceDataLine sourceDataLine = new SourceDataLine();
 
@@ -239,12 +233,6 @@ public final class SoftSynthesizer implements AutoCloseable {
         return voices;
     }
 
-    public AudioFormat getFormat() {
-        synchronized (control_mutex) {
-            return format;
-        }
-    }
-
     public MidiChannel[] getChannels() {
 
         synchronized (control_mutex) {
@@ -308,12 +296,9 @@ public final class SoftSynthesizer implements AutoCloseable {
                 weakstream = new WeakAudioStream(ais);
                 ais = weakstream.getAudioInputStream();
 
-                long latency = 120000L;
-                int bufferSize = getFormat().getFrameSize()
-                    * (int)(getFormat().getFrameRate() * (latency /1000000f));
                 // can throw LineUnavailableException,
                 // IllegalArgumentException, SecurityException
-                sourceDataLine.open(getFormat(), bufferSize);
+                sourceDataLine.open(SYNTH_FORMAT, 21168);
 
                 sourceDataLine.start();
 

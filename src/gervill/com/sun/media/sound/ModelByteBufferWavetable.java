@@ -149,9 +149,6 @@ public final class ModelByteBufferWavetable {
         if (buffer == null || format == null)
             return null;
         if (buffer.array() == null) {
-            /*return AudioFloatInputStream.getInputStream(new AudioInputStream(
-                    buffer.getInputStream(), format,
-                    buffer.capacity() / format.getFrameSize()));*/
             throw new NullPointerException("buffer.array() is null");
         }
         if (buffer8 != null) {

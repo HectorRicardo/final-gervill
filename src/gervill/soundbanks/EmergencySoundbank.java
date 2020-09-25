@@ -2380,7 +2380,7 @@ public final class EmergencySoundbank {
         float[] fdata = toFloat(data);
         fdata = loopExtend(fdata, fdata.length + 512);
         fadeUp(fdata, fadeuptime);
-        byte[] bdata = toBytes(fdata, SAMPLE_FORMAT);
+        byte[] bdata = toBytes(fdata);
 
         /*
          * Create SoundFont2 sample.
@@ -2409,7 +2409,7 @@ public final class EmergencySoundbank {
         float[] fdata = toFloat(data);
         fdata = loopExtend(fdata, fdata.length + 512);
         fadeUp(fdata, 80);
-        byte[] bdata = toBytes(fdata, SAMPLE_FORMAT);
+        byte[] bdata = toBytes(fdata);
 
         /*
          * Create SoundFont2 sample.
@@ -2423,7 +2423,7 @@ public final class EmergencySoundbank {
 
         int fftsize = data.length;
 
-        byte[] bdata = toBytes(toFloat(realPart(data)), SAMPLE_FORMAT);
+        byte[] bdata = toBytes(toFloat(realPart(data)));
 
         /*
          * Create SoundFont2 sample.
@@ -2527,9 +2527,9 @@ public final class EmergencySoundbank {
         return out;
     }
 
-    private static byte[] toBytes(float[] in, AudioFormat format) {
-        byte[] out = new byte[in.length * format.getFrameSize()];
-        return AudioFloatConverter.getConverter(format).toByteArray(in, out);
+    private static byte[] toBytes(float[] in) {
+        byte[] out = new byte[in.length * EmergencySoundbank.SAMPLE_FORMAT.getFrameSize()];
+        return AudioFloatConverter.getConverter(EmergencySoundbank.SAMPLE_FORMAT).toByteArray(in, out);
     }
 
     private static void fadeUp(double[] data, int samples) {
