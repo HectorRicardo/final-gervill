@@ -24,8 +24,6 @@
  */
 package gervill.soundbanks;
 
-import gervill.com.sun.media.sound.ModelByteBuffer;
-import gervill.com.sun.media.sound.ModelInstrumentComparator;
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.Patch;
 import own.main.ImmutableList;

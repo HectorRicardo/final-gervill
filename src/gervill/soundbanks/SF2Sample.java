@@ -24,7 +24,6 @@
  */
 package gervill.soundbanks;
 
-import gervill.com.sun.media.sound.ModelByteBuffer;
 import gervill.javax.sound.sampled.AudioFormat;
 
 /**

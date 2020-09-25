@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
 
 import own.main.ImmutableList;
 
@@ -31,7 +31,7 @@ import own.main.ImmutableList;
  *
  * @author Karl Helgason
  */
-public final class ModelByteBuffer {
+final class ModelByteBuffer {
 
     private final ModelByteBuffer root;
     private final ImmutableList<Byte> buffer;
@@ -63,37 +63,37 @@ public final class ModelByteBuffer {
         }
     }
 
-    public ModelByteBuffer(byte[] buffer) {
+    ModelByteBuffer(byte[] buffer) {
         this.buffer = ImmutableList.create(buffer);
         this.offset = 0;
         this.len = buffer.length;
         root = this;
     }
 
-    public ModelByteBuffer subbuffer(long beginIndex, long endIndex) {
+    ModelByteBuffer subbuffer(long beginIndex, long endIndex) {
         return subbuffer(beginIndex, endIndex, false);
     }
 
-    public ModelByteBuffer subbuffer(long beginIndex, long endIndex,
+    ModelByteBuffer subbuffer(long beginIndex, long endIndex,
             boolean independent) {
         return new ModelByteBuffer(this, beginIndex, endIndex, independent);
     }
 
-    public ImmutableList<Byte> array() {
+    ImmutableList<Byte> array() {
         return root.buffer;
     }
 
-    public long arrayOffset(ModelByteBuffer root, long offset) {
+    long arrayOffset(ModelByteBuffer root, long offset) {
         if (root != this)
             return root.arrayOffset() + offset;
         return offset;
     }
 
-    public long arrayOffset() {
+    long arrayOffset() {
         return arrayOffset(root, offset);
     }
 
-    public long capacity() {
+    long capacity() {
         return len;
     }
 

@@ -22,8 +22,9 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package gervill.com.sun.media.sound;
+package gervill.soundbanks;
 
+import gervill.com.sun.media.sound.AudioFloatInputStream;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioFormat.Encoding;
 import gervill.javax.sound.sampled.AudioInputStream;
@@ -39,9 +40,9 @@ import java.io.InputStream;
  */
 public final class ModelByteBufferWavetable {
 
-    public static final int LOOP_TYPE_OFF = 0;
-    public static final int LOOP_TYPE_FORWARD = 1;
-    public static final int LOOP_TYPE_RELEASE = 2;
+    static final int LOOP_TYPE_OFF = 0;
+    static final int LOOP_TYPE_FORWARD = 1;
+    static final int LOOP_TYPE_RELEASE = 2;
 
     private class Buffer8PlusInputStream extends InputStream {
 
@@ -130,7 +131,7 @@ public final class ModelByteBufferWavetable {
     private final float attenuation;
     private final int loopType;
 
-    public ModelByteBufferWavetable(ModelByteBuffer buffer, AudioFormat format, float pitchcorrection, float attenuation, int loopStart, int loopLength, int loopType, ModelByteBuffer buffer8) {
+    ModelByteBufferWavetable(ModelByteBuffer buffer, AudioFormat format, float pitchcorrection, float attenuation, int loopStart, int loopLength, int loopType, ModelByteBuffer buffer8) {
         this.format = format;
         this.buffer = buffer;
         this.pitchcorrection = pitchcorrection;
@@ -141,7 +142,7 @@ public final class ModelByteBufferWavetable {
         this.buffer8 = buffer8;
     }
 
-    public AudioFormat getFormat() {
+    AudioFormat getFormat() {
         return format;
     }
 

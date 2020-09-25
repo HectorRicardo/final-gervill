@@ -1,7 +1,9 @@
 package own.main;
 
 import gervill.com.sun.media.sound.SoftSynthesizer;
-import gervill.javax.sound.midi.*;
+import gervill.javax.sound.midi.Instrument;
+import gervill.javax.sound.midi.MidiChannel;
+import gervill.javax.sound.midi.Patch;
 import gervill.soundbanks.DLSSoundbankParser;
 import gervill.soundbanks.SF2SoundbankParser;
 

@@ -25,7 +25,9 @@
 
 package gervill.com.sun.media.sound;
 
-import gervill.javax.sound.midi.*;
+import gervill.javax.sound.midi.Instrument;
+import gervill.javax.sound.midi.MidiChannel;
+import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.SourceDataLine;

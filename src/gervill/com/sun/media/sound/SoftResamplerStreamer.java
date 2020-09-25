@@ -24,6 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.soundbanks.ModelByteBufferWavetable;
+
 import java.io.IOException;
 
 /**

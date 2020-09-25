@@ -24,6 +24,7 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.soundbanks.ModelByteBufferWavetable;
 import own.main.ImmutableList;
 
 import java.util.List;
