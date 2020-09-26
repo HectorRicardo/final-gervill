@@ -175,10 +175,10 @@ public final class SoftChorus {
     private float dirty_vdelay1R_reverbsendgain;
     private float controlrate;
 
-    public void init(float samplerate, float controlrate) {
-        this.controlrate = controlrate;
-        vdelay1L = new LFODelay(samplerate, controlrate);
-        vdelay1R = new LFODelay(samplerate, controlrate);
+    public void init() {
+        this.controlrate = 147;
+        vdelay1L = new LFODelay(44100, 147);
+        vdelay1R = new LFODelay(44100, 147);
         vdelay1L.setGain(1.0f); // %
         vdelay1R.setGain(1.0f); // %
         vdelay1L.setPhase(0.5 * Math.PI);

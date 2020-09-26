@@ -24,6 +24,8 @@
  */
 package gervill.com.sun.media.sound;
 
+import own.main.ImmutableList;
+
 /**
  * Reverb effect based on allpass/comb filters. First audio is send to 8
  * parelled comb filters and then mixed together and then finally send thru 3
@@ -73,14 +75,11 @@ public final class SoftReverb {
         private final float[] delaybuffer;
         private final int delaybuffersize;
         private int rovepos = 0;
-        private float feedback;
+        private final float feedback;
 
-        AllPass(int size) {
+        AllPass(int size, float feedback) {
             delaybuffer = new float[size];
             delaybuffersize = size;
-        }
-
-        public void setFeedBack(float feedback) {
             this.feedback = feedback;
         }
 
@@ -165,10 +164,10 @@ public final class SoftReverb {
     }
 
     private float gain = 1;
-    private Delay delay;
-    private Comb[] combL;
-    private Comb[] combR;
-    private AllPass[] allpassL;
+    private final Delay delay = new Delay();
+    private final ImmutableList<Comb> combL = ImmutableList.create(new Comb(1116), new Comb(1188), new Comb(1277), new Comb(1356), new Comb(1422), new Comb(1491), new Comb(1557), new Comb(1617));
+    private final ImmutableList<Comb> combR = ImmutableList.create(new Comb(1139), new Comb(1211), new Comb(1300), new Comb(1379), new Comb(1445), new Comb(1514), new Comb(1580), new Comb(1640));
+    private final ImmutableList<AllPass> allpassL = ImmutableList.create(new AllPass(556, 0.5f), new AllPass(441, 0.5f), new AllPass(341, 0.5f), new AllPass(225, 0.5f));
     private float[] input;
     private float[] pre1;
     private float[] pre2;
@@ -178,56 +177,6 @@ public final class SoftReverb {
     private SoftAudioBuffer left;
     private SoftAudioBuffer right;
     private boolean dirty = true;
-    private float dirty_roomsize;
-    private float dirty_damp;
-    private float dirty_predelay;
-    private float dirty_gain;
-
-    public void init() {
-
-        int stereospread = 23;
-
-        delay = new Delay();
-
-        combL = new Comb[8];
-        combR = new Comb[8];
-        combL[0] = new Comb(1116);
-        combR[0] = new Comb(1116 + stereospread);
-        combL[1] = new Comb(1188);
-        combR[1] = new Comb(1188 + stereospread);
-        combL[2] = new Comb(1277);
-        combR[2] = new Comb(1277 + stereospread);
-        combL[3] = new Comb(1356);
-        combR[3] = new Comb(1356 + stereospread);
-        combL[4] = new Comb(1422);
-        combR[4] = new Comb(1422 + stereospread);
-        combL[5] = new Comb(1491);
-        combR[5] = new Comb(1491 + stereospread);
-        combL[6] = new Comb(1557);
-        combR[6] = new Comb(1557 + stereospread);
-        combL[7] = new Comb(1617);
-        combR[7] = new Comb(1617 + stereospread);
-
-        allpassL = new AllPass[4];
-        AllPass[] allpassR = new AllPass[4];
-        allpassL[0] = new AllPass(556);
-        allpassR[0] = new AllPass(556 + stereospread);
-        allpassL[1] = new AllPass(441);
-        allpassR[1] = new AllPass(441 + stereospread);
-        allpassL[2] = new AllPass(341);
-        allpassR[2] = new AllPass(341 + stereospread);
-        allpassL[3] = new AllPass(225);
-        allpassR[3] = new AllPass(225 + stereospread);
-
-        for (int i = 0; i < allpassL.length; i++) {
-            allpassL[i].setFeedBack(0.5f);
-            allpassR[i].setFeedBack(0.5f);
-        }
-
-        /* Init other settings */
-        globalParameterControlChange();
-
-    }
 
     public void setInput(int pin, SoftAudioBuffer input) {
         if (pin == 0)
@@ -281,21 +230,21 @@ public final class SoftReverb {
 
         for (AllPass allPass : allpassL) allPass.processReplace(input);
 
-        combL[0].processReplace(input, pre3);
-        combL[1].processReplace(input, pre3);
+        combL.get(0).processReplace(input, pre3);
+        combL.get(1).processReplace(input, pre3);
 
-        combL[2].processReplace(input, pre1);
+        combL.get(2).processReplace(input, pre1);
         for (int i = 4; i < combL.length-2; i+=2)
-            combL[i].processMix(input, pre1);
+            combL.get(i).processMix(input, pre1);
 
-        combL[3].processReplace(input, pre2);
+        combL.get(3).processReplace(input, pre2);
         for (int i = 5; i < combL.length-2; i+=2)
-            combL[i].processMix(input, pre2);
+            combL.get(i).processMix(input, pre2);
 
         for (int i = combR.length-2; i < combR.length; i++)
-            combR[i].processMix(input, right);
+            combR.get(i).processMix(input, right);
         for (int i = combL.length-2; i < combL.length; i++)
-            combL[i].processMix(input, left);
+            combL.get(i).processMix(input, left);
 
         for (int i = 0; i < numsamples; i++)
         {
@@ -321,25 +270,13 @@ public final class SoftReverb {
 
     }
 
-    private void globalParameterControlChange() {
-
-        // Large Hall A large size concert hall
-        // suitable for a full orchestra.
-        dirty_roomsize = (1.8f);
-        dirty_damp = (24000);
-        dirty_predelay = (0.03f);
-        dirty_gain = (1.5f);
-        dirty = true;
-
-    }
-
     public void processControlLogic() {
         if (dirty) {
             dirty = false;
-            setRoomSize(dirty_roomsize);
-            setDamp(dirty_damp);
-            setPreDelay(dirty_predelay);
-            setGain(dirty_gain);
+            setRoomSize(1.8f);
+            setDamp(24000);
+            setPreDelay(0.03f);
+            setGain(1.5f);
         }
     }
 
@@ -347,8 +284,8 @@ public final class SoftReverb {
         float roomsize = 1 - (0.17f / value);
 
         for (int i = 0; i < combL.length; i++) {
-            combL[i].feedback = roomsize;
-            combR[i].feedback = roomsize;
+            combL.get(i).feedback = roomsize;
+            combR.get(i).feedback = roomsize;
         }
     }
 
@@ -371,8 +308,8 @@ public final class SoftReverb {
 
         // damp = value * 0.4f;
         for (int i = 0; i < combL.length; i++) {
-            combL[i].setDamp(damp);
-            combR[i].setDamp(damp);
+            combL.get(i).setDamp(damp);
+            combR.get(i).setDamp(damp);
         }
 
     }

@@ -39,6 +39,14 @@ public class ImmutableList<T> implements Iterable<T> {
         return new ImmutableList<>(Arrays.asList(elem1, elem2));
     }
 
+    public static <T> ImmutableList<T> create(T elem1, T elem2, T elem3, T elem4) {
+        return new ImmutableList<>(Arrays.asList(elem1, elem2, elem3, elem4));
+    }
+
+    public static <T> ImmutableList<T> create(T elem1, T elem2, T elem3, T elem4, T elem5, T elem6, T elem7, T elem8) {
+        return new ImmutableList<>(Arrays.asList(elem1, elem2, elem3, elem4, elem5, elem6, elem7, elem8));
+    }
+
     public static <T> ImmutableList<T> create(T[] arr) {
         return ImmutableList.create(Arrays.asList(arr));
     }

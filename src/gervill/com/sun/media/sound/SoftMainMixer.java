@@ -261,8 +261,7 @@ public final class SoftMainMixer {
         chorus = new SoftChorus();
         agc = new SoftLimiter();
 
-        reverb.init();
-        chorus.init(44100, 147f);
+        chorus.init();
         agc.init(147f);
 
         chorus.setInput(0, buffers[CHANNEL_EFFECT2]);
