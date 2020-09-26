@@ -173,22 +173,15 @@ public final class SoftReverb {
     private float[] pre2;
     private float[] pre3;
     private boolean denormal_flip = false;
-    private SoftAudioBuffer inputA;
-    private SoftAudioBuffer left;
-    private SoftAudioBuffer right;
+    private final SoftAudioBuffer inputA;
+    private final SoftAudioBuffer left;
+    private final SoftAudioBuffer right;
     private boolean dirty = true;
 
     public SoftReverb(SoftAudioBuffer inputA, SoftAudioBuffer left, SoftAudioBuffer right) {
         this.inputA = inputA;
         this.left = left;
         this.right = right;
-    }
-
-    public void setOutput(int pin, SoftAudioBuffer output) {
-        if (pin == 0)
-            left = output;
-        if (pin == 1)
-            right = output;
     }
 
     private boolean silent = true;

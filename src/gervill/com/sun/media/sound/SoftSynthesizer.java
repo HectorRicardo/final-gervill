@@ -35,10 +35,7 @@ import gervill.soundbanks.EmergencySoundbank;
 import own.main.ImmutableList;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The software synthesizer class.
@@ -47,60 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class SoftSynthesizer implements AutoCloseable {
 
-    protected static final class WeakAudioStream extends InputStream
-    {
-        private volatile AudioInputStream stream;
-        public final AtomicLong silent_samples = new AtomicLong(0);
-        private final WeakReference<AudioInputStream> weak_stream_link;
-        private float[] silentbuffer = null;
-
-        public void setInputStream(AudioInputStream stream)
-        {
-            this.stream = stream;
-        }
-
-        public int read() {
-             throw new RuntimeException();
-        }
-
-        public int read(byte[] b, int off, int len) throws IOException {
-             AudioInputStream local_stream = stream;
-             if(local_stream != null)
-                 return local_stream.read(b, off, len);
-             else
-             {
-                 int flen = len / 2;
-                 if(silentbuffer == null || silentbuffer.length < flen)
-                     silentbuffer = new float[flen];
-                 SYNTH_CONVERTER.toByteArray(silentbuffer, flen, b, off);
-
-                 silent_samples.addAndGet(len / 4);
-
-                 return len;
-             }
-        }
-
-        public WeakAudioStream(AudioInputStream stream) {
-            this.stream = stream;
-            weak_stream_link = new WeakReference<>(stream);
-        }
-
-        public AudioInputStream getAudioInputStream()
-        {
-            return new AudioInputStream(this, SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
-        }
-
-        public void close() throws IOException
-        {
-            AudioInputStream astream  = weak_stream_link.get();
-            if(astream != null)
-                astream.close();
-        }
-    }
-
     private static ImmutableList<Instrument> defaultInstruments = null;
-
-    WeakAudioStream weakstream = null;
 
     final Object control_mutex = this;
 
@@ -282,26 +226,8 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
         synchronized (control_mutex) {
             AudioInputStream ais = openStream();
-
-            weakstream = new WeakAudioStream(ais);
-            ais = weakstream.getAudioInputStream();
-
-            // can throw LineUnavailableException,
-            // IllegalArgumentException, SecurityException
             sourceDataLine.open(SYNTH_FORMAT, 21168);
             sourceDataLine.start();
-
-            // Tell mixer not fill read buffers fully.
-            // This lowers latency, and tells DataPusher
-            // to read in smaller amounts.
-            //mainmixer.readfully = false;
-            //pusher = new DataPusher(line, ais);
-
-            int buffersize = sourceDataLine.getBufferSize();
-            buffersize -= buffersize % 1200;
-            buffersize = Math.max(3600, buffersize);
-
-            ais = new AudioInputStream(new JitterStream(ais, buffersize), SoftSynthesizer.SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
             pusher = new SoftAudioPusher(sourceDataLine, ais);
             pusher.start();
         }

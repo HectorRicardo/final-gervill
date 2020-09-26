@@ -628,11 +628,6 @@ public abstract class AudioFloatConverter {
             int in_len, byte[] out_buff, int out_offset);
 
     public final void toByteArray(float[] in_buff, int in_len,
-                                  byte[] out_buff, int out_offset) {
-        toByteArray(in_buff, 0, in_len, out_buff, out_offset);
-    }
-
-    public final void toByteArray(float[] in_buff, int in_len,
                                   byte[] out_buff) {
         toByteArray(in_buff, 0, in_len, out_buff, 0);
     }

@@ -110,20 +110,6 @@ public class SourceDataLine implements AutoCloseable {
         realLine.start();
     }
 
-    /**
-     * Obtains the maximum number of bytes of data that will fit in the data line's
-     * internal buffer.  For a source data line, this is the size of the buffer to
-     * which data can be written.  For a target data line, it is the size of
-     * the buffer from which data can be read.  Note that
-     * the units used are bytes, but will always correspond to an integral
-     * number of sample frames of audio data.
-     *
-     * @return the size of the buffer in bytes
-     */
-    public int getBufferSize() {
-        return realLine.getBufferSize();
-    }
-
 
     /**
      * Opens the line with the specified format and suggested buffer size,
