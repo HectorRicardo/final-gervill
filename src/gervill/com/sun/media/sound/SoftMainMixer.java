@@ -255,23 +255,12 @@ public final class SoftMainMixer {
         buffers = ImmutableList.create(14, i -> new SoftAudioBuffer());
         voicestatus = synth.getVoices();
 
-        reverb = new SoftReverb();
-        chorus = new SoftChorus();
-        agc = new SoftLimiter();
+        SoftAudioBuffer left = buffers.get(CHANNEL_LEFT);
+        SoftAudioBuffer right = buffers.get(CHANNEL_RIGHT);
 
-        chorus.setInput(0, buffers.get(CHANNEL_EFFECT2));
-        chorus.setOutput(0, buffers.get(CHANNEL_LEFT));
-        chorus.setOutput(1, buffers.get(CHANNEL_RIGHT));
-        chorus.setOutput(2, buffers.get(CHANNEL_EFFECT1));
-
-        reverb.setInput(0, buffers.get(CHANNEL_EFFECT1));
-        reverb.setOutput(0, buffers.get(CHANNEL_LEFT));
-        reverb.setOutput(1, buffers.get(CHANNEL_RIGHT));
-
-        agc.setInput(0, buffers.get(CHANNEL_LEFT));
-        agc.setInput(1, buffers.get(CHANNEL_RIGHT));
-        agc.setOutput(0, buffers.get(CHANNEL_LEFT));
-        agc.setOutput(1, buffers.get(CHANNEL_RIGHT));
+        reverb = new SoftReverb(buffers.get(CHANNEL_EFFECT1), left, right);
+        chorus = new SoftChorus(buffers.get(CHANNEL_EFFECT2), left, right);
+        agc = new SoftLimiter(left, right);
 
         InputStream in = new InputStream() {
 

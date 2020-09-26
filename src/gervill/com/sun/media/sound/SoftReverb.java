@@ -178,9 +178,10 @@ public final class SoftReverb {
     private SoftAudioBuffer right;
     private boolean dirty = true;
 
-    public void setInput(int pin, SoftAudioBuffer input) {
-        if (pin == 0)
-            inputA = input;
+    public SoftReverb(SoftAudioBuffer inputA, SoftAudioBuffer left, SoftAudioBuffer right) {
+        this.inputA = inputA;
+        this.left = left;
+        this.right = right;
     }
 
     public void setOutput(int pin, SoftAudioBuffer output) {

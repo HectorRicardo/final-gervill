@@ -116,14 +116,20 @@ public final class SoftChorus {
 
     }
 
-    private SoftAudioBuffer inputA;
-    private SoftAudioBuffer left;
-    private SoftAudioBuffer right;
+    private final SoftAudioBuffer inputA;
+    private final SoftAudioBuffer left;
+    private final SoftAudioBuffer right;
     private final LFODelay vdelay1L = new LFODelay(0.5 * Math.PI);
     private final LFODelay vdelay1R = new LFODelay(0);
     private boolean dirty = true;
 
     double silentcounter = 1000;
+
+    public SoftChorus(SoftAudioBuffer inputA, SoftAudioBuffer left, SoftAudioBuffer right) {
+        this.inputA = inputA;
+        this.left = left;
+        this.right = right;
+    }
 
     public void processControlLogic() {
         if (dirty) {
@@ -155,17 +161,5 @@ public final class SoftChorus {
         vdelay1L.processMix(inputA, left);
         if (right != null)
             vdelay1R.processMix(inputA, right);
-    }
-
-    public void setInput(int pin, SoftAudioBuffer input) {
-        if (pin == 0)
-            inputA = input;
-    }
-
-    public void setOutput(int pin, SoftAudioBuffer output) {
-        if (pin == 0)
-            left = output;
-        if (pin == 1)
-            right = output;
     }
 }

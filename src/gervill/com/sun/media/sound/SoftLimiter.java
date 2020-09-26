@@ -36,23 +36,12 @@ public final class SoftLimiter {
     private float gain = 1;
     private float[] temp_bufferL;
     private float[] temp_bufferR;
-    private SoftAudioBuffer bufferL;
-    private SoftAudioBuffer bufferR;
-    private SoftAudioBuffer bufferLout;
-    private SoftAudioBuffer bufferRout;
+    private final SoftAudioBuffer bufferL;
+    private final SoftAudioBuffer bufferR;
 
-    public void setInput(int pin, SoftAudioBuffer input) {
-        if (pin == 0)
-            bufferL = input;
-        if (pin == 1)
-            bufferR = input;
-    }
-
-    public void setOutput(int pin, SoftAudioBuffer output) {
-        if (pin == 0)
-            bufferLout = output;
-        if (pin == 1)
-            bufferRout = output;
+    public SoftLimiter(SoftAudioBuffer left, SoftAudioBuffer right) {
+        this.bufferL = left;
+        this.bufferR = right;
     }
 
     private double silentcounter = 0;
@@ -63,8 +52,8 @@ public final class SoftLimiter {
             silentcounter += 1 / controlrate;
 
             if (silentcounter > 60) {
-                bufferLout.clear();
-                bufferRout.clear();
+                bufferL.clear();
+                bufferR.clear();
                 return;
             }
         } else
@@ -72,12 +61,10 @@ public final class SoftLimiter {
 
         float[] bufferL = this.bufferL.array();
         float[] bufferR = this.bufferR.array();
-        float[] bufferLout = this.bufferLout.array();
-        float[] bufferRout = this.bufferRout.array();
 
-        if (temp_bufferL == null || temp_bufferL.length < bufferL.length)
+        if (temp_bufferL == null)
             temp_bufferL = new float[bufferL.length];
-        if (temp_bufferR == null || temp_bufferR.length < bufferR.length)
+        if (temp_bufferR == null)
             temp_bufferR = new float[bufferR.length];
 
         float max = 0;
@@ -115,8 +102,8 @@ public final class SoftLimiter {
             float tR = temp_bufferR[i];
             temp_bufferL[i] = bL;
             temp_bufferR[i] = bR;
-            bufferLout[i] = tL * gain;
-            bufferRout[i] = tR * gain;
+            bufferL[i] = tL * gain;
+            bufferR[i] = tR * gain;
         }
 
         gain = newgain;
