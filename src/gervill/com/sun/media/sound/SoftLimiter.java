@@ -40,11 +40,6 @@ public final class SoftLimiter {
     SoftAudioBuffer bufferR;
     SoftAudioBuffer bufferLout;
     SoftAudioBuffer bufferRout;
-    float controlrate;
-
-    public void init(float controlrate) {
-        this.controlrate = controlrate;
-    }
 
     public void setInput(int pin, SoftAudioBuffer input) {
         if (pin == 0)
@@ -64,6 +59,7 @@ public final class SoftLimiter {
 
     public void processAudio() {
         if (this.bufferL.isSilent() && this.bufferR.isSilent()) {
+            float controlrate = 147f;
             silentcounter += 1 / controlrate;
 
             if (silentcounter > 60) {

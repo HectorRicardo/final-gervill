@@ -25,6 +25,7 @@
 package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.sampled.AudioInputStream;
+import own.main.ImmutableList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +54,7 @@ public final class SoftMainMixer {
     private final Object control_mutex;
     private final SoftSynthesizer synth;
     private final SoftVoice[] voicestatus;
-    private final SoftAudioBuffer[] buffers;
+    private final ImmutableList<SoftAudioBuffer> buffers;
     private final SoftReverb reverb;
     private final SoftChorus chorus;
     private final SoftLimiter agc;
@@ -99,28 +100,28 @@ public final class SoftMainMixer {
                     i != CHANNEL_DELAY_MONO &&
                     i != CHANNEL_DELAY_EFFECT1 &&
                     i != CHANNEL_DELAY_EFFECT2)
-                buffers[i].clear();
+                buffers.get(i).clear();
         }
 
-        if(!buffers[CHANNEL_DELAY_LEFT].isSilent())
+        if(!buffers.get(CHANNEL_DELAY_LEFT).isSilent())
         {
-            buffers[CHANNEL_LEFT].swap(buffers[CHANNEL_DELAY_LEFT]);
+            buffers.get(CHANNEL_LEFT).swap(buffers.get(CHANNEL_DELAY_LEFT));
         }
-        if(!buffers[CHANNEL_DELAY_RIGHT].isSilent())
+        if(!buffers.get(CHANNEL_DELAY_RIGHT).isSilent())
         {
-            buffers[CHANNEL_RIGHT].swap(buffers[CHANNEL_DELAY_RIGHT]);
+            buffers.get(CHANNEL_RIGHT).swap(buffers.get(CHANNEL_DELAY_RIGHT));
         }
-        if(!buffers[CHANNEL_DELAY_MONO].isSilent())
+        if(!buffers.get(CHANNEL_DELAY_MONO).isSilent())
         {
-            buffers[CHANNEL_MONO].swap(buffers[CHANNEL_DELAY_MONO]);
+            buffers.get(CHANNEL_MONO).swap(buffers.get(CHANNEL_DELAY_MONO));
         }
-        if(!buffers[CHANNEL_DELAY_EFFECT1].isSilent())
+        if(!buffers.get(CHANNEL_DELAY_EFFECT1).isSilent())
         {
-            buffers[CHANNEL_EFFECT1].swap(buffers[CHANNEL_DELAY_EFFECT1]);
+            buffers.get(CHANNEL_EFFECT1).swap(buffers.get(CHANNEL_DELAY_EFFECT1));
         }
-        if(!buffers[CHANNEL_DELAY_EFFECT2].isSilent())
+        if(!buffers.get(CHANNEL_DELAY_EFFECT2).isSilent())
         {
-            buffers[CHANNEL_EFFECT2].swap(buffers[CHANNEL_DELAY_EFFECT2]);
+            buffers.get(CHANNEL_EFFECT2).swap(buffers.get(CHANNEL_DELAY_EFFECT2));
         }
 
         double volume_left;
@@ -152,12 +153,12 @@ public final class SoftMainMixer {
             if (softVoice.active)
                 softVoice.processAudioLogic(buffers);
 
-        if(!buffers[CHANNEL_MONO].isSilent())
+        if(!buffers.get(CHANNEL_MONO).isSilent())
         {
-            float[] mono = buffers[CHANNEL_MONO].array();
-            float[] left = buffers[CHANNEL_LEFT].array();
+            float[] mono = buffers.get(CHANNEL_MONO).array();
+            float[] left = buffers.get(CHANNEL_LEFT).array();
             int bufferlen = 300;
-            float[] right = buffers[CHANNEL_RIGHT].array();
+            float[] right = buffers.get(CHANNEL_RIGHT).array();
             for (int i = 0; i < bufferlen; i++) {
                 float v = mono[i];
                 left[i] += v;
@@ -171,8 +172,8 @@ public final class SoftMainMixer {
 
         // Set Volume / Balance
         if (last_volume_left != volume_left || last_volume_right != volume_right) {
-            float[] left = buffers[CHANNEL_LEFT].array();
-            float[] right = buffers[CHANNEL_RIGHT].array();
+            float[] left = buffers.get(CHANNEL_LEFT).array();
+            float[] right = buffers.get(CHANNEL_RIGHT).array();
             int bufferlen = 300;
 
             float amp;
@@ -194,8 +195,8 @@ public final class SoftMainMixer {
 
         } else {
             if (volume_left != 1.0 || volume_right != 1.0) {
-                float[] left = buffers[CHANNEL_LEFT].array();
-                float[] right = buffers[CHANNEL_RIGHT].array();
+                float[] left = buffers.get(CHANNEL_LEFT).array();
+                float[] right = buffers.get(CHANNEL_RIGHT).array();
                 int bufferlen = 300;
                 float amp;
                 amp = (float) (volume_left * volume_left);
@@ -208,8 +209,8 @@ public final class SoftMainMixer {
             }
         }
 
-        if(buffers[CHANNEL_LEFT].isSilent()
-            && buffers[CHANNEL_RIGHT].isSilent())
+        if(buffers.get(CHANNEL_LEFT).isSilent()
+            && buffers.get(CHANNEL_RIGHT).isSilent())
         {
             pusher_silent_count++;
             if(pusher_silent_count > 5)
@@ -251,43 +252,37 @@ public final class SoftMainMixer {
         co_master_fine_tuning[0] = 0.5;
 
         control_mutex = synth.control_mutex;
-        buffers = new SoftAudioBuffer[14];
-        for (int i = 0; i < buffers.length; i++) {
-            buffers[i] = new SoftAudioBuffer();
-        }
+        buffers = ImmutableList.create(14, i -> new SoftAudioBuffer());
         voicestatus = synth.getVoices();
 
         reverb = new SoftReverb();
         chorus = new SoftChorus();
         agc = new SoftLimiter();
 
-        agc.init(147f);
+        chorus.setInput(0, buffers.get(CHANNEL_EFFECT2));
+        chorus.setOutput(0, buffers.get(CHANNEL_LEFT));
+        chorus.setOutput(1, buffers.get(CHANNEL_RIGHT));
+        chorus.setOutput(2, buffers.get(CHANNEL_EFFECT1));
 
-        chorus.setInput(0, buffers[CHANNEL_EFFECT2]);
-        chorus.setOutput(0, buffers[CHANNEL_LEFT]);
-        chorus.setOutput(1, buffers[CHANNEL_RIGHT]);
-        chorus.setOutput(2, buffers[CHANNEL_EFFECT1]);
+        reverb.setInput(0, buffers.get(CHANNEL_EFFECT1));
+        reverb.setOutput(0, buffers.get(CHANNEL_LEFT));
+        reverb.setOutput(1, buffers.get(CHANNEL_RIGHT));
 
-        reverb.setInput(0, buffers[CHANNEL_EFFECT1]);
-        reverb.setOutput(0, buffers[CHANNEL_LEFT]);
-        reverb.setOutput(1, buffers[CHANNEL_RIGHT]);
-
-        agc.setInput(0, buffers[CHANNEL_LEFT]);
-        agc.setInput(1, buffers[CHANNEL_RIGHT]);
-        agc.setOutput(0, buffers[CHANNEL_LEFT]);
-        agc.setOutput(1, buffers[CHANNEL_RIGHT]);
+        agc.setInput(0, buffers.get(CHANNEL_LEFT));
+        agc.setInput(1, buffers.get(CHANNEL_RIGHT));
+        agc.setOutput(0, buffers.get(CHANNEL_LEFT));
+        agc.setOutput(1, buffers.get(CHANNEL_RIGHT));
 
         InputStream in = new InputStream() {
 
-            private final SoftAudioBuffer[] buffers = SoftMainMixer.this.buffers;
             private final byte[] bbuffer = new byte[1200];
             private int bbuffer_pos = 0;
             private final byte[] single = new byte[1];
 
             public void fillBuffer() {
                 processAudioBuffers();
-                buffers[0].get(bbuffer, 0);
-                buffers[1].get(bbuffer, 1);
+                buffers.get(0).get(bbuffer, 0);
+                buffers.get(1).get(bbuffer, 1);
                 bbuffer_pos = 0;
             }
 

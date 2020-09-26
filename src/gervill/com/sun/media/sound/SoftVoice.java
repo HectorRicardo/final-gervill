@@ -752,15 +752,15 @@ public final class SoftVoice {
 
     }
 
-    void processAudioLogic(SoftAudioBuffer[] buffer) {
+    void processAudioLogic(ImmutableList<SoftAudioBuffer> buffer) {
         if (!audiostarted)
             return;
 
         int bufferlen = 300;
 
         try {
-            osc_buff[0] = buffer[SoftMainMixer.CHANNEL_LEFT_DRY].array();
-            osc_buff[1] = buffer[SoftMainMixer.CHANNEL_RIGHT_DRY].array();
+            osc_buff[0] = buffer.get(SoftMainMixer.CHANNEL_LEFT_DRY).array();
+            osc_buff[1] = buffer.get(SoftMainMixer.CHANNEL_RIGHT_DRY).array();
             int ret = osc_stream.read(osc_buff, 0, bufferlen);
             if (ret == -1) {
                 stopping = true;
@@ -775,14 +775,14 @@ public final class SoftVoice {
             //e.printStackTrace();
         }
 
-        SoftAudioBuffer left = buffer[SoftMainMixer.CHANNEL_LEFT];
-        SoftAudioBuffer right = buffer[SoftMainMixer.CHANNEL_RIGHT];
-        SoftAudioBuffer mono = buffer[SoftMainMixer.CHANNEL_MONO];
-        SoftAudioBuffer eff1 = buffer[SoftMainMixer.CHANNEL_EFFECT1];
-        SoftAudioBuffer eff2 = buffer[SoftMainMixer.CHANNEL_EFFECT2];
+        SoftAudioBuffer left = buffer.get(SoftMainMixer.CHANNEL_LEFT);
+        SoftAudioBuffer right = buffer.get(SoftMainMixer.CHANNEL_RIGHT);
+        SoftAudioBuffer mono = buffer.get(SoftMainMixer.CHANNEL_MONO);
+        SoftAudioBuffer eff1 = buffer.get(SoftMainMixer.CHANNEL_EFFECT1);
+        SoftAudioBuffer eff2 = buffer.get(SoftMainMixer.CHANNEL_EFFECT2);
 
-        SoftAudioBuffer leftdry = buffer[SoftMainMixer.CHANNEL_LEFT_DRY];
-        SoftAudioBuffer rightdry = buffer[SoftMainMixer.CHANNEL_RIGHT_DRY];
+        SoftAudioBuffer leftdry = buffer.get(SoftMainMixer.CHANNEL_LEFT_DRY);
+        SoftAudioBuffer rightdry = buffer.get(SoftMainMixer.CHANNEL_RIGHT_DRY);
 
         if (osc_stream_nrofchannels == 1)
             rightdry = null;
