@@ -24,6 +24,7 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.MidiChannel;
 import own.main.ImmutableList;
 
@@ -97,8 +98,6 @@ public final class SoftChannel implements MidiChannel {
     private final Object control_mutex;
     private final int channel;
     private final SoftVoice[] voices;
-    private int bank;
-    private int program;
     private final SoftSynthesizer synthesizer;
     private final int[] polypressure = new int[128];
     private int channelpressure = 0;
@@ -373,13 +372,6 @@ public final class SoftChannel implements MidiChannel {
             if (mono)
                 allNotesOff();
 
-            if (current_instrument == null) {
-                current_instrument
-                        = synthesizer.findInstrument(program, bank, channel);
-                if (current_instrument == null)
-                    return;
-                current_director = current_instrument.getDirector(this);
-            }
             prevVoiceID = synthesizer.voiceIDCounter++;
             firstVoice = true;
             voiceNo = 0;
@@ -462,14 +454,6 @@ public final class SoftChannel implements MidiChannel {
 
             // Try play back note-off triggered voices,
 
-            if (current_instrument == null) {
-                current_instrument
-                        = synthesizer.findInstrument(program, bank, channel);
-                if (current_instrument == null)
-                    return;
-                current_director = current_instrument.getDirector(this);
-
-            }
             prevVoiceID = synthesizer.voiceIDCounter++;
             firstVoice = true;
             voiceNo = 0;
@@ -781,13 +765,7 @@ public final class SoftChannel implements MidiChannel {
 
             co_midi_cc_cc[controller][0] = value * (1.0 / 128.0);
 
-            if (controller == 0x00) {
-                bank = /*(bank & 127) +*/ (value << 7);
-                return;
-            }
-
-            if (controller == 0x20) {
-                bank = (bank & (127 << 7)) + value;
+            if (controller == 0x00 || controller == 0x20) {
                 return;
             }
 
@@ -810,27 +788,9 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
-    public void programChange(int program) {
-        programChange(bank, program);
-    }
-
-    public void programChange(int bank, int program) {
-        bank = restrict14Bit(bank);
-        program = restrict7Bit(program);
-        synchronized (control_mutex) {
-            if(this.bank != bank || this.program != program)
-            {
-                this.bank = bank;
-                this.program = program;
-                current_instrument = null;
-            }
-        }
-    }
-
-    public int getProgram() {
-        synchronized (control_mutex) {
-            return program;
-        }
+    public void instrumentChange(Instrument instrument) {
+        current_instrument = synthesizer.findInstrument((ModelInstrument)instrument);
+        current_director = current_instrument.getDirector(this);
     }
 
     public void setPitchBend(int bend) {

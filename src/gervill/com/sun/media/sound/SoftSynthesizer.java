@@ -27,7 +27,6 @@ package gervill.com.sun.media.sound;
 
 import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.MidiChannel;
-import gervill.javax.sound.midi.Patch;
 import gervill.javax.sound.sampled.AudioFormat;
 import gervill.javax.sound.sampled.AudioInputStream;
 import gervill.javax.sound.sampled.SourceDataLine;
@@ -75,7 +74,7 @@ public final class SoftSynthesizer implements AutoCloseable {
     private SoftMainMixer mainmixer;
     private final SoftVoice[] voices = new SoftVoice[MAX_POLY];
 
-    private final Map<String, SoftInstrument> inslist = new HashMap<>();
+    private final Map<ModelInstrument, SoftInstrument> inslist = new HashMap<>();
 
     private boolean loadInstruments(List<ModelInstrument> instruments) {
         if (!isOpen())
@@ -89,16 +88,12 @@ public final class SoftSynthesizer implements AutoCloseable {
                     c.current_director = null;
                 }
             for (Instrument instrument : instruments) {
-                String pat = patchToString(instrument.getPatch());
-                inslist.put(pat, new SoftInstrument((ModelInstrument) instrument));
+                ModelInstrument mInstr = (ModelInstrument) instrument;
+                inslist.put(mInstr, new SoftInstrument(mInstr));
             }
         }
 
         return true;
-    }
-
-    private String patchToString(Patch patch) {
-        return (patch.isPercussion() ? "p." : "") +  patch.getProgram() + "." + patch.getBank();
     }
 
     SoftMainMixer getMainMixer() {
@@ -107,61 +102,8 @@ public final class SoftSynthesizer implements AutoCloseable {
         return mainmixer;
     }
 
-    SoftInstrument findInstrument(int program, int bank, int channel) {
-
-        // Add support for GM2 banks 0x78 and 0x79
-        // as specified in DLS 2.2 in Section 1.4.6
-        // which allows using percussion and melodic instruments
-        // on all channels
-        if (bank >> 7 == 0x78 || bank >> 7 == 0x79) {
-            SoftInstrument current_instrument
-                    = inslist.get(program + "." + bank);
-            if (current_instrument != null)
-                return current_instrument;
-
-            String p_plaf;
-            if (bank >> 7 == 0x78)
-                p_plaf = "p.";
-            else
-                p_plaf = "";
-
-            // Instrument not found fallback to MSB:bank, LSB:0
-            current_instrument = inslist.get(p_plaf + program + "."
-                    + ((bank & 128) << 7));
-            if (current_instrument != null)
-                return current_instrument;
-            // Instrument not found fallback to MSB:0, LSB:bank
-            current_instrument = inslist.get(p_plaf + program + "."
-                    + (bank & 128));
-            if (current_instrument != null)
-                return current_instrument;
-            // Instrument not found fallback to MSB:0, LSB:0
-            current_instrument = inslist.get(p_plaf + program + ".0");
-            if (current_instrument != null)
-                return current_instrument;
-            // Instrument not found fallback to MSB:0, LSB:0, program=0
-            current_instrument = inslist.get(p_plaf + program + "0.0");
-            return current_instrument;
-        }
-
-        // Channel 10 uses percussion instruments
-        String p_plaf;
-        if (channel == 9)
-            p_plaf = "p.";
-        else
-            p_plaf = "";
-
-        SoftInstrument current_instrument
-                = inslist.get(p_plaf + program + "." + bank);
-        if (current_instrument != null)
-            return current_instrument;
-        // Instrument not found fallback to MSB:0, LSB:0
-        current_instrument = inslist.get(p_plaf + program + ".0");
-        if (current_instrument != null)
-            return current_instrument;
-        // Instrument not found fallback to MSB:0, LSB:0, program=0
-        current_instrument = inslist.get(p_plaf + "0.0");
-        return current_instrument;
+    SoftInstrument findInstrument(ModelInstrument instrument) {
+        return inslist.get(instrument);
     }
 
     SoftVoice[] getVoices() {
@@ -193,11 +135,10 @@ public final class SoftSynthesizer implements AutoCloseable {
         if (!isOpen())
             return;
 
-        String pat = patchToString(instrument.getPatch());
         synchronized (control_mutex) {
             for (SoftChannel c: channels)
                 c.current_instrument = null;
-            inslist.remove(pat);
+            inslist.remove(instrument);
             for (SoftChannel channel : channels) {
                 channel.allSoundOff();
             }

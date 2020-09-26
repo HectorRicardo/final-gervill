@@ -253,62 +253,7 @@ public interface MidiChannel {
      */
     int getController(int controller);
 
-    /**
-     * Changes a program (patch).  This selects a specific
-     * instrument from the currently selected bank of instruments.
-     * <p>
-     * The MIDI specification does not
-     * dictate whether notes that are already sounding should switch
-     * to the new instrument (timbre) or continue with their original timbre
-     * until terminated by a note-off.
-     * <p>
-     * The program number is zero-based (expressed from 0 to 127).
-     * Note that MIDI hardware displays and literature about MIDI
-     * typically use the range 1 to 128 instead.
-     *
-     * It is possible that the underlying synthesizer
-     * does not support a specific program. In order
-     * to verify that a call to <code>programChange</code>
-     * was successful, use <code>getProgram</code>.
-     *
-     * @param program the program number to switch to (0 to 127)
-     *
-     * see #programChange(int, int)
-     * see #getProgram()
-     */
-    void programChange(int program);
-
-    /**
-     * Changes the program using bank and program (patch) numbers.
-     *
-     * It is possible that the underlying synthesizer
-     * does not support a specific bank, or program. In order
-     * to verify that a call to <code>programChange</code>
-     * was successful, use <code>getProgram</code> and
-     * <code>getController</code>.
-     * Since banks are changed by way of control changes,
-     * you can verify the current bank with the following
-     * statement:
-     * <pre>
-     *   int bank = (getController(0) * 128)
-     *              + getController(32);
-     * </pre>
-     *
-     * @param bank the bank number to switch to (0 to 16383)
-     * @param program the program (patch) to use in the specified bank (0 to 127)
-     * see #programChange(int)
-     * see #getProgram()
-     */
-    void programChange(int bank, int program);
-
-    /**
-     * Obtains the current program number for this channel.
-     * @return the program number of the currently selected patch
-     * see Patch#getProgram
-     * see Synthesizer#loadInstrument
-     * see #programChange(int)
-     */
-    int getProgram();
+    void instrumentChange(Instrument instrument);
 
     /**
      * Changes the pitch offset for all notes on this channel.

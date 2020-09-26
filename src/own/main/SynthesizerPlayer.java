@@ -110,8 +110,7 @@ public class SynthesizerPlayer {
 
     private void loadInstrument(Instrument instrument) {
         synthesizer.loadInstrument(instrument);
-        Patch patch = instrument.getPatch();
-        channel.programChange(patch.getBank(), patch.getProgram());
+        channel.instrumentChange(instrument);
         this.instrument = instrument;
     }
 

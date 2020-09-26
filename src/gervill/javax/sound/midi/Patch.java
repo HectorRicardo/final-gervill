@@ -115,10 +115,6 @@ public class Patch {
         return program;
     }
 
-    public boolean isPercussion() {
-        return percussion;
-    }
-
     public int hashCode() {
         return 128 * bank + program + (percussion ? 2097152 : 0);
     }

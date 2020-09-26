@@ -24,6 +24,7 @@
  */
 package gervill.com.sun.media.sound;
 
+import gervill.javax.sound.midi.Instrument;
 import gervill.javax.sound.midi.MidiChannel;
 
 /**
@@ -100,12 +101,6 @@ public final class SoftChannelProxy implements MidiChannel {
         return channel.getPolyPressure(noteNumber);
     }
 
-    public int getProgram() {
-        if (channel == null)
-            return 0;
-        return channel.getProgram();
-    }
-
     public boolean getSolo() {
         if (channel == null)
             return false;
@@ -130,16 +125,10 @@ public final class SoftChannelProxy implements MidiChannel {
         channel.noteOn(noteNumber, velocity);
     }
 
-    public void programChange(int program) {
+    public void instrumentChange(Instrument instrument) {
         if (channel == null)
             return;
-        channel.programChange(program);
-    }
-
-    public void programChange(int bank, int program) {
-        if (channel == null)
-            return;
-        channel.programChange(bank, program);
+        channel.instrumentChange(instrument);
     }
 
     public void resetAllControllers() {
