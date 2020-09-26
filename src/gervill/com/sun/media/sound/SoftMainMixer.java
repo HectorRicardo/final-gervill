@@ -156,7 +156,7 @@ public final class SoftMainMixer {
         {
             float[] mono = buffers[CHANNEL_MONO].array();
             float[] left = buffers[CHANNEL_LEFT].array();
-            int bufferlen = buffers[CHANNEL_LEFT].getSize();
+            int bufferlen = 300;
             float[] right = buffers[CHANNEL_RIGHT].array();
             for (int i = 0; i < bufferlen; i++) {
                 float v = mono[i];
@@ -173,7 +173,7 @@ public final class SoftMainMixer {
         if (last_volume_left != volume_left || last_volume_right != volume_right) {
             float[] left = buffers[CHANNEL_LEFT].array();
             float[] right = buffers[CHANNEL_RIGHT].array();
-            int bufferlen = buffers[CHANNEL_LEFT].getSize();
+            int bufferlen = 300;
 
             float amp;
             float amp_delta;
@@ -196,7 +196,7 @@ public final class SoftMainMixer {
             if (volume_left != 1.0 || volume_right != 1.0) {
                 float[] left = buffers[CHANNEL_LEFT].array();
                 float[] right = buffers[CHANNEL_RIGHT].array();
-                int bufferlen = buffers[CHANNEL_LEFT].getSize();
+                int bufferlen = 300;
                 float amp;
                 amp = (float) (volume_left * volume_left);
                 for (int i = 0; i < bufferlen; i++)
@@ -253,7 +253,7 @@ public final class SoftMainMixer {
         control_mutex = synth.control_mutex;
         buffers = new SoftAudioBuffer[14];
         for (int i = 0; i < buffers.length; i++) {
-            buffers[i] = new SoftAudioBuffer(300, SoftSynthesizer.SYNTH_FORMAT);
+            buffers[i] = new SoftAudioBuffer();
         }
         voicestatus = synth.getVoices();
 

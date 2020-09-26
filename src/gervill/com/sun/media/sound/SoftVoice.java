@@ -731,7 +731,7 @@ public final class SoftVoice {
     void mixAudioStream(SoftAudioBuffer in, SoftAudioBuffer out,
                         float amp_from,
                         float amp_to) {
-        int bufferlen = in.getSize();
+        int bufferlen = 300;
         if (amp_from < 0.000000001 && amp_to < 0.000000001)
             return;
         if (amp_from == amp_to) {
@@ -756,7 +756,7 @@ public final class SoftVoice {
         if (!audiostarted)
             return;
 
-        int bufferlen = buffer[0].getSize();
+        int bufferlen = 300;
 
         try {
             osc_buff[0] = buffer[SoftMainMixer.CHANNEL_LEFT_DRY].array();
