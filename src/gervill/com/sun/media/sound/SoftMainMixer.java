@@ -49,7 +49,6 @@ public final class SoftMainMixer {
     public final static int CHANNEL_DELAY_EFFECT2 = 9;
     public final static int CHANNEL_LEFT_DRY = 10;
     public final static int CHANNEL_RIGHT_DRY = 11;
-    private boolean pusher_silent = false;
     private int pusher_silent_count = 0;
     private final Object control_mutex;
     private final SoftSynthesizer synth;
@@ -211,9 +210,6 @@ public final class SoftMainMixer {
             if(pusher_silent_count > 5)
             {
                 pusher_silent_count = 0;
-                synchronized (control_mutex) {
-                    pusher_silent = true;
-                }
             }
         }
         else
@@ -221,15 +217,6 @@ public final class SoftMainMixer {
 
         agc.processAudio();
 
-    }
-
-    // Must only we called within control_mutex synchronization
-    public void activity()
-    {
-        if(pusher_silent)
-        {
-            pusher_silent = false;
-        }
     }
 
     public SoftMainMixer(SoftSynthesizer synth) {
