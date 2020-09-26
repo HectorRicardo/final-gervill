@@ -36,8 +36,6 @@ public final class SoftChorus {
 
         private final float[] delaybuffer;
         private int rovepos = 0;
-        private float gain = 1;
-        private float rgain = 0;
         private float delay = 0;
         private float lastdelay = 0;
         private float feedback = 0;
@@ -54,16 +52,7 @@ public final class SoftChorus {
             this.feedback = feedback;
         }
 
-        public void setGain(float gain) {
-            this.gain = gain;
-        }
-
-        public void setReverbSendGain(float rgain) {
-            this.rgain = rgain;
-        }
-
-        public void processMix(float[] in, float[] out, float[] rout) {
-            float gain = this.gain;
+        public void processMix(float[] in, float[] out) {
             float delay = this.delay;
             float feedback = this.feedback;
 
@@ -73,33 +62,18 @@ public final class SoftChorus {
             int rnlen = delaybuffer.length;
             int rovepos = this.rovepos;
 
-            if (rout == null)
-                for (int i = 0; i < len; i++) {
-                    float r = rovepos - (lastdelay + 2) + rnlen;
-                    int ri = (int) r;
-                    float s = r - ri;
-                    float a = delaybuffer[ri % rnlen];
-                    float b = delaybuffer[(ri + 1) % rnlen];
-                    float o = a * (1 - s) + b * (s);
-                    out[i] += o * gain;
-                    delaybuffer[rovepos] = in[i] + o * feedback;
-                    rovepos = (rovepos + 1) % rnlen;
-                    lastdelay += delaydelta;
-                }
-            else
-                for (int i = 0; i < len; i++) {
-                    float r = rovepos - (lastdelay + 2) + rnlen;
-                    int ri = (int) r;
-                    float s = r - ri;
-                    float a = delaybuffer[ri % rnlen];
-                    float b = delaybuffer[(ri + 1) % rnlen];
-                    float o = a * (1 - s) + b * (s);
-                    out[i] += o * gain;
-                    rout[i] += o * rgain;
-                    delaybuffer[rovepos] = in[i] + o * feedback;
-                    rovepos = (rovepos + 1) % rnlen;
-                    lastdelay += delaydelta;
-                }
+            for (int i = 0; i < len; i++) {
+                float r = rovepos - (lastdelay + 2) + rnlen;
+                int ri = (int) r;
+                float s = r - ri;
+                float a = delaybuffer[ri % rnlen];
+                float b = delaybuffer[(ri + 1) % rnlen];
+                float o = a * (1 - s) + b * (s);
+                out[i] += o;
+                delaybuffer[rovepos] = in[i] + o * feedback;
+                rovepos = (rovepos + 1) % rnlen;
+                lastdelay += delaydelta;
+            }
             this.rovepos = rovepos;
             lastdelay = delay;
         }
@@ -108,51 +82,36 @@ public final class SoftChorus {
 
     private static class LFODelay {
 
-        private double phase = 1;
+        private double phase;
         private double phase_step = 0;
         private double depth = 0;
         private VariableDelay vdelay;
-        private final double samplerate;
-        private final double controlrate;
 
-        LFODelay(double samplerate, double controlrate) {
-            this.samplerate = samplerate;
-            this.controlrate = controlrate;
+        LFODelay(double phase) {
             // vdelay = new VariableDelay((int)(samplerate*4));
-            vdelay = new VariableDelay((int) ((this.depth + 10) * 2));
-
+            vdelay = new VariableDelay(20);
+            this.phase = phase;
         }
 
         public void setDepth(double depth) {
-            this.depth = depth * samplerate;
+            this.depth = depth * 44100;
             vdelay = new VariableDelay((int) ((this.depth + 10) * 2));
         }
 
         public void setRate(double rate) {
+            double controlrate = 147;
             phase_step = (Math.PI * 2) * (rate / controlrate);
-        }
-
-        public void setPhase(double phase) {
-            this.phase = phase;
         }
 
         public void setFeedBack(float feedback) {
             vdelay.setFeedBack(feedback);
         }
 
-        public void setGain(float gain) {
-            vdelay.setGain(gain);
-        }
-
-        public void setReverbSendGain(float rgain) {
-            vdelay.setReverbSendGain(rgain);
-        }
-
-        public void processMix(float[] in, float[] out, float[] rout) {
+        public void processMix(float[] in, float[] out) {
             phase += phase_step;
             while(phase > (Math.PI * 2)) phase -= (Math.PI * 2);
             vdelay.setDelay((float) (depth * 0.5 * (Math.cos(phase) + 2)));
-            vdelay.processMix(in, out, rout);
+            vdelay.processMix(in, out);
         }
 
     }
@@ -160,82 +119,28 @@ public final class SoftChorus {
     private SoftAudioBuffer inputA;
     private SoftAudioBuffer left;
     private SoftAudioBuffer right;
-    private SoftAudioBuffer reverb;
-    private LFODelay vdelay1L;
-    private LFODelay vdelay1R;
-    private float rgain = 0;
+    private final LFODelay vdelay1L = new LFODelay(0.5 * Math.PI);
+    private final LFODelay vdelay1R = new LFODelay(0);
     private boolean dirty = true;
-    private double dirty_vdelay1L_rate;
-    private double dirty_vdelay1R_rate;
-    private double dirty_vdelay1L_depth;
-    private double dirty_vdelay1R_depth;
-    private float dirty_vdelay1L_feedback;
-    private float dirty_vdelay1R_feedback;
-    private float dirty_vdelay1L_reverbsendgain;
-    private float dirty_vdelay1R_reverbsendgain;
-    private float controlrate;
 
-    public void init() {
-        this.controlrate = 147;
-        vdelay1L = new LFODelay(44100, 147);
-        vdelay1R = new LFODelay(44100, 147);
-        vdelay1L.setGain(1.0f); // %
-        vdelay1R.setGain(1.0f); // %
-        vdelay1L.setPhase(0.5 * Math.PI);
-        vdelay1R.setPhase(0);
-
-        globalParameterControlChange(0, 2);
-    }
-
-    private void globalParameterControlChange(long param,
-                                              long value) {
-        if (param == 0) { // Chorus Type
-            // Chorus 3 8 (6%) 3 (0.4Hz) 19 (6.3ms) 0 (0%)
-            globalParameterControlChange(3, 8);
-            globalParameterControlChange(1, 3);
-            globalParameterControlChange(2, 19);
-            globalParameterControlChange(4, 0);
-        } else if (param == 1) { // Mod Rate
-            dirty_vdelay1L_rate = (value * 0.122);
-            dirty_vdelay1R_rate = (value * 0.122);
-            dirty = true;
-        } else if (param == 2) { // Mod Depth
-            dirty_vdelay1L_depth = ((value + 1) / 3200.0);
-            dirty_vdelay1R_depth = ((value + 1) / 3200.0);
-            dirty = true;
-        } else if (param == 3) { // Feedback
-            dirty_vdelay1L_feedback = (value * 0.00763f);
-            dirty_vdelay1R_feedback = (value * 0.00763f);
-            dirty = true;
-        }
-        if (param == 4) { // Send to Reverb
-            rgain = value * 0.00787f;
-            dirty_vdelay1L_reverbsendgain = (value * 0.00787f);
-            dirty_vdelay1R_reverbsendgain = (value * 0.00787f);
-            dirty = true;
-        }
-
-    }
+    double silentcounter = 1000;
 
     public void processControlLogic() {
         if (dirty) {
             dirty = false;
-            vdelay1L.setRate(dirty_vdelay1L_rate);
-            vdelay1R.setRate(dirty_vdelay1R_rate);
-            vdelay1L.setDepth(dirty_vdelay1L_depth);
-            vdelay1R.setDepth(dirty_vdelay1R_depth);
-            vdelay1L.setFeedBack(dirty_vdelay1L_feedback);
-            vdelay1R.setFeedBack(dirty_vdelay1R_feedback);
-            vdelay1L.setReverbSendGain(dirty_vdelay1L_reverbsendgain);
-            vdelay1R.setReverbSendGain(dirty_vdelay1R_reverbsendgain);
+            vdelay1L.setRate(0.366);
+            vdelay1R.setRate(0.366);
+            vdelay1L.setDepth(1 / 160f);
+            vdelay1R.setDepth(1 / 160f);
+            vdelay1L.setFeedBack(0.06104f);
+            vdelay1R.setFeedBack(0.06104f);
         }
     }
-    double silentcounter = 1000;
 
     public void processAudio() {
 
         if (inputA.isSilent()) {
-            silentcounter += 1 / controlrate;
+            silentcounter += 1 / 147f;
 
             if (silentcounter > 1) {
                 return;
@@ -246,11 +151,10 @@ public final class SoftChorus {
         float[] inputA = this.inputA.array();
         float[] left = this.left.array();
         float[] right = this.right == null ? null : this.right.array();
-        float[] reverb = rgain != 0 ? this.reverb.array() : null;
 
-        vdelay1L.processMix(inputA, left, reverb);
+        vdelay1L.processMix(inputA, left);
         if (right != null)
-            vdelay1R.processMix(inputA, right, reverb);
+            vdelay1R.processMix(inputA, right);
     }
 
     public void setInput(int pin, SoftAudioBuffer input) {
@@ -263,7 +167,5 @@ public final class SoftChorus {
             left = output;
         if (pin == 1)
             right = output;
-        if (pin == 2)
-            reverb = output;
     }
 }
