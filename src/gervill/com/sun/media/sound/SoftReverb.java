@@ -182,13 +182,8 @@ public final class SoftReverb {
     private float dirty_damp;
     private float dirty_predelay;
     private float dirty_gain;
-    private float samplerate;
 
-    public void init(float samplerate) {
-        this.samplerate = samplerate;
-
-        double freqscale = ((double) samplerate) / 44100.0;
-        // freqscale = 1.0/ freqscale;
+    public void init() {
 
         int stereospread = 23;
 
@@ -196,33 +191,33 @@ public final class SoftReverb {
 
         combL = new Comb[8];
         combR = new Comb[8];
-        combL[0] = new Comb((int) (freqscale * (1116)));
-        combR[0] = new Comb((int) (freqscale * (1116 + stereospread)));
-        combL[1] = new Comb((int) (freqscale * (1188)));
-        combR[1] = new Comb((int) (freqscale * (1188 + stereospread)));
-        combL[2] = new Comb((int) (freqscale * (1277)));
-        combR[2] = new Comb((int) (freqscale * (1277 + stereospread)));
-        combL[3] = new Comb((int) (freqscale * (1356)));
-        combR[3] = new Comb((int) (freqscale * (1356 + stereospread)));
-        combL[4] = new Comb((int) (freqscale * (1422)));
-        combR[4] = new Comb((int) (freqscale * (1422 + stereospread)));
-        combL[5] = new Comb((int) (freqscale * (1491)));
-        combR[5] = new Comb((int) (freqscale * (1491 + stereospread)));
-        combL[6] = new Comb((int) (freqscale * (1557)));
-        combR[6] = new Comb((int) (freqscale * (1557 + stereospread)));
-        combL[7] = new Comb((int) (freqscale * (1617)));
-        combR[7] = new Comb((int) (freqscale * (1617 + stereospread)));
+        combL[0] = new Comb(1116);
+        combR[0] = new Comb(1116 + stereospread);
+        combL[1] = new Comb(1188);
+        combR[1] = new Comb(1188 + stereospread);
+        combL[2] = new Comb(1277);
+        combR[2] = new Comb(1277 + stereospread);
+        combL[3] = new Comb(1356);
+        combR[3] = new Comb(1356 + stereospread);
+        combL[4] = new Comb(1422);
+        combR[4] = new Comb(1422 + stereospread);
+        combL[5] = new Comb(1491);
+        combR[5] = new Comb(1491 + stereospread);
+        combL[6] = new Comb(1557);
+        combR[6] = new Comb(1557 + stereospread);
+        combL[7] = new Comb(1617);
+        combR[7] = new Comb(1617 + stereospread);
 
         allpassL = new AllPass[4];
         AllPass[] allpassR = new AllPass[4];
-        allpassL[0] = new AllPass((int) (freqscale * (556)));
-        allpassR[0] = new AllPass((int) (freqscale * (556 + stereospread)));
-        allpassL[1] = new AllPass((int) (freqscale * (441)));
-        allpassR[1] = new AllPass((int) (freqscale * (441 + stereospread)));
-        allpassL[2] = new AllPass((int) (freqscale * (341)));
-        allpassR[2] = new AllPass((int) (freqscale * (341 + stereospread)));
-        allpassL[3] = new AllPass((int) (freqscale * (225)));
-        allpassR[3] = new AllPass((int) (freqscale * (225 + stereospread)));
+        allpassL[0] = new AllPass(556);
+        allpassR[0] = new AllPass(556 + stereospread);
+        allpassL[1] = new AllPass(441);
+        allpassR[1] = new AllPass(441 + stereospread);
+        allpassL[2] = new AllPass(341);
+        allpassR[2] = new AllPass(341 + stereospread);
+        allpassL[3] = new AllPass(225);
+        allpassR[3] = new AllPass(225 + stereospread);
 
         for (int i = 0; i < allpassL.length; i++) {
             allpassL[i].setFeedBack(0.5f);
@@ -358,7 +353,7 @@ public final class SoftReverb {
     }
 
     public void setPreDelay(float value) {
-        delay.setDelay((int)(value * samplerate));
+        delay.setDelay((int)(value * 44100));
     }
 
     public void setGain(float gain) {
@@ -366,7 +361,7 @@ public final class SoftReverb {
     }
 
     public void setDamp(float value) {
-        double x = (value / samplerate) * (2 * Math.PI);
+        double x = (value / 44100) * (2 * Math.PI);
         double cx = 2 - Math.cos(x);
         float damp = (float) (cx - Math.sqrt(cx * cx - 1));
         if (damp > 1)

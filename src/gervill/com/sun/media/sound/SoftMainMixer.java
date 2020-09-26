@@ -261,11 +261,9 @@ public final class SoftMainMixer {
         chorus = new SoftChorus();
         agc = new SoftLimiter();
 
-        float samplerate = 44100;
-        float controlrate = 147f;
-        reverb.init(samplerate);
-        chorus.init(samplerate, controlrate);
-        agc.init(controlrate);
+        reverb.init();
+        chorus.init(44100, 147f);
+        agc.init(147f);
 
         chorus.setInput(0, buffers[CHANNEL_EFFECT2]);
         chorus.setOutput(0, buffers[CHANNEL_LEFT]);

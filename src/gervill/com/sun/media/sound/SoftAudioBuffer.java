@@ -72,9 +72,8 @@ public final class SoftAudioBuffer {
 
     public void get(byte[] buffer, int channel) {
 
-        int c_len = 600;
-        if (converter_buffer == null || converter_buffer.length < c_len)
-            converter_buffer = new byte[c_len];
+        if (converter_buffer == null)
+            converter_buffer = new byte[600];
 
         SoftSynthesizer.SYNTH_CONVERTER.toByteArray(array(), 300, converter_buffer);
         if (channel >= 2)
