@@ -67,8 +67,6 @@ public final class SoftSynthesizer implements AutoCloseable {
 
     private boolean open = false;
 
-    private final SoftLinearResampler2 resampler = new SoftLinearResampler2();
-
     private final static int MAX_POLY = 64;
 
     private SoftMainMixer mainmixer;
@@ -190,7 +188,7 @@ public final class SoftSynthesizer implements AutoCloseable {
         }
 
         for (SoftVoice voice: getVoices())
-            voice.resampler = resampler.openStreamer();
+            voice.resampler = new SoftResamplerStreamer();
 
         return mainmixer.getInputStream();
     }
