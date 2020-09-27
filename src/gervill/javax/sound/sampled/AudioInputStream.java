@@ -168,7 +168,7 @@ public class AudioInputStream {
      * see #available
      */
     public int read(byte[] b) throws IOException {
-        return read(b,0,b.length);
+        return read(b, b.length);
     }
 
 
@@ -181,8 +181,6 @@ public class AudioInputStream {
      * </code> bytes will be read.
      *
      * @param b the buffer into which the data is read
-     * @param off the offset, from the beginning of array <code>b</code>, at which
-     * the data will be written
      * @param len the maximum number of bytes to read
      * @return the total number of bytes read into the buffer, or -1 if there
      * is no more data because the end of the stream has been reached
@@ -192,7 +190,7 @@ public class AudioInputStream {
      * see #skip
      * see #available
      */
-    public int read(byte[] b, int off, int len) throws IOException {
+    public int read(byte[] b, int len) throws IOException {
 
         // make sure we don't read fractions of a frame.
         if( (len%frameSize) != 0 ) {
@@ -215,13 +213,13 @@ public class AudioInputStream {
         }
 
         int bytesRead = 0;
-        int thisOff = off;
+        int thisOff = 0;
 
         // if we've bytes left from last call to read(),
         // use them first
         if (pushBackLen > 0 && len >= pushBackLen) {
             System.arraycopy(pushBackBuffer, 0,
-                             b, off, pushBackLen);
+                             b, 0, pushBackLen);
             thisOff += pushBackLen;
             len -= pushBackLen;
             bytesRead += pushBackLen;
@@ -243,7 +241,7 @@ public class AudioInputStream {
                 if (pushBackBuffer == null) {
                     pushBackBuffer = new byte[frameSize];
                 }
-                System.arraycopy(b, off + bytesRead - pushBackLen,
+                System.arraycopy(b, bytesRead - pushBackLen,
                                  pushBackBuffer, 0, pushBackLen);
                 bytesRead -= pushBackLen;
             }

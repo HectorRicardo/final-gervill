@@ -126,7 +126,7 @@ public abstract class AudioFloatInputStream {
             int b_len = len * framesize_pc;
             if (buffer == null || buffer.length < b_len)
                 buffer = new byte[b_len];
-            int ret = stream.read(buffer, 0, b_len);
+            int ret = stream.read(buffer, b_len);
             if (ret == -1)
                 return -1;
             converter.toFloatArray(buffer, b, off, ret / framesize_pc);
