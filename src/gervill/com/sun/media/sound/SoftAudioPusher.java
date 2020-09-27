@@ -70,10 +70,6 @@ public final class SoftAudioPusher implements Runnable {
     }
 
     public void run() {
-        byte[] buffer = SoftAudioPusher.this.buffer;
-        AudioInputStream ais = SoftAudioPusher.this.ais;
-        SourceDataLine sourceDataLine = SoftAudioPusher.this.sourceDataLine;
-
         try {
             while (active) {
                 // Read from audio source
@@ -86,7 +82,6 @@ public final class SoftAudioPusher implements Runnable {
             active = false;
             //e.printStackTrace();
         }
-
     }
 
     public AudioInputStream getAudioInputStream() {

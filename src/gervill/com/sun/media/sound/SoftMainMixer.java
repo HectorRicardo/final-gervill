@@ -27,7 +27,6 @@ package gervill.com.sun.media.sound;
 import gervill.javax.sound.sampled.AudioInputStream;
 import own.main.ImmutableList;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -49,7 +48,6 @@ public final class SoftMainMixer {
     public final static int CHANNEL_DELAY_EFFECT2 = 9;
     public final static int CHANNEL_LEFT_DRY = 10;
     public final static int CHANNEL_RIGHT_DRY = 11;
-    private int pusher_silent_count = 0;
     private final Object control_mutex;
     private final SoftSynthesizer synth;
     private final SoftVoice[] voicestatus;
@@ -203,18 +201,6 @@ public final class SoftMainMixer {
             }
         }
 
-        if(buffers.get(CHANNEL_LEFT).isSilent()
-            && buffers.get(CHANNEL_RIGHT).isSilent())
-        {
-            pusher_silent_count++;
-            if(pusher_silent_count > 5)
-            {
-                pusher_silent_count = 0;
-            }
-        }
-        else
-            pusher_silent_count = 0;
-
         agc.processAudio();
 
     }
@@ -242,41 +228,24 @@ public final class SoftMainMixer {
 
             private final byte[] bbuffer = new byte[1200];
             private int bbuffer_pos = 0;
-            private final byte[] single = new byte[1];
-
-            public void fillBuffer() {
-                processAudioBuffers();
-                buffers.get(0).get(bbuffer, 0);
-                buffers.get(1).get(bbuffer, 1);
-                bbuffer_pos = 0;
-            }
 
             public int read(byte[] b, int off, int len) {
-                int bbuffer_len = bbuffer.length;
                 int offlen = off + len;
-                byte[] bbuffer = this.bbuffer;
                 while (off < offlen) {
-                    if (available() == 0)
-                        fillBuffer();
-                    else {
-                        int bbuffer_pos = this.bbuffer_pos;
-                        while (off < offlen && bbuffer_pos < bbuffer_len)
-                            b[off++] = bbuffer[bbuffer_pos++];
-                        this.bbuffer_pos = bbuffer_pos;
+                    if (bbuffer_pos == 1200) {
+                        processAudioBuffers();
+                        buffers.get(0).get(bbuffer, 0);
+                        buffers.get(1).get(bbuffer, 1);
+                        bbuffer_pos = 0;
                     }
+                    while (off < offlen && bbuffer_pos < 1200)
+                        b[off++] = bbuffer[bbuffer_pos++];
                 }
                 return len;
             }
 
-            public int read() throws IOException {
-                int ret = read(single);
-                if (ret == -1)
-                    return -1;
-                return single[0] & 0xFF;
-            }
-
-            public int available() {
-                return 1200 - bbuffer_pos;
+            public int read() {
+                throw new RuntimeException();
             }
 
             public void close() {

@@ -78,14 +78,11 @@ public final class SoftAudioBuffer {
         SoftSynthesizer.SYNTH_CONVERTER.toByteArray(array(), 300, converter_buffer);
         if (channel >= 2)
             return;
-        int z_stepover = 4;
         for (int j = 0; j < 2; j++) {
-            int k = j;
             int z = channel * 2 + j;
             for (int i = 0; i < 300; i++) {
-                buffer[z] = converter_buffer[k];
-                z += z_stepover;
-                k += 2;
+                buffer[z] = converter_buffer[2 * i + j];
+                z += 4;
             }
         }
 
