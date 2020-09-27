@@ -168,7 +168,7 @@ public abstract class AudioFloatInputStream {
         long aLen = format.getFrameSize() == AudioInputStream.NOT_SPECIFIED
                 ? AudioInputStream.NOT_SPECIFIED : len / format.getFrameSize();
         AudioInputStream astream = new AudioInputStream(stream, format, aLen);
-        return getInputStream(astream);
+        return new DirectAudioFloatInputStream(astream);
     }
 
     public abstract AudioFormat getFormat();
