@@ -42,7 +42,7 @@ package gervill.javax.sound.sampled;
  * pulse-code modulation (PCM), mu-law encoding, and a-law encoding.  These encoding techniques are predefined,
  * but service providers can create new encoding types.
  * The encoding that a specific format uses is named by its <code>encoding</code> field.
- *<p>
+ * <p>
  * In addition to the encoding, the audio format includes other properties that further specify the exact
  * arrangement of the data.
  * These include the number of channels, sample rate, sample size, byte order, frame rate, and frame size.
@@ -120,54 +120,43 @@ package gervill.javax.sound.sampled;
  */
 public class AudioFormat {
 
-    public enum Encoding {
-        PCM_SIGNED,
-        PCM_UNSIGNED,
-        PCM_FLOAT
-    }
-
     /**
      * The audio encoding technique used by this format.
      */
     private final Encoding encoding;
-
     /**
      * The number of samples played or recorded per second, for sounds that have this format.
      */
     private final float sampleRate;
-
     /**
      * The number of bits in each sample of a sound that has this format.
      */
     private final int sampleSizeInBits;
-
     /**
      * The number of audio channels in this format (1 for mono, 2 for stereo).
      */
     private final int channels;
-
     /**
      * The number of bytes in each frame of a sound that has this format.
      */
     private final int frameSize;
-
     /**
      * The number of frames played or recorded per second, for sounds that have this format.
      */
     private final float frameRate;
-
 
     /**
      * Constructs an <code>AudioFormat</code> with the given parameters.
      * The encoding specifies the convention used to represent the data.
      * The other parameters are further explained in the  AudioFormat
      * class description.
-     * @param encoding                  the audio encoding technique
-     * @param sampleRate                the number of samples per second
-     * @param sampleSizeInBits  the number of bits in each sample
-     * @param channels                  the number of channels (1 for mono, 2 for stereo, and so on)
-     * @param frameSize                 the number of bytes in each frame
-     * @param frameRate                 the number of frames per second
+     *
+     * @param encoding         the audio encoding technique
+     * @param sampleRate       the number of samples per second
+     * @param sampleSizeInBits the number of bits in each sample
+     * @param channels         the number of channels (1 for mono, 2 for stereo, and so on)
+     * @param frameSize        the number of bytes in each frame
+     * @param frameRate        the number of frames per second
      */
     public AudioFormat(Encoding encoding, float sampleRate, int sampleSizeInBits,
                        int channels, int frameSize, float frameRate) {
@@ -187,22 +176,22 @@ public class AudioFormat {
      * required to contain one sample from each channel, and the frame rate
      * is set to the sample rate.
      *
-     * @param sampleRate                the number of samples per second
-     * @param sampleSizeInBits  the number of bits in each sample
-     * @param channels                  the number of channels (1 for mono, 2 for stereo, and so on)
-     * @param signed                    indicates whether the data is signed or unsigned
+     * @param sampleRate       the number of samples per second
+     * @param sampleSizeInBits the number of bits in each sample
+     * @param channels         the number of channels (1 for mono, 2 for stereo, and so on)
+     * @param signed           indicates whether the data is signed or unsigned
      */
     public AudioFormat(float sampleRate, int sampleSizeInBits,
                        int channels, boolean signed) {
 
         this((signed ? Encoding.PCM_SIGNED : Encoding.PCM_UNSIGNED),
-             sampleRate,
-             sampleSizeInBits,
-             channels,
-             (channels == AudioInputStream.NOT_SPECIFIED || sampleSizeInBits == AudioInputStream.NOT_SPECIFIED)?
-             AudioInputStream.NOT_SPECIFIED:
-             ((sampleSizeInBits + 7) / 8) * channels,
-             sampleRate
+                sampleRate,
+                sampleSizeInBits,
+                channels,
+                (channels == AudioInputStream.NOT_SPECIFIED || sampleSizeInBits == AudioInputStream.NOT_SPECIFIED) ?
+                        AudioInputStream.NOT_SPECIFIED :
+                        ((sampleSizeInBits + 7) / 8) * channels,
+                sampleRate
         );
     }
 
@@ -224,16 +213,17 @@ public class AudioFormat {
      * Obtains the sample rate.
      * For compressed formats, the return value is the sample rate of the uncompressed
      * audio data.
-     * When this AudioFormat is used for queries (e.g. 
+     * When this AudioFormat is used for queries (e.g.
      * AudioSystem#isConversionSupported(AudioFormat, AudioFormat)
-     * AudioSystem.isConversionSupported) or capabilities (e.g. 
+     * AudioSystem.isConversionSupported) or capabilities (e.g.
      * DataLine.Info#getFormats() DataLine.Info.getFormats), a sample rate of
      * <code>AudioSystem.NOT_SPECIFIED</code> means that any sample rate is
      * acceptable. <code>AudioSystem.NOT_SPECIFIED</code> is also returned when
      * the sample rate is not defined for this audio format.
+     *
      * @return the number of samples per second,
      * or <code>AudioSystem.NOT_SPECIFIED</code>
-     *
+     * <p>
      * see #getFrameRate()
      * see AudioSystem#NOT_SPECIFIED
      */
@@ -246,16 +236,17 @@ public class AudioFormat {
      * Obtains the size of a sample.
      * For compressed formats, the return value is the sample size of the
      * uncompressed audio data.
-     * When this AudioFormat is used for queries (e.g. 
+     * When this AudioFormat is used for queries (e.g.
      * AudioSystem#isConversionSupported(AudioFormat, AudioFormat)
-     * AudioSystem.isConversionSupported) or capabilities (e.g. 
+     * AudioSystem.isConversionSupported) or capabilities (e.g.
      * DataLine.Info#getFormats() DataLine.Info.getFormats), a sample size of
      * <code>AudioSystem.NOT_SPECIFIED</code> means that any sample size is
      * acceptable. <code>AudioSystem.NOT_SPECIFIED</code> is also returned when
      * the sample size is not defined for this audio format.
+     *
      * @return the number of bits in each sample,
      * or <code>AudioSystem.NOT_SPECIFIED</code>
-     *
+     * <p>
      * see #getFrameSize()
      * see AudioSystem#NOT_SPECIFIED
      */
@@ -266,15 +257,16 @@ public class AudioFormat {
 
     /**
      * Obtains the number of channels.
-     * When this AudioFormat is used for queries (e.g. 
+     * When this AudioFormat is used for queries (e.g.
      * AudioSystem#isConversionSupported(AudioFormat, AudioFormat)
-     * AudioSystem.isConversionSupported) or capabilities (e.g. 
+     * AudioSystem.isConversionSupported) or capabilities (e.g.
      * DataLine.Info#getFormats() DataLine.Info.getFormats), a return value of
      * <code>AudioSystem.NOT_SPECIFIED</code> means that any (positive) number of channels is
      * acceptable.
+     *
      * @return The number of channels (1 for mono, 2 for stereo, etc.),
      * or <code>AudioSystem.NOT_SPECIFIED</code>
-     *
+     * <p>
      * see AudioSystem#NOT_SPECIFIED
      */
     public int getChannels() {
@@ -284,16 +276,17 @@ public class AudioFormat {
 
     /**
      * Obtains the frame size in bytes.
-     * When this AudioFormat is used for queries (e.g. 
+     * When this AudioFormat is used for queries (e.g.
      * AudioSystem#isConversionSupported(AudioFormat, AudioFormat)
-     * AudioSystem.isConversionSupported) or capabilities (e.g. 
+     * AudioSystem.isConversionSupported) or capabilities (e.g.
      * DataLine.Info#getFormats() DataLine.Info.getFormats), a frame size of
      * <code>AudioSystem.NOT_SPECIFIED</code> means that any frame size is
      * acceptable. <code>AudioSystem.NOT_SPECIFIED</code> is also returned when
      * the frame size is not defined for this audio format.
+     *
      * @return the number of bytes per frame,
      * or <code>AudioSystem.NOT_SPECIFIED</code>
-     *
+     * <p>
      * see #getSampleSizeInBits()
      * see AudioSystem#NOT_SPECIFIED
      */
@@ -304,22 +297,29 @@ public class AudioFormat {
 
     /**
      * Obtains the frame rate in frames per second.
-     * When this AudioFormat is used for queries (e.g. 
+     * When this AudioFormat is used for queries (e.g.
      * AudioSystem#isConversionSupported(AudioFormat, AudioFormat)
-     * AudioSystem.isConversionSupported) or capabilities (e.g. 
+     * AudioSystem.isConversionSupported) or capabilities (e.g.
      * DataLine.Info#getFormats() DataLine.Info.getFormats), a frame rate of
      * <code>AudioSystem.NOT_SPECIFIED</code> means that any frame rate is
      * acceptable. <code>AudioSystem.NOT_SPECIFIED</code> is also returned when
      * the frame rate is not defined for this audio format.
+     *
      * @return the number of frames per second,
      * or <code>AudioSystem.NOT_SPECIFIED</code>
-     *
+     * <p>
      * see #getSampleRate()
      * see AudioSystem#NOT_SPECIFIED
      */
     public float getFrameRate() {
 
         return frameRate;
+    }
+
+    public enum Encoding {
+        PCM_SIGNED,
+        PCM_UNSIGNED,
+        PCM_FLOAT
     }
 
 

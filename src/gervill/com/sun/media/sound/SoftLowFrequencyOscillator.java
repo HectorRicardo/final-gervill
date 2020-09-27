@@ -33,8 +33,8 @@ import java.util.Arrays;
  */
 public final class SoftLowFrequencyOscillator implements SoftControl {
 
+    private static final double PI2 = 2.0 * Math.PI;
     private final int max_count = 10;
-    private int used_count = 0;
     private final double[][] out = new double[max_count][1];
     private final double[][] delay = new double[max_count][1];
     private final double[][] delay2 = new double[max_count][1];
@@ -43,8 +43,8 @@ public final class SoftLowFrequencyOscillator implements SoftControl {
     private final double[] sin_phase = new double[max_count];
     private final double[] sin_stepfreq = new double[max_count];
     private final double[] sin_step = new double[max_count];
+    private int used_count = 0;
     private double sin_factor = 0;
-    private static final double PI2 = 2.0 * Math.PI;
 
     public SoftLowFrequencyOscillator() {
         // If sin_step is 0 then sin_stepfreq must be -INF
@@ -70,9 +70,9 @@ public final class SoftLowFrequencyOscillator implements SoftControl {
         double control_time = 1.0 / 147f;
         sin_factor = control_time * 2 * Math.PI;
         for (int i = 0; i < used_count; i++) {
-            delay_counter[i] = (int)(Math.pow(2,
+            delay_counter[i] = (int) (Math.pow(2,
                     this.delay[i][0] / 1200.0) / control_time);
-            delay_counter[i] += (int)(delay2[i][0] / (control_time * 1000));
+            delay_counter[i] += (int) (delay2[i][0] / (control_time * 1000));
         }
         processControlLogic();
     }

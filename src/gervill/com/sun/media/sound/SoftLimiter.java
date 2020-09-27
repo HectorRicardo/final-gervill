@@ -32,19 +32,18 @@ package gervill.com.sun.media.sound;
  */
 public final class SoftLimiter {
 
+    private final SoftAudioBuffer bufferL;
+    private final SoftAudioBuffer bufferR;
     private float lastmax = 0;
     private float gain = 1;
     private float[] temp_bufferL;
     private float[] temp_bufferR;
-    private final SoftAudioBuffer bufferL;
-    private final SoftAudioBuffer bufferR;
+    private double silentcounter = 0;
 
     public SoftLimiter(SoftAudioBuffer left, SoftAudioBuffer right) {
         this.bufferL = left;
         this.bufferR = right;
     }
-
-    private double silentcounter = 0;
 
     public void processAudio() {
         if (this.bufferL.isSilent() && this.bufferR.isSilent()) {

@@ -32,6 +32,52 @@ package gervill.com.sun.media.sound;
  */
 public final class SoftChorus {
 
+    private final SoftAudioBuffer inputA;
+    private final SoftAudioBuffer left;
+    private final SoftAudioBuffer right;
+    private final LFODelay vdelay1L = new LFODelay(0.5 * Math.PI);
+    private final LFODelay vdelay1R = new LFODelay(0);
+    double silentcounter = 1000;
+    private boolean dirty = true;
+
+    public SoftChorus(SoftAudioBuffer inputA, SoftAudioBuffer left, SoftAudioBuffer right) {
+        this.inputA = inputA;
+        this.left = left;
+        this.right = right;
+    }
+
+    public void processControlLogic() {
+        if (dirty) {
+            dirty = false;
+            vdelay1L.setRate(0.366);
+            vdelay1R.setRate(0.366);
+            vdelay1L.setDepth(1 / 160f);
+            vdelay1R.setDepth(1 / 160f);
+            vdelay1L.setFeedBack(0.06104f);
+            vdelay1R.setFeedBack(0.06104f);
+        }
+    }
+
+    public void processAudio() {
+
+        if (inputA.isSilent()) {
+            silentcounter += 1 / 147f;
+
+            if (silentcounter > 1) {
+                return;
+            }
+        } else
+            silentcounter = 0;
+
+        float[] inputA = this.inputA.array();
+        float[] left = this.left.array();
+        float[] right = this.right == null ? null : this.right.array();
+
+        vdelay1L.processMix(inputA, left);
+        if (right != null)
+            vdelay1R.processMix(inputA, right);
+    }
+
     private static class VariableDelay {
 
         private final float[] delaybuffer;
@@ -109,57 +155,10 @@ public final class SoftChorus {
 
         public void processMix(float[] in, float[] out) {
             phase += phase_step;
-            while(phase > (Math.PI * 2)) phase -= (Math.PI * 2);
+            while (phase > (Math.PI * 2)) phase -= (Math.PI * 2);
             vdelay.setDelay((float) (depth * 0.5 * (Math.cos(phase) + 2)));
             vdelay.processMix(in, out);
         }
 
-    }
-
-    private final SoftAudioBuffer inputA;
-    private final SoftAudioBuffer left;
-    private final SoftAudioBuffer right;
-    private final LFODelay vdelay1L = new LFODelay(0.5 * Math.PI);
-    private final LFODelay vdelay1R = new LFODelay(0);
-    private boolean dirty = true;
-
-    double silentcounter = 1000;
-
-    public SoftChorus(SoftAudioBuffer inputA, SoftAudioBuffer left, SoftAudioBuffer right) {
-        this.inputA = inputA;
-        this.left = left;
-        this.right = right;
-    }
-
-    public void processControlLogic() {
-        if (dirty) {
-            dirty = false;
-            vdelay1L.setRate(0.366);
-            vdelay1R.setRate(0.366);
-            vdelay1L.setDepth(1 / 160f);
-            vdelay1R.setDepth(1 / 160f);
-            vdelay1L.setFeedBack(0.06104f);
-            vdelay1R.setFeedBack(0.06104f);
-        }
-    }
-
-    public void processAudio() {
-
-        if (inputA.isSilent()) {
-            silentcounter += 1 / 147f;
-
-            if (silentcounter > 1) {
-                return;
-            }
-        } else
-            silentcounter = 0;
-
-        float[] inputA = this.inputA.array();
-        float[] left = this.left.array();
-        float[] right = this.right == null ? null : this.right.array();
-
-        vdelay1L.processMix(inputA, left);
-        if (right != null)
-            vdelay1R.processMix(inputA, right);
     }
 }

@@ -34,8 +34,8 @@ import java.util.List;
  */
 final class SF2Layer {
 
-    private SF2Region globalregion;
     private final List<SF2LayerRegion> regions;
+    private SF2Region globalregion;
 
     SF2Layer() {
         super();

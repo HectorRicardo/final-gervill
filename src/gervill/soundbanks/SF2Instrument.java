@@ -39,8 +39,8 @@ import java.util.Map;
  */
 final class SF2Instrument extends ModelInstrument {
 
-    private SF2Region globalregion;
     private final List<SF2InstrumentRegion> regions;
+    private SF2Region globalregion;
 
     SF2Instrument(String name, Patch patch) {
         super(patch, name);
@@ -50,6 +50,247 @@ final class SF2Instrument extends ModelInstrument {
     SF2Instrument(String name, Patch patch, List<SF2InstrumentRegion> regions) {
         super(patch, name);
         this.regions = regions;
+    }
+
+    private static void convertModulator(List<ModelConnectionBlock> connectionBlocks,
+                                         SF2Modulator modulator) {
+        ModelSource src1 = convertSource(modulator.getSourceOperator());
+        ModelSource src2 = convertSource(modulator.getAmountSourceOperator());
+        if (src1 == null && modulator.getSourceOperator() != 0)
+            return;
+        if (src2 == null && modulator.getAmountSourceOperator() != 0)
+            return;
+        double amount = modulator.getAmount();
+        double[] amountcorrection = new double[1];
+        ModelSource[] extrasrc = new ModelSource[1];
+        amountcorrection[0] = 1;
+        int myTransform = modulator.getTransportOperator() == SF2Modulator.TRANSFORM_ABSOLUTE ? ModelStandardTransform.TRANSFORM_ABSOLUTE : 0;
+        ModelDestination dst = convertDestination(modulator.getDestinationOperator(), amountcorrection, extrasrc, myTransform);
+        if (dst == null)
+            return;
+        amount *= amountcorrection[0];
+        List<ModelSource> sources = new ArrayList<>();
+        if (src1 != null) {
+            sources.add(src1);
+            if (src2 != null) {
+                sources.add(src2);
+            }
+        }
+        if (extrasrc[0] != null) {
+            sources.add(extrasrc[0]);
+        }
+
+        ModelConnectionBlock block = new ModelConnectionBlock(amount, dst, sources);
+        connectionBlocks.add(block);
+    }
+
+    private static ModelSource convertSource(int src) {
+        if (src == 0)
+            return null;
+        ModelIdentifier id = null;
+        int idsrc = src & 0x7F;
+        if ((src & SF2Modulator.SOURCE_MIDI_CONTROL) != 0) {
+            id = new ModelIdentifier("midi_cc", Integer.toString(idsrc));
+        } else {
+            if (idsrc == SF2Modulator.SOURCE_NOTE_ON_VELOCITY)
+                id = ModelSource.SOURCE_NOTEON_VELOCITY;
+            if (idsrc == SF2Modulator.SOURCE_NOTE_ON_KEYNUMBER)
+                id = ModelSource.SOURCE_NOTEON_KEYNUMBER;
+            if (idsrc == SF2Modulator.SOURCE_POLY_PRESSURE)
+                id = ModelSource.SOURCE_MIDI_POLY_PRESSURE;
+            if (idsrc == SF2Modulator.SOURCE_CHANNEL_PRESSURE)
+                id = ModelSource.SOURCE_MIDI_CHANNEL_PRESSURE;
+            if (idsrc == SF2Modulator.SOURCE_PITCH_WHEEL)
+                id = ModelSource.SOURCE_MIDI_PITCH;
+            if (idsrc == SF2Modulator.SOURCE_PITCH_SENSITIVITY)
+                id = new ModelIdentifier("midi_rpn", "0");
+        }
+        if (id == null)
+            return null;
+
+        boolean direction = (SF2Modulator.SOURCE_DIRECTION_MAX_MIN & src) == 0 ? ModelStandardTransform.DIRECTION_MIN2MAX : ModelStandardTransform.DIRECTION_MAX2MIN;
+        boolean polarity = (SF2Modulator.SOURCE_POLARITY_BIPOLAR & src) == 0 ? ModelStandardTransform.POLARITY_UNIPOLAR : ModelStandardTransform.POLARITY_BIPOLAR;
+
+        int myTransform = 0;
+        if ((SF2Modulator.SOURCE_TYPE_CONCAVE & src) != 0)
+            myTransform = ModelStandardTransform.TRANSFORM_CONCAVE;
+        if ((SF2Modulator.SOURCE_TYPE_CONVEX & src) != 0)
+            myTransform = ModelStandardTransform.TRANSFORM_CONVEX;
+        if ((SF2Modulator.SOURCE_TYPE_SWITCH & src) != 0)
+            myTransform = ModelStandardTransform.TRANSFORM_SWITCH;
+
+        return new ModelSource(id, new ModelStandardTransform(direction, polarity, myTransform));
+    }
+
+    private static ModelDestination convertDestination(int dst,
+                                                       double[] amountcorrection, ModelSource[] extrasrc, int transform) {
+        ModelIdentifier id = null;
+        switch (dst) {
+            case SF2Region.GENERATOR_INITIALFILTERFC:
+                id = ModelDestination.DESTINATION_FILTER_FREQ;
+                break;
+            case SF2Region.GENERATOR_INITIALFILTERQ:
+                id = ModelDestination.DESTINATION_FILTER_Q;
+                break;
+            case SF2Region.GENERATOR_CHORUSEFFECTSSEND:
+                id = ModelDestination.DESTINATION_CHORUS;
+                break;
+            case SF2Region.GENERATOR_REVERBEFFECTSSEND:
+                id = ModelDestination.DESTINATION_REVERB;
+                break;
+            case SF2Region.GENERATOR_PAN:
+                id = ModelDestination.DESTINATION_PAN;
+                break;
+            case SF2Region.GENERATOR_DELAYMODLFO:
+                id = ModelDestination.DESTINATION_LFO1_DELAY;
+                break;
+            case SF2Region.GENERATOR_FREQMODLFO:
+                id = ModelDestination.DESTINATION_LFO1_FREQ;
+                break;
+            case SF2Region.GENERATOR_DELAYVIBLFO:
+                id = ModelDestination.DESTINATION_LFO2_DELAY;
+                break;
+            case SF2Region.GENERATOR_FREQVIBLFO:
+                id = ModelDestination.DESTINATION_LFO2_FREQ;
+                break;
+
+            case SF2Region.GENERATOR_DELAYMODENV:
+                id = ModelDestination.DESTINATION_EG2_DELAY;
+                break;
+            case SF2Region.GENERATOR_ATTACKMODENV:
+                id = ModelDestination.DESTINATION_EG2_ATTACK;
+                break;
+            case SF2Region.GENERATOR_HOLDMODENV:
+                id = ModelDestination.DESTINATION_EG2_HOLD;
+                break;
+            case SF2Region.GENERATOR_DECAYMODENV:
+                id = ModelDestination.DESTINATION_EG2_DECAY;
+                break;
+            case SF2Region.GENERATOR_SUSTAINMODENV:
+                id = ModelDestination.DESTINATION_EG2_SUSTAIN;
+                amountcorrection[0] = -1;
+                break;
+            case SF2Region.GENERATOR_RELEASEMODENV:
+                id = ModelDestination.DESTINATION_EG2_RELEASE;
+                break;
+            case SF2Region.GENERATOR_DELAYVOLENV:
+                id = ModelDestination.DESTINATION_EG1_DELAY;
+                break;
+            case SF2Region.GENERATOR_ATTACKVOLENV:
+                id = ModelDestination.DESTINATION_EG1_ATTACK;
+                break;
+            case SF2Region.GENERATOR_HOLDVOLENV:
+                id = ModelDestination.DESTINATION_EG1_HOLD;
+                break;
+            case SF2Region.GENERATOR_DECAYVOLENV:
+                id = ModelDestination.DESTINATION_EG1_DECAY;
+                break;
+            case SF2Region.GENERATOR_SUSTAINVOLENV:
+                id = ModelDestination.DESTINATION_EG1_SUSTAIN;
+                amountcorrection[0] = -1;
+                break;
+            case SF2Region.GENERATOR_RELEASEVOLENV:
+                id = ModelDestination.DESTINATION_EG1_RELEASE;
+                break;
+            case SF2Region.GENERATOR_KEYNUM:
+                id = ModelDestination.DESTINATION_KEYNUMBER;
+                break;
+            case SF2Region.GENERATOR_VELOCITY:
+                id = ModelDestination.DESTINATION_VELOCITY;
+                break;
+
+            case SF2Region.GENERATOR_COARSETUNE:
+                amountcorrection[0] = 100;
+                id = ModelDestination.DESTINATION_PITCH;
+                break;
+
+            case SF2Region.GENERATOR_FINETUNE:
+                id = ModelDestination.DESTINATION_PITCH;
+                break;
+
+            case SF2Region.GENERATOR_INITIALATTENUATION:
+                id = ModelDestination.DESTINATION_GAIN;
+                amountcorrection[0] = -0.376287f;
+                break;
+
+            case SF2Region.GENERATOR_VIBLFOTOPITCH:
+                id = ModelDestination.DESTINATION_PITCH;
+                extrasrc[0] = new ModelSource(
+                        ModelSource.SOURCE_LFO2,
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR);
+                break;
+
+            case SF2Region.GENERATOR_MODLFOTOPITCH:
+                id = ModelDestination.DESTINATION_PITCH;
+                extrasrc[0] = new ModelSource(
+                        ModelSource.SOURCE_LFO1,
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR);
+                break;
+
+            case SF2Region.GENERATOR_MODLFOTOFILTERFC:
+                id = ModelDestination.DESTINATION_FILTER_FREQ;
+                extrasrc[0] = new ModelSource(
+                        ModelSource.SOURCE_LFO1,
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR);
+                break;
+
+            case SF2Region.GENERATOR_MODLFOTOVOLUME:
+                id = ModelDestination.DESTINATION_GAIN;
+                amountcorrection[0] = -0.376287f;
+                extrasrc[0] = new ModelSource(
+                        ModelSource.SOURCE_LFO1,
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR);
+                break;
+
+            case SF2Region.GENERATOR_MODENVTOPITCH:
+                id = ModelDestination.DESTINATION_PITCH;
+                extrasrc[0] = new ModelSource(
+                        ModelSource.SOURCE_EG2,
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR);
+                break;
+
+            case SF2Region.GENERATOR_MODENVTOFILTERFC:
+                id = ModelDestination.DESTINATION_FILTER_FREQ;
+                extrasrc[0] = new ModelSource(
+                        ModelSource.SOURCE_EG2,
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR);
+                break;
+
+            default:
+                break;
+        }
+        if (id != null)
+            return new ModelDestination(id, new ModelStandardTransform(transform));
+        return null;
+    }
+
+    private static void addTimecentValue(List<ModelConnectionBlock> connectionBlocks,
+                                         ModelIdentifier dest, short value) {
+        double fvalue;
+        if (value == -12000)
+            fvalue = Double.NEGATIVE_INFINITY;
+        else
+            fvalue = value;
+        connectionBlocks.add(
+                new ModelConnectionBlock(fvalue, new ModelDestination(dest)));
+    }
+
+    private static void addValue(List<ModelConnectionBlock> connectionBlocks,
+                                 ModelIdentifier dest, double value) {
+        connectionBlocks.add(
+                new ModelConnectionBlock(value, new ModelDestination(dest)));
+    }
+
+    private static short getGeneratorValue(Map<Integer, Short> generators, int gen) {
+        if (generators.containsKey(gen))
+            return generators.get(gen);
+        return SF2Region.getDefaultValue(gen);
     }
 
     List<SF2InstrumentRegion> getRegions() {
@@ -212,8 +453,8 @@ final class SF2Instrument extends ModelInstrument {
                     long startLoop = sample.getStartLoop();
                     long endLoop = sample.getEndLoop();
                     if (startLoop >= 0 && endLoop > 0) {
-                        loopStart = (int)(startLoop + startloopAddrsOffset);
-                        loopLength = (int)(endLoop - startLoop + endloopAddrsOffset - startloopAddrsOffset);
+                        loopStart = (int) (startLoop + startloopAddrsOffset);
+                        loopLength = (int) (endLoop - startLoop + endloopAddrsOffset - startloopAddrsOffset);
                         if (sampleMode == 1)
                             loopType = ModelByteBufferWavetable.LOOP_TYPE_FORWARD;
                         if (sampleMode == 3)
@@ -246,8 +487,8 @@ final class SF2Instrument extends ModelInstrument {
                     ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                     ModelIdentifier dest = ModelDestination.DESTINATION_EG1_HOLD;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(new ModelSource(src), fvalue,
-                            new ModelDestination(dest)));
+                            new ModelConnectionBlock(new ModelSource(src), fvalue,
+                                    new ModelDestination(dest)));
                 }
                 if (volDecay != -12000) {
                     short volKeyNumToDecay = getGeneratorValue(generators,
@@ -257,8 +498,8 @@ final class SF2Instrument extends ModelInstrument {
                     ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                     ModelIdentifier dest = ModelDestination.DESTINATION_EG1_DECAY;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(new ModelSource(src), fvalue,
-                            new ModelDestination(dest)));
+                            new ModelConnectionBlock(new ModelSource(src), fvalue,
+                                    new ModelDestination(dest)));
                 }
 
                 addTimecentValue(connectionBlocks,
@@ -271,7 +512,7 @@ final class SF2Instrument extends ModelInstrument {
                         ModelDestination.DESTINATION_EG1_DECAY, volDecay);
                 //float fvolsustain = (960-volSustain)*(1000.0f/960.0f);
 
-                volSustain = (short)(1000 - volSustain);
+                volSustain = (short) (1000 - volSustain);
                 if (volSustain < 0)
                     volSustain = 0;
                 if (volSustain > 1000)
@@ -283,9 +524,9 @@ final class SF2Instrument extends ModelInstrument {
                         ModelDestination.DESTINATION_EG1_RELEASE, volRelease);
 
                 if (getGeneratorValue(generators,
-                            SF2Region.GENERATOR_MODENVTOFILTERFC) != 0
+                        SF2Region.GENERATOR_MODENVTOFILTERFC) != 0
                         || getGeneratorValue(generators,
-                            SF2Region.GENERATOR_MODENVTOPITCH) != 0) {
+                        SF2Region.GENERATOR_MODENVTOPITCH) != 0) {
                     short modDelay = getGeneratorValue(generators,
                             SF2Region.GENERATOR_DELAYMODENV);
                     short modAttack = getGeneratorValue(generators,
@@ -308,8 +549,8 @@ final class SF2Instrument extends ModelInstrument {
                         ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                         ModelIdentifier dest = ModelDestination.DESTINATION_EG2_HOLD;
                         connectionBlocks.add(
-                            new ModelConnectionBlock(new ModelSource(src),
-                                fvalue, new ModelDestination(dest)));
+                                new ModelConnectionBlock(new ModelSource(src),
+                                        fvalue, new ModelDestination(dest)));
                     }
                     if (modDecay != -12000) {
                         short modKeyNumToDecay = getGeneratorValue(generators,
@@ -319,8 +560,8 @@ final class SF2Instrument extends ModelInstrument {
                         ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                         ModelIdentifier dest = ModelDestination.DESTINATION_EG2_DECAY;
                         connectionBlocks.add(
-                            new ModelConnectionBlock(new ModelSource(src),
-                                fvalue, new ModelDestination(dest)));
+                                new ModelConnectionBlock(new ModelSource(src),
+                                        fvalue, new ModelDestination(dest)));
                     }
 
                     addTimecentValue(connectionBlocks,
@@ -348,8 +589,8 @@ final class SF2Instrument extends ModelInstrument {
                         ModelIdentifier dest
                                 = ModelDestination.DESTINATION_FILTER_FREQ;
                         connectionBlocks.add(
-                            new ModelConnectionBlock(new ModelSource(src),
-                                fvalue, new ModelDestination(dest)));
+                                new ModelConnectionBlock(new ModelSource(src),
+                                        fvalue, new ModelDestination(dest)));
                     }
 
                     if (getGeneratorValue(generators,
@@ -359,18 +600,18 @@ final class SF2Instrument extends ModelInstrument {
                         ModelIdentifier src = ModelSource.SOURCE_EG2;
                         ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
                         connectionBlocks.add(
-                            new ModelConnectionBlock(new ModelSource(src),
-                                fvalue, new ModelDestination(dest)));
+                                new ModelConnectionBlock(new ModelSource(src),
+                                        fvalue, new ModelDestination(dest)));
                     }
 
                 }
 
                 if (getGeneratorValue(generators,
-                            SF2Region.GENERATOR_MODLFOTOFILTERFC) != 0
+                        SF2Region.GENERATOR_MODLFOTOFILTERFC) != 0
                         || getGeneratorValue(generators,
-                            SF2Region.GENERATOR_MODLFOTOPITCH) != 0
+                        SF2Region.GENERATOR_MODLFOTOPITCH) != 0
                         || getGeneratorValue(generators,
-                            SF2Region.GENERATOR_MODLFOTOVOLUME) != 0) {
+                        SF2Region.GENERATOR_MODLFOTOVOLUME) != 0) {
                     short lfo_freq = getGeneratorValue(generators,
                             SF2Region.GENERATOR_FREQMODLFO);
                     short lfo_delay = getGeneratorValue(generators,
@@ -398,11 +639,11 @@ final class SF2Instrument extends ModelInstrument {
                     ModelIdentifier src = ModelSource.SOURCE_LFO2;
                     ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(
-                            new ModelSource(src,
-                                ModelStandardTransform.DIRECTION_MIN2MAX,
-                                ModelStandardTransform.POLARITY_BIPOLAR),
-                            fvalue, new ModelDestination(dest)));
+                            new ModelConnectionBlock(
+                                    new ModelSource(src,
+                                            ModelStandardTransform.DIRECTION_MIN2MAX,
+                                            ModelStandardTransform.POLARITY_BIPOLAR),
+                                    fvalue, new ModelDestination(dest)));
                 }
 
                 if (getGeneratorValue(generators,
@@ -412,11 +653,11 @@ final class SF2Instrument extends ModelInstrument {
                     ModelIdentifier src = ModelSource.SOURCE_LFO1;
                     ModelIdentifier dest = ModelDestination.DESTINATION_FILTER_FREQ;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(
-                            new ModelSource(src,
-                                ModelStandardTransform.DIRECTION_MIN2MAX,
-                                ModelStandardTransform.POLARITY_BIPOLAR),
-                            fvalue, new ModelDestination(dest)));
+                            new ModelConnectionBlock(
+                                    new ModelSource(src,
+                                            ModelStandardTransform.DIRECTION_MIN2MAX,
+                                            ModelStandardTransform.POLARITY_BIPOLAR),
+                                    fvalue, new ModelDestination(dest)));
                 }
 
                 if (getGeneratorValue(generators,
@@ -426,11 +667,11 @@ final class SF2Instrument extends ModelInstrument {
                     ModelIdentifier src = ModelSource.SOURCE_LFO1;
                     ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(
-                            new ModelSource(src,
-                                ModelStandardTransform.DIRECTION_MIN2MAX,
-                                ModelStandardTransform.POLARITY_BIPOLAR),
-                            fvalue, new ModelDestination(dest)));
+                            new ModelConnectionBlock(
+                                    new ModelSource(src,
+                                            ModelStandardTransform.DIRECTION_MIN2MAX,
+                                            ModelStandardTransform.POLARITY_BIPOLAR),
+                                    fvalue, new ModelDestination(dest)));
                 }
 
                 if (getGeneratorValue(generators,
@@ -440,21 +681,21 @@ final class SF2Instrument extends ModelInstrument {
                     ModelIdentifier src = ModelSource.SOURCE_LFO1;
                     ModelIdentifier dest = ModelDestination.DESTINATION_GAIN;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(
-                            new ModelSource(src,
-                                ModelStandardTransform.DIRECTION_MIN2MAX,
-                                ModelStandardTransform.POLARITY_BIPOLAR),
-                            fvalue, new ModelDestination(dest)));
+                            new ModelConnectionBlock(
+                                    new ModelSource(src,
+                                            ModelStandardTransform.DIRECTION_MIN2MAX,
+                                            ModelStandardTransform.POLARITY_BIPOLAR),
+                                    fvalue, new ModelDestination(dest)));
                 }
 
                 if (layerzone.getShort(SF2Region.GENERATOR_KEYNUM) != -1) {
-                    double val = layerzone.getShort(SF2Region.GENERATOR_KEYNUM)/128.0;
+                    double val = layerzone.getShort(SF2Region.GENERATOR_KEYNUM) / 128.0;
                     addValue(connectionBlocks, ModelDestination.DESTINATION_KEYNUMBER, val);
                 }
 
                 if (layerzone.getShort(SF2Region.GENERATOR_VELOCITY) != -1) {
                     double val = layerzone.getShort(SF2Region.GENERATOR_VELOCITY)
-                                 / 128.0;
+                            / 128.0;
                     addValue(connectionBlocks, ModelDestination.DESTINATION_VELOCITY, val);
                 }
 
@@ -508,49 +749,49 @@ final class SF2Instrument extends ModelInstrument {
                     if (fvalue == 0) {
                         ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
                         connectionBlocks.add(
-                            new ModelConnectionBlock(null, rootkey * 100,
-                                new ModelDestination(dest)));
+                                new ModelConnectionBlock(null, rootkey * 100,
+                                        new ModelDestination(dest)));
                     } else {
                         ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
                         connectionBlocks.add(
-                            new ModelConnectionBlock(null, rootkey * (100 - fvalue),
-                                new ModelDestination(dest)));
+                                new ModelConnectionBlock(null, rootkey * (100 - fvalue),
+                                        new ModelDestination(dest)));
                     }
 
                     ModelIdentifier src = ModelSource.SOURCE_NOTEON_KEYNUMBER;
                     ModelIdentifier dest = ModelDestination.DESTINATION_PITCH;
                     connectionBlocks.add(
-                        new ModelConnectionBlock(new ModelSource(src),
-                            128 * fvalue, new ModelDestination(dest)));
+                            new ModelConnectionBlock(new ModelSource(src),
+                                    128 * fvalue, new ModelDestination(dest)));
 
                 }
 
                 connectionBlocks.add(
-                    new ModelConnectionBlock(
-                        new ModelSource(ModelSource.SOURCE_NOTEON_VELOCITY,
-                                value -> {
-                                    if (value < 0.5)
-                                        return 1 - value * 2;
-                                    else
-                                        return 0;
-                                }),
-                        -2400,
-                        new ModelDestination(
-                            ModelDestination.DESTINATION_FILTER_FREQ)));
+                        new ModelConnectionBlock(
+                                new ModelSource(ModelSource.SOURCE_NOTEON_VELOCITY,
+                                        value -> {
+                                            if (value < 0.5)
+                                                return 1 - value * 2;
+                                            else
+                                                return 0;
+                                        }),
+                                -2400,
+                                new ModelDestination(
+                                        ModelDestination.DESTINATION_FILTER_FREQ)));
 
 
                 connectionBlocks.add(
-                    new ModelConnectionBlock(
-                        new ModelSource(ModelSource.SOURCE_LFO2,
-                            ModelStandardTransform.DIRECTION_MIN2MAX,
-                            ModelStandardTransform.POLARITY_BIPOLAR,
-                            ModelStandardTransform.TRANSFORM_LINEAR),
-                        new ModelSource(new ModelIdentifier("midi_cc", "1", 0),
-                            ModelStandardTransform.DIRECTION_MIN2MAX,
-                            ModelStandardTransform.POLARITY_UNIPOLAR,
-                            ModelStandardTransform.TRANSFORM_LINEAR),
-                        50, new ModelDestination(
-                            ModelDestination.DESTINATION_PITCH)));
+                        new ModelConnectionBlock(
+                                new ModelSource(ModelSource.SOURCE_LFO2,
+                                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                                        ModelStandardTransform.POLARITY_BIPOLAR,
+                                        ModelStandardTransform.TRANSFORM_LINEAR),
+                                new ModelSource(new ModelIdentifier("midi_cc", "1", 0),
+                                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                                        ModelStandardTransform.TRANSFORM_LINEAR),
+                                50, new ModelDestination(
+                                ModelDestination.DESTINATION_PITCH)));
 
                 if (layer.getGlobalRegion() != null) {
                     for (SF2Modulator modulator
@@ -573,246 +814,5 @@ final class SF2Instrument extends ModelInstrument {
             }
         }
         return performers;
-    }
-
-    private static void convertModulator(List<ModelConnectionBlock> connectionBlocks,
-            SF2Modulator modulator) {
-        ModelSource src1 = convertSource(modulator.getSourceOperator());
-        ModelSource src2 = convertSource(modulator.getAmountSourceOperator());
-        if (src1 == null && modulator.getSourceOperator() != 0)
-            return;
-        if (src2 == null && modulator.getAmountSourceOperator() != 0)
-            return;
-        double amount = modulator.getAmount();
-        double[] amountcorrection = new double[1];
-        ModelSource[] extrasrc = new ModelSource[1];
-        amountcorrection[0] = 1;
-        int myTransform = modulator.getTransportOperator() == SF2Modulator.TRANSFORM_ABSOLUTE ? ModelStandardTransform.TRANSFORM_ABSOLUTE : 0;
-        ModelDestination dst = convertDestination(modulator.getDestinationOperator(), amountcorrection, extrasrc, myTransform);
-        if (dst == null)
-            return;
-        amount *= amountcorrection[0];
-        List<ModelSource> sources = new ArrayList<>();
-        if (src1 != null) {
-            sources.add(src1);
-            if (src2 != null) {
-                sources.add(src2);
-            }
-        }
-        if (extrasrc[0] != null) {
-            sources.add(extrasrc[0]);
-        }
-
-        ModelConnectionBlock block = new ModelConnectionBlock(amount, dst, sources);
-        connectionBlocks.add(block);
-    }
-
-    private static ModelSource convertSource(int src) {
-        if (src == 0)
-            return null;
-        ModelIdentifier id = null;
-        int idsrc = src & 0x7F;
-        if ((src & SF2Modulator.SOURCE_MIDI_CONTROL) != 0) {
-            id = new ModelIdentifier("midi_cc", Integer.toString(idsrc));
-        } else {
-            if (idsrc == SF2Modulator.SOURCE_NOTE_ON_VELOCITY)
-                id = ModelSource.SOURCE_NOTEON_VELOCITY;
-            if (idsrc == SF2Modulator.SOURCE_NOTE_ON_KEYNUMBER)
-                id = ModelSource.SOURCE_NOTEON_KEYNUMBER;
-            if (idsrc == SF2Modulator.SOURCE_POLY_PRESSURE)
-                id = ModelSource.SOURCE_MIDI_POLY_PRESSURE;
-            if (idsrc == SF2Modulator.SOURCE_CHANNEL_PRESSURE)
-                id = ModelSource.SOURCE_MIDI_CHANNEL_PRESSURE;
-            if (idsrc == SF2Modulator.SOURCE_PITCH_WHEEL)
-                id = ModelSource.SOURCE_MIDI_PITCH;
-            if (idsrc == SF2Modulator.SOURCE_PITCH_SENSITIVITY)
-                id = new ModelIdentifier("midi_rpn", "0");
-        }
-        if (id == null)
-            return null;
-
-        boolean direction = (SF2Modulator.SOURCE_DIRECTION_MAX_MIN & src) == 0 ? ModelStandardTransform.DIRECTION_MIN2MAX : ModelStandardTransform.DIRECTION_MAX2MIN;
-        boolean polarity = (SF2Modulator.SOURCE_POLARITY_BIPOLAR & src) == 0 ? ModelStandardTransform.POLARITY_UNIPOLAR : ModelStandardTransform.POLARITY_BIPOLAR;
-
-        int myTransform = 0;
-        if ((SF2Modulator.SOURCE_TYPE_CONCAVE & src) != 0)
-            myTransform = ModelStandardTransform.TRANSFORM_CONCAVE;
-        if ((SF2Modulator.SOURCE_TYPE_CONVEX & src) != 0)
-            myTransform = ModelStandardTransform.TRANSFORM_CONVEX;
-        if ((SF2Modulator.SOURCE_TYPE_SWITCH & src) != 0)
-            myTransform = ModelStandardTransform.TRANSFORM_SWITCH;
-
-        return new ModelSource(id, new ModelStandardTransform(direction, polarity, myTransform));
-    }
-
-    private static ModelDestination convertDestination(int dst,
-            double[] amountcorrection, ModelSource[] extrasrc, int transform) {
-        ModelIdentifier id = null;
-        switch (dst) {
-            case SF2Region.GENERATOR_INITIALFILTERFC:
-                id = ModelDestination.DESTINATION_FILTER_FREQ;
-                break;
-            case SF2Region.GENERATOR_INITIALFILTERQ:
-                id = ModelDestination.DESTINATION_FILTER_Q;
-                break;
-            case SF2Region.GENERATOR_CHORUSEFFECTSSEND:
-                id = ModelDestination.DESTINATION_CHORUS;
-                break;
-            case SF2Region.GENERATOR_REVERBEFFECTSSEND:
-                id = ModelDestination.DESTINATION_REVERB;
-                break;
-            case SF2Region.GENERATOR_PAN:
-                id = ModelDestination.DESTINATION_PAN;
-                break;
-            case SF2Region.GENERATOR_DELAYMODLFO:
-                id = ModelDestination.DESTINATION_LFO1_DELAY;
-                break;
-            case SF2Region.GENERATOR_FREQMODLFO:
-                id = ModelDestination.DESTINATION_LFO1_FREQ;
-                break;
-            case SF2Region.GENERATOR_DELAYVIBLFO:
-                id = ModelDestination.DESTINATION_LFO2_DELAY;
-                break;
-            case SF2Region.GENERATOR_FREQVIBLFO:
-                id = ModelDestination.DESTINATION_LFO2_FREQ;
-                break;
-
-            case SF2Region.GENERATOR_DELAYMODENV:
-                id = ModelDestination.DESTINATION_EG2_DELAY;
-                break;
-            case SF2Region.GENERATOR_ATTACKMODENV:
-                id = ModelDestination.DESTINATION_EG2_ATTACK;
-                break;
-            case SF2Region.GENERATOR_HOLDMODENV:
-                id = ModelDestination.DESTINATION_EG2_HOLD;
-                break;
-            case SF2Region.GENERATOR_DECAYMODENV:
-                id = ModelDestination.DESTINATION_EG2_DECAY;
-                break;
-            case SF2Region.GENERATOR_SUSTAINMODENV:
-                id = ModelDestination.DESTINATION_EG2_SUSTAIN;
-                amountcorrection[0] = -1;
-                break;
-            case SF2Region.GENERATOR_RELEASEMODENV:
-                id = ModelDestination.DESTINATION_EG2_RELEASE;
-                break;
-            case SF2Region.GENERATOR_DELAYVOLENV:
-                id = ModelDestination.DESTINATION_EG1_DELAY;
-                break;
-            case SF2Region.GENERATOR_ATTACKVOLENV:
-                id = ModelDestination.DESTINATION_EG1_ATTACK;
-                break;
-            case SF2Region.GENERATOR_HOLDVOLENV:
-                id = ModelDestination.DESTINATION_EG1_HOLD;
-                break;
-            case SF2Region.GENERATOR_DECAYVOLENV:
-                id = ModelDestination.DESTINATION_EG1_DECAY;
-                break;
-            case SF2Region.GENERATOR_SUSTAINVOLENV:
-                id = ModelDestination.DESTINATION_EG1_SUSTAIN;
-                amountcorrection[0] = -1;
-                break;
-            case SF2Region.GENERATOR_RELEASEVOLENV:
-                id = ModelDestination.DESTINATION_EG1_RELEASE;
-                break;
-            case SF2Region.GENERATOR_KEYNUM:
-                id = ModelDestination.DESTINATION_KEYNUMBER;
-                break;
-            case SF2Region.GENERATOR_VELOCITY:
-                id = ModelDestination.DESTINATION_VELOCITY;
-                break;
-
-            case SF2Region.GENERATOR_COARSETUNE:
-                amountcorrection[0] = 100;
-                id = ModelDestination.DESTINATION_PITCH;
-                break;
-
-            case SF2Region.GENERATOR_FINETUNE:
-                id = ModelDestination.DESTINATION_PITCH;
-                break;
-
-            case SF2Region.GENERATOR_INITIALATTENUATION:
-                id = ModelDestination.DESTINATION_GAIN;
-                amountcorrection[0] = -0.376287f;
-                break;
-
-            case SF2Region.GENERATOR_VIBLFOTOPITCH:
-                id = ModelDestination.DESTINATION_PITCH;
-                extrasrc[0] = new ModelSource(
-                        ModelSource.SOURCE_LFO2,
-                        ModelStandardTransform.DIRECTION_MIN2MAX,
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-                break;
-
-            case SF2Region.GENERATOR_MODLFOTOPITCH:
-                id = ModelDestination.DESTINATION_PITCH;
-                extrasrc[0] = new ModelSource(
-                        ModelSource.SOURCE_LFO1,
-                        ModelStandardTransform.DIRECTION_MIN2MAX,
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-                break;
-
-            case SF2Region.GENERATOR_MODLFOTOFILTERFC:
-                id = ModelDestination.DESTINATION_FILTER_FREQ;
-                extrasrc[0] = new ModelSource(
-                        ModelSource.SOURCE_LFO1,
-                        ModelStandardTransform.DIRECTION_MIN2MAX,
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-                break;
-
-            case SF2Region.GENERATOR_MODLFOTOVOLUME:
-                id = ModelDestination.DESTINATION_GAIN;
-                amountcorrection[0] = -0.376287f;
-                extrasrc[0] = new ModelSource(
-                        ModelSource.SOURCE_LFO1,
-                        ModelStandardTransform.DIRECTION_MIN2MAX,
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-                break;
-
-            case SF2Region.GENERATOR_MODENVTOPITCH:
-                id = ModelDestination.DESTINATION_PITCH;
-                extrasrc[0] = new ModelSource(
-                        ModelSource.SOURCE_EG2,
-                        ModelStandardTransform.DIRECTION_MIN2MAX,
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-                break;
-
-            case SF2Region.GENERATOR_MODENVTOFILTERFC:
-                id = ModelDestination.DESTINATION_FILTER_FREQ;
-                extrasrc[0] = new ModelSource(
-                        ModelSource.SOURCE_EG2,
-                        ModelStandardTransform.DIRECTION_MIN2MAX,
-                        ModelStandardTransform.POLARITY_BIPOLAR);
-                break;
-
-            default:
-                break;
-        }
-        if (id != null)
-            return new ModelDestination(id, new ModelStandardTransform(transform));
-        return null;
-    }
-
-    private static void addTimecentValue(List<ModelConnectionBlock> connectionBlocks,
-            ModelIdentifier dest, short value) {
-        double fvalue;
-        if (value == -12000)
-            fvalue = Double.NEGATIVE_INFINITY;
-        else
-            fvalue = value;
-        connectionBlocks.add(
-                new ModelConnectionBlock(fvalue, new ModelDestination(dest)));
-    }
-
-    private static void addValue(List<ModelConnectionBlock> connectionBlocks,
-            ModelIdentifier dest, double value) {
-        connectionBlocks.add(
-                new ModelConnectionBlock(value, new ModelDestination(dest)));
-    }
-
-    private static short getGeneratorValue(Map<Integer, Short> generators, int gen) {
-        if (generators.containsKey(gen))
-            return generators.get(gen);
-        return SF2Region.getDefaultValue(gen);
     }
 }

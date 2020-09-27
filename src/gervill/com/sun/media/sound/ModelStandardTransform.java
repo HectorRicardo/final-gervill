@@ -27,11 +27,11 @@ package gervill.com.sun.media.sound;
 /**
  * A standard transformer used in connection blocks.
  * It expects input values to be between 0 and 1.
- *
+ * <p>
  * The result of the transform is
- *   between 0 and 1 if polarity = unipolar and
- *   between -1 and 1 if polarity = bipolar.
- *
+ * between 0 and 1 if polarity = unipolar and
+ * between -1 and 1 if polarity = bipolar.
+ * <p>
  * These constraints only applies to Concave, Convex and Switch transforms.
  *
  * @author Karl Helgason

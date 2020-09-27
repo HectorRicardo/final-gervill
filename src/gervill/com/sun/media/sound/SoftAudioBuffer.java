@@ -37,8 +37,7 @@ public final class SoftAudioBuffer {
     private boolean empty = true;
     private byte[] converter_buffer;
 
-    public void swap(SoftAudioBuffer swap)
-    {
+    public void swap(SoftAudioBuffer swap) {
         float[] bak_buffer = buffer;
         boolean bak_empty = empty;
         byte[] bak_converter_buffer = converter_buffer;

@@ -39,10 +39,10 @@ import java.util.List;
 
 /**
  * A SoundFont 2.04 soundbank reader.
- *
+ * <p>
  * Based on SoundFont 2.04 specification from:
  * <p>  http://developer.creative.com <br>
- *      http://www.soundfont.com/ ;
+ * http://www.soundfont.com/ ;
  *
  * @author Karl Helgason
  */

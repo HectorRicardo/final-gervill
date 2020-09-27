@@ -65,6 +65,12 @@ public final class SoftChannelProxy implements MidiChannel {
         return channel.getChannelPressure();
     }
 
+    public void setChannelPressure(int pressure) {
+        if (channel == null)
+            return;
+        channel.setChannelPressure(pressure);
+    }
+
     public int getController(int controller) {
         if (channel == null)
             return 0;
@@ -77,10 +83,22 @@ public final class SoftChannelProxy implements MidiChannel {
         return channel.getMono();
     }
 
+    public void setMono(boolean on) {
+        if (channel == null)
+            return;
+        channel.setMono(on);
+    }
+
     public boolean getMute() {
         if (channel == null)
             return false;
         return channel.getMute();
+    }
+
+    public void setMute(boolean mute) {
+        if (channel == null)
+            return;
+        channel.setMute(mute);
     }
 
     public boolean getOmni() {
@@ -89,10 +107,22 @@ public final class SoftChannelProxy implements MidiChannel {
         return channel.getOmni();
     }
 
+    public void setOmni(boolean on) {
+        if (channel == null)
+            return;
+        channel.setOmni(on);
+    }
+
     public int getPitchBend() {
         if (channel == null)
             return 8192;
         return channel.getPitchBend();
+    }
+
+    public void setPitchBend(int bend) {
+        if (channel == null)
+            return;
+        channel.setPitchBend(bend);
     }
 
     public int getPolyPressure(int noteNumber) {
@@ -105,6 +135,12 @@ public final class SoftChannelProxy implements MidiChannel {
         if (channel == null)
             return false;
         return channel.getSolo();
+    }
+
+    public void setSolo(boolean soloState) {
+        if (channel == null)
+            return;
+        channel.setSolo(soloState);
     }
 
     public void noteOff(int noteNumber) {
@@ -137,45 +173,9 @@ public final class SoftChannelProxy implements MidiChannel {
         channel.resetAllControllers();
     }
 
-    public void setChannelPressure(int pressure) {
-        if (channel == null)
-            return;
-        channel.setChannelPressure(pressure);
-    }
-
-    public void setMono(boolean on) {
-        if (channel == null)
-            return;
-        channel.setMono(on);
-    }
-
-    public void setMute(boolean mute) {
-        if (channel == null)
-            return;
-        channel.setMute(mute);
-    }
-
-    public void setOmni(boolean on) {
-        if (channel == null)
-            return;
-        channel.setOmni(on);
-    }
-
-    public void setPitchBend(int bend) {
-        if (channel == null)
-            return;
-        channel.setPitchBend(bend);
-    }
-
     public void setPolyPressure(int noteNumber, int pressure) {
         if (channel == null)
             return;
         channel.setPolyPressure(noteNumber, pressure);
-    }
-
-    public void setSolo(boolean soloState) {
-        if (channel == null)
-            return;
-        channel.setSolo(soloState);
     }
 }

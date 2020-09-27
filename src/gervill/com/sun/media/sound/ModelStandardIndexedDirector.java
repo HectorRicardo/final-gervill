@@ -58,23 +58,12 @@ public final class ModelStandardIndexedDirector {
         return new ModelStandardIndexedDirector(player, performers.size() > 0, trantables, counters[0], mat);
     }
 
-    private ImmutableList<Integer> lookupIndex(int x, int y) {
-        if ((x >= 0) && (x < 128) && (y >= 0) && (y < 128)) {
-            int xt = defVal(trantables.get(0, x));
-            int yt = defVal(trantables.get(1, y));
-            if (xt != -1 && yt != -1) {
-                return mat.get(xt + yt * counter);
-            }
-        }
-        return null;
-    }
-
     private static int defVal(Byte val) {
         return val == null ? 0 : val;
     }
 
     private static int restrict(int value) {
-        if(value < 0) return 0;
+        if (value < 0) return 0;
         return Math.min(value, 127);
     }
 
@@ -142,7 +131,7 @@ public final class ModelStandardIndexedDirector {
                 for (int x = x_from; x < x_to; x++) {
                     Integer[] mprev = mat[i];
                     if (mprev == null) {
-                        mat[i] = new Integer[] { ix };
+                        mat[i] = new Integer[]{ix};
                     } else {
                         Integer[] mnew = new Integer[mprev.length + 1];
                         mnew[mnew.length - 1] = ix;
@@ -157,11 +146,22 @@ public final class ModelStandardIndexedDirector {
         return mat;
     }
 
+    private ImmutableList<Integer> lookupIndex(int x, int y) {
+        if ((x >= 0) && (x < 128) && (y >= 0) && (y < 128)) {
+            int xt = defVal(trantables.get(0, x));
+            int yt = defVal(trantables.get(1, y));
+            if (xt != -1 && yt != -1) {
+                return mat.get(xt + yt * counter);
+            }
+        }
+        return null;
+    }
+
     public void noteOn(int noteNumber, int velocity) {
         if (!noteOnUsed)
             return;
         ImmutableList<Integer> plist = lookupIndex(noteNumber, velocity);
-        if(plist == null) return;
+        if (plist == null) return;
         for (int i : plist) {
             player.play(i, null);
         }

@@ -84,7 +84,7 @@ public class SourceDataLine implements AutoCloseable {
      * to the line's listeners.
      * throws SecurityException if the line cannot be
      * closed due to security restrictions.
-     *
+     * <p>
      * see #open
      * see #isOpen
      * see LineEvent
@@ -101,7 +101,7 @@ public class SourceDataLine implements AutoCloseable {
      * with the first frame that was unprocessed at the time the line was
      * stopped. When audio capture or playback starts, a
      * <code> LineEvent.Type#START START</code> event is generated.
-     *
+     * <p>
      * see #stop()
      * see #isRunning()
      * see LineEvent
@@ -134,22 +134,22 @@ public class SourceDataLine implements AutoCloseable {
      * to reopen such a line will always result in a
      * <code>LineUnavailableException</code>.
      *
-     * @param format the desired audio format
+     * @param format     the desired audio format
      * @param bufferSize the desired buffer size
-     * throws LineUnavailableException if the line cannot be
-     * opened due to resource restrictions
-     * throws IllegalArgumentException if the buffer size does not represent
-     * an integral number of sample frames,
-     * or if <code>format</code> is not fully specified or invalid
-     * throws IllegalStateException if the line is already open
-     * throws SecurityException if the line cannot be
-     * opened due to security restrictions
-     *
-     * see #open(AudioFormat)
-     * see Line#open
-     * see Line#close
-     * see Line#isOpen
-     * see LineEvent
+     *                   throws LineUnavailableException if the line cannot be
+     *                   opened due to resource restrictions
+     *                   throws IllegalArgumentException if the buffer size does not represent
+     *                   an integral number of sample frames,
+     *                   or if <code>format</code> is not fully specified or invalid
+     *                   throws IllegalStateException if the line is already open
+     *                   throws SecurityException if the line cannot be
+     *                   opened due to security restrictions
+     *                   <p>
+     *                   see #open(AudioFormat)
+     *                   see Line#open
+     *                   see Line#close
+     *                   see Line#isOpen
+     *                   see LineEvent
      */
     public void open(AudioFormat format, int bufferSize) {
         try {
@@ -188,19 +188,19 @@ public class SourceDataLine implements AutoCloseable {
      * number of bytes representing a non-integral number of sample frames cannot
      * be fulfilled and may result in an <code>IllegalArgumentException</code>.
      *
-     * @param b a byte array containing data to be written to the data line
+     * @param b   a byte array containing data to be written to the data line
      * @param len the length, in bytes, of the valid data in the array
-     * (in other words, the requested amount of data to write, in bytes)
+     *            (in other words, the requested amount of data to write, in bytes)
      * @param off the offset from the beginning of the array, in bytes
-     * throws IllegalArgumentException if the requested number of bytes does
-     * not represent an integral number of sample frames,
-     * or if <code>len</code> is negative
-     * throws ArrayIndexOutOfBoundsException if <code>off</code> is negative,
-     * or <code>off+len</code> is greater than the length of the array
-     * <code>b</code>.
-     *
-     * see TargetDataLine#read
-     * see DataLine#available
+     *            throws IllegalArgumentException if the requested number of bytes does
+     *            not represent an integral number of sample frames,
+     *            or if <code>len</code> is negative
+     *            throws ArrayIndexOutOfBoundsException if <code>off</code> is negative,
+     *            or <code>off+len</code> is greater than the length of the array
+     *            <code>b</code>.
+     *            <p>
+     *            see TargetDataLine#read
+     *            see DataLine#available
      */
     public void write(byte[] b, int off, int len) {
         realLine.write(b, off, len);

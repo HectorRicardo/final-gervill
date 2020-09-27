@@ -234,15 +234,15 @@ final class DLSInstrument extends ModelInstrument {
         List<ModelPerformer> performers = new ArrayList<>();
 
         Map<String, DLSModulator> modmap = new HashMap<>();
-        for (DLSModulator mod: modulators) {
+        for (DLSModulator mod : modulators) {
             modmap.put(mod.getSource() + "x" + mod.getControl() + "=" +
                     mod.getDestination(), mod);
         }
 
-        for (DLSRegion zone: regions) {
+        for (DLSRegion zone : regions) {
 
             List<ModelConnectionBlock> blocks = new ArrayList<>();
-            for (DLSModulator mod: modmap.values()) {
+            for (DLSModulator mod : modmap.values()) {
                 ModelConnectionBlock p = convertToModel(mod);
                 if (p != null)
                     blocks.add(p);
@@ -264,8 +264,8 @@ final class DLSInstrument extends ModelInstrument {
             int loopType = ModelByteBufferWavetable.LOOP_TYPE_OFF;
             if (sampleopt.getLoops().size() != 0) {
                 DLSSampleLoop loop = sampleopt.getLoops().get(0);
-                loopStart = (int)loop.getStart();
-                loopLength = (int)loop.getLength();
+                loopStart = (int) loop.getStart();
+                loopLength = (int) loop.getLength();
                 if (loop.getType() == DLSSampleLoop.LOOP_TYPE_FORWARD)
                     loopType = ModelByteBufferWavetable.LOOP_TYPE_FORWARD;
                 else if (loop.getType() == DLSSampleLoop.LOOP_TYPE_RELEASE)
@@ -278,8 +278,8 @@ final class DLSInstrument extends ModelInstrument {
 
             blocks.add(
                     new ModelConnectionBlock(SoftFilter.FILTERTYPE_LP12,
-                        new ModelDestination(
-                            new ModelIdentifier("filter", "type", 1))));
+                            new ModelDestination(
+                                    new ModelIdentifier("filter", "type", 1))));
 
             performers.add(new ModelPerformer(zone.getKeyfrom(), zone.getKeyto(), zone.getVelfrom(), zone.getVelto(), zone.getExclusiveClass(), (zone.getFusoptions() & DLSRegion.OPTION_SELFNONEXCLUSIVE) != 0, Collections.singletonList(osc), blocks));
 

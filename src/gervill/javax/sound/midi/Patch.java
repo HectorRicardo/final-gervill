@@ -43,9 +43,9 @@ package gervill.javax.sound.midi;
  * channel, two kinds of MIDI message are used that specify a patch location:
  * a bank-select command, and a program-change channel command.  The Java Sound
  * equivalent is the
- *  MidiChannel#programChange(int, int) programChange(int, int)
+ * MidiChannel#programChange(int, int) programChange(int, int)
  * method of <code>MidiChannel</code>.
- *
+ * <p>
  * see Instrument
  * see Instrument#getPatch()
  * see MidiChannel#programChange(int, int)
@@ -75,7 +75,8 @@ public class Patch {
     /**
      * Constructs a new patch object from the specified bank and program
      * numbers.
-     * @param bank the bank index (in the range from 0 to 16383)
+     *
+     * @param bank    the bank index (in the range from 0 to 16383)
      * @param program the program index (in the range from 0 to 127)
      */
     public Patch(int bank, int program) {
@@ -92,6 +93,7 @@ public class Patch {
     /**
      * Returns the number of the bank that contains the instrument
      * whose location this <code>Patch</code> specifies.
+     *
      * @return the bank number, whose range is from 0 to 16383
      * see MidiChannel#programChange(int, int)
      */
@@ -104,8 +106,9 @@ public class Patch {
     /**
      * Returns the index, within
      * a bank, of the instrument whose location this <code>Patch</code> specifies.
-     * @return the instrument's program number, whose range is from 0 to 127
      *
+     * @return the instrument's program number, whose range is from 0 to 127
+     * <p>
      * see MidiChannel#getProgram
      * see MidiChannel#programChange(int)
      * see MidiChannel#programChange(int, int)

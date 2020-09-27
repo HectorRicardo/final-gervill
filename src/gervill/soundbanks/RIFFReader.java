@@ -38,8 +38,8 @@ final class RIFFReader extends InputStream {
 
     private final RIFFReader root;
     private final String fourcc;
-    private String riff_type = null;
     private final InputStream stream;
+    private String riff_type = null;
     private long avail;
     private RIFFReader lastiterator = null;
 
@@ -120,7 +120,7 @@ final class RIFFReader extends InputStream {
             return -1;
         }
         if (len > avail) {
-            int rlen = stream.read(b, offset, (int)avail);
+            int rlen = stream.read(b, offset, (int) avail);
             avail = 0;
             return rlen;
         } else {
@@ -180,7 +180,7 @@ final class RIFFReader extends InputStream {
 
     @Override
     public int available() {
-        return (int)avail;
+        return (int) avail;
     }
 
     void finish() throws IOException {
@@ -222,7 +222,7 @@ final class RIFFReader extends InputStream {
             throw new EOFException();
         if (ch2 < 0)
             throw new EOFException();
-        return (short)(ch1 | (ch2 << 8));
+        return (short) (ch1 | (ch2 << 8));
     }
 
     // Read 32 bit signed integer from stream

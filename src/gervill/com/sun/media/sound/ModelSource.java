@@ -48,7 +48,7 @@ public final class ModelSource {
             new ModelIdentifier("midi", "pitch", 0);            // (0..16383)
     public static final ModelIdentifier SOURCE_MIDI_CHANNEL_PRESSURE =
             new ModelIdentifier("midi", "channel_pressure", 0); // (0..127)
-//    public static final ModelIdentifier SOURCE_MIDI_MONO_PRESSURE =
+    //    public static final ModelIdentifier SOURCE_MIDI_MONO_PRESSURE =
 //            new ModelIdentifier("midi","mono_pressure",0);    // (0..127)
     public static final ModelIdentifier SOURCE_MIDI_POLY_PRESSURE =
             new ModelIdentifier("midi", "poly_pressure", 0);    // (0..127)
@@ -67,7 +67,7 @@ public final class ModelSource {
     }
 
     public ModelSource(ModelIdentifier id, boolean direction, boolean polarity,
-            int transform) {
+                       int transform) {
         source = id;
         this.transform =
                 new ModelStandardTransform(direction, polarity, transform);

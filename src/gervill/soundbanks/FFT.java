@@ -63,11 +63,6 @@ final class FFT {
 
     }
 
-    public void transform(double[] data) {
-        bitreversal(data);
-        calc(fftFrameSize, data, sign, w);
-    }
-
     private static double[] computeTwiddleFactors(int fftFrameSize,
                                                   int sign) {
 
@@ -76,7 +71,7 @@ final class FFT {
         double[] warray = new double[(fftFrameSize - 1) * 4];
         int w_index = 0;
 
-        for (int i = 0,  nstep = 2; i < imax; i++) {
+        for (int i = 0, nstep = 2; i < imax; i++) {
             int jmax = nstep;
             nstep <<= 1;
 
@@ -102,7 +97,7 @@ final class FFT {
         {
             w_index = 0;
             int w_index2 = warray.length >> 1;
-            for (int i = 0,  nstep = 2; i < (imax - 1); i++) {
+            for (int i = 0, nstep = 2; i < (imax - 1); i++) {
                 int jmax = nstep;
                 nstep *= 2;
 
@@ -681,6 +676,11 @@ final class FFT {
 
         }
 
+    }
+
+    public void transform(double[] data) {
+        bitreversal(data);
+        calc(fftFrameSize, data, sign, w);
     }
 
     private void bitreversal(double[] data) {

@@ -57,7 +57,7 @@ final class SF2Sample {
     }
 
     SF2Sample(byte[] data, long endLoop, long sampleRate, int originalPitch) {
-        this(data, endLoop, sampleRate, originalPitch, (byte)0);
+        this(data, endLoop, sampleRate, originalPitch, (byte) 0);
     }
 
     ModelByteBuffer getDataBuffer() {

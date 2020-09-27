@@ -44,97 +44,78 @@ import java.util.*;
  */
 public final class DLSSoundbankParser {
 
-    private static class DLSID {
-        private final long i1;
-        private final int s1;
-        private final int s2;
-        private final int x1;
-        private final int x2;
-        private final int x3;
-        private final int x4;
-        private final int x5;
-        private final int x6;
-        private final int x7;
-        private final int x8;
-
-        private DLSID(long i1, int s1, int s2, int x1, int x2, int x4,
-              int x5, int x6, int x7, int x8) {
-            this.i1 = i1;
-            this.s1 = s1;
-            this.s2 = s2;
-            this.x1 = x1;
-            this.x2 = x2;
-            this.x3 = 0;
-            this.x4 = x4;
-            this.x5 = x5;
-            this.x6 = x6;
-            this.x7 = x7;
-            this.x8 = x8;
-        }
-
-        private static DLSID read(RIFFReader riff) throws IOException {
-            long i1 = riff.readUnsignedInt();
-            int s1 = riff.readUnsignedShort();
-            int s2 = riff.readUnsignedShort();
-            int x1 = riff.readUnsignedByte();
-            int x2 = riff.readUnsignedByte();
-            riff.readUnsignedByte();
-            int x4 = riff.readUnsignedByte();
-            int x5 = riff.readUnsignedByte();
-            int x6 = riff.readUnsignedByte();
-            int x7 = riff.readUnsignedByte();
-            int x8 = riff.readUnsignedByte();
-            return new DLSID(i1, s1, s2, x1, x2, x4, x5, x6, x7, x8);
-        }
-
-        public boolean equals(Object obj) {
-            if (!(obj instanceof DLSID)) {
-                return false;
-            }
-            DLSID t = (DLSID) obj;
-            return i1 == t.i1 && s1 == t.s1 && s2 == t.s2
-                && x1 == t.x1 && x2 == t.x2 && x3 == t.x3 && x4 == t.x4
-                && x5 == t.x5 && x6 == t.x6 && x7 == t.x7 && x8 == t.x8;
-        }
-    }
-
-    /** X = X & Y */
+    /**
+     * X = X & Y
+     */
     private static final int DLS_CDL_AND = 0x0001;
-    /** X = X | Y */
+    /**
+     * X = X | Y
+     */
     private static final int DLS_CDL_OR = 0x0002;
-    /** X = X ^ Y */
+    /**
+     * X = X ^ Y
+     */
     private static final int DLS_CDL_XOR = 0x0003;
-    /** X = X + Y */
+    /**
+     * X = X + Y
+     */
     private static final int DLS_CDL_ADD = 0x0004;
-    /** X = X - Y */
+    /**
+     * X = X - Y
+     */
     private static final int DLS_CDL_SUBTRACT = 0x0005;
-    /** X = X * Y */
+    /**
+     * X = X * Y
+     */
     private static final int DLS_CDL_MULTIPLY = 0x0006;
-    /** X = X / Y */
+    /**
+     * X = X / Y
+     */
     private static final int DLS_CDL_DIVIDE = 0x0007;
-    /** X = X && Y */
+    /**
+     * X = X && Y
+     */
     private static final int DLS_CDL_LOGICAL_AND = 0x0008;
-    /** X = X || Y */
+    /**
+     * X = X || Y
+     */
     private static final int DLS_CDL_LOGICAL_OR = 0x0009;
-    /** X = (X < Y) */
+    /**
+     * X = (X < Y)
+     */
     private static final int DLS_CDL_LT = 0x000A;
-    /** X = (X <= Y) */
+    /**
+     * X = (X <= Y)
+     */
     private static final int DLS_CDL_LE = 0x000B;
-    /** X = (X > Y) */
+    /**
+     * X = (X > Y)
+     */
     private static final int DLS_CDL_GT = 0x000C;
-    /** X = (X >= Y) */
+    /**
+     * X = (X >= Y)
+     */
     private static final int DLS_CDL_GE = 0x000D;
-    /** X = (X == Y) */
+    /**
+     * X = (X == Y)
+     */
     private static final int DLS_CDL_EQ = 0x000E;
-    /** X = !X */
+    /**
+     * X = !X
+     */
     private static final int DLS_CDL_NOT = 0x000F;
-    /** 32-bit constant */
+    /**
+     * 32-bit constant
+     */
     private static final int DLS_CDL_CONST = 0x0010;
-    /** 32-bit value returned from query */
+    /**
+     * 32-bit value returned from query
+     */
     private static final int DLS_CDL_QUERY = 0x0011;
-    /** 32-bit value returned from query */
+    /**
+     * 32-bit value returned from query
+     */
     private static final int DLS_CDL_QUERYSUPPORTED = 0x0012;
-
     private static final DLSID DLSID_GMInHardware = new DLSID(0x178f2f24,
             0xc364, 0x11d1, 0xa7, 0x60, 0x00, 0xf8, 0x75, 0xac, 0x12);
     private static final DLSID DLSID_GSInHardware = new DLSID(0x178f2f25,
@@ -211,14 +192,14 @@ public final class DLSSoundbankParser {
 
     private static boolean cdlIsQuerySupported(DLSID uuid) {
         return uuid.equals(DLSID_GMInHardware)
-            || uuid.equals(DLSID_GSInHardware)
-            || uuid.equals(DLSID_XGInHardware)
-            || uuid.equals(DLSID_SupportsDLS1)
-            || uuid.equals(DLSID_SupportsDLS2)
-            || uuid.equals(DLSID_SampleMemorySize)
-            || uuid.equals(DLSID_ManufacturersID)
-            || uuid.equals(DLSID_ProductID)
-            || uuid.equals(DLSID_SamplePlaybackRate);
+                || uuid.equals(DLSID_GSInHardware)
+                || uuid.equals(DLSID_XGInHardware)
+                || uuid.equals(DLSID_SupportsDLS1)
+                || uuid.equals(DLSID_SupportsDLS2)
+                || uuid.equals(DLSID_SampleMemorySize)
+                || uuid.equals(DLSID_ManufacturersID)
+                || uuid.equals(DLSID_ProductID)
+                || uuid.equals(DLSID_SamplePlaybackRate);
     }
 
     private static long cdlQuery(DLSID uuid) {
@@ -243,7 +224,6 @@ public final class DLSSoundbankParser {
         return 0;
     }
 
-
     // Reading cdl-ck Chunk
     // "cdl " chunk can only appear inside : DLS,lart,lar2,rgn,rgn2
     private static boolean readCdlChunkInverted(RIFFReader riff) throws IOException {
@@ -256,86 +236,86 @@ public final class DLSSoundbankParser {
         while (riff.available() != 0) {
             int opcode = riff.readUnsignedShort();
             switch (opcode) {
-            case DLS_CDL_AND:
+                case DLS_CDL_AND:
                 case DLS_CDL_LOGICAL_AND:
                     x = stack.pop();
-                y = stack.pop();
-                stack.push((long) (((x != 0) && (y != 0)) ? 1 : 0));
-                break;
-            case DLS_CDL_OR:
+                    y = stack.pop();
+                    stack.push((long) (((x != 0) && (y != 0)) ? 1 : 0));
+                    break;
+                case DLS_CDL_OR:
                 case DLS_CDL_LOGICAL_OR:
                     x = stack.pop();
-                y = stack.pop();
-                stack.push((long) (((x != 0) || (y != 0)) ? 1 : 0));
-                break;
-            case DLS_CDL_XOR:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push((long) (((x != 0) ^ (y != 0)) ? 1 : 0));
-                break;
-            case DLS_CDL_ADD:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push(x + y);
-                break;
-            case DLS_CDL_SUBTRACT:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push(x - y);
-                break;
-            case DLS_CDL_MULTIPLY:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push(x * y);
-                break;
-            case DLS_CDL_DIVIDE:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push(x / y);
-                break;
+                    y = stack.pop();
+                    stack.push((long) (((x != 0) || (y != 0)) ? 1 : 0));
+                    break;
+                case DLS_CDL_XOR:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push((long) (((x != 0) ^ (y != 0)) ? 1 : 0));
+                    break;
+                case DLS_CDL_ADD:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push(x + y);
+                    break;
+                case DLS_CDL_SUBTRACT:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push(x - y);
+                    break;
+                case DLS_CDL_MULTIPLY:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push(x * y);
+                    break;
+                case DLS_CDL_DIVIDE:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push(x / y);
+                    break;
                 case DLS_CDL_LT:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push((long) ((x < y) ? 1 : 0));
-                break;
-            case DLS_CDL_LE:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push((long) ((x <= y) ? 1 : 0));
-                break;
-            case DLS_CDL_GT:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push((long) ((x > y) ? 1 : 0));
-                break;
-            case DLS_CDL_GE:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push((long) ((x >= y) ? 1 : 0));
-                break;
-            case DLS_CDL_EQ:
-                x = stack.pop();
-                y = stack.pop();
-                stack.push((long) ((x == y) ? 1 : 0));
-                break;
-            case DLS_CDL_NOT:
-                x = stack.pop();
-                stack.pop();
-                stack.push((long) ((x == 0) ? 1 : 0));
-                break;
-            case DLS_CDL_CONST:
-                stack.push(riff.readUnsignedInt());
-                break;
-            case DLS_CDL_QUERY:
-                uuid = DLSID.read(riff);
-                stack.push(cdlQuery(uuid));
-                break;
-            case DLS_CDL_QUERYSUPPORTED:
-                uuid = DLSID.read(riff);
-                stack.push((long) (cdlIsQuerySupported(uuid) ? 1 : 0));
-                break;
-            default:
-                break;
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push((long) ((x < y) ? 1 : 0));
+                    break;
+                case DLS_CDL_LE:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push((long) ((x <= y) ? 1 : 0));
+                    break;
+                case DLS_CDL_GT:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push((long) ((x > y) ? 1 : 0));
+                    break;
+                case DLS_CDL_GE:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push((long) ((x >= y) ? 1 : 0));
+                    break;
+                case DLS_CDL_EQ:
+                    x = stack.pop();
+                    y = stack.pop();
+                    stack.push((long) ((x == y) ? 1 : 0));
+                    break;
+                case DLS_CDL_NOT:
+                    x = stack.pop();
+                    stack.pop();
+                    stack.push((long) ((x == 0) ? 1 : 0));
+                    break;
+                case DLS_CDL_CONST:
+                    stack.push(riff.readUnsignedInt());
+                    break;
+                case DLS_CDL_QUERY:
+                    uuid = DLSID.read(riff);
+                    stack.push(cdlQuery(uuid));
+                    break;
+                case DLS_CDL_QUERYSUPPORTED:
+                    uuid = DLSID.read(riff);
+                    stack.push((long) (cdlIsQuerySupported(uuid) ? 1 : 0));
+                    break;
+                default:
+                    break;
             }
         }
         if (stack.isEmpty())
@@ -584,7 +564,8 @@ public final class DLSSoundbankParser {
                     int channels = chunk.readUnsignedShort();
                     long samplerate = chunk.readUnsignedInt();
                     // bytes per sec
-                    /* long framerate = */ chunk.readUnsignedInt();
+                    /* long framerate = */
+                    chunk.readUnsignedInt();
                     // block align, framesize
                     int framesize = chunk.readUnsignedShort();
                     int bits = chunk.readUnsignedShort();
@@ -635,6 +616,60 @@ public final class DLSSoundbankParser {
 
         samples.add(new DLSSample(sampleFormat, mbb, sampleoptions));
 
+    }
+
+    private static class DLSID {
+        private final long i1;
+        private final int s1;
+        private final int s2;
+        private final int x1;
+        private final int x2;
+        private final int x3;
+        private final int x4;
+        private final int x5;
+        private final int x6;
+        private final int x7;
+        private final int x8;
+
+        private DLSID(long i1, int s1, int s2, int x1, int x2, int x4,
+                      int x5, int x6, int x7, int x8) {
+            this.i1 = i1;
+            this.s1 = s1;
+            this.s2 = s2;
+            this.x1 = x1;
+            this.x2 = x2;
+            this.x3 = 0;
+            this.x4 = x4;
+            this.x5 = x5;
+            this.x6 = x6;
+            this.x7 = x7;
+            this.x8 = x8;
+        }
+
+        private static DLSID read(RIFFReader riff) throws IOException {
+            long i1 = riff.readUnsignedInt();
+            int s1 = riff.readUnsignedShort();
+            int s2 = riff.readUnsignedShort();
+            int x1 = riff.readUnsignedByte();
+            int x2 = riff.readUnsignedByte();
+            riff.readUnsignedByte();
+            int x4 = riff.readUnsignedByte();
+            int x5 = riff.readUnsignedByte();
+            int x6 = riff.readUnsignedByte();
+            int x7 = riff.readUnsignedByte();
+            int x8 = riff.readUnsignedByte();
+            return new DLSID(i1, s1, s2, x1, x2, x4, x5, x6, x7, x8);
+        }
+
+        public boolean equals(Object obj) {
+            if (!(obj instanceof DLSID)) {
+                return false;
+            }
+            DLSID t = (DLSID) obj;
+            return i1 == t.i1 && s1 == t.s1 && s2 == t.s2
+                    && x1 == t.x1 && x2 == t.x2 && x3 == t.x3 && x4 == t.x4
+                    && x5 == t.x5 && x6 == t.x6 && x7 == t.x7 && x8 == t.x8;
+        }
     }
 
 }

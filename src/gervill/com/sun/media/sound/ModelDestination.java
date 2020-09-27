@@ -64,7 +64,7 @@ public final class ModelDestination {
             = new ModelIdentifier("eg", "decay", 0); // timecent
     public static final ModelIdentifier DESTINATION_EG1_SUSTAIN
             = new ModelIdentifier("eg", "sustain", 0);
-                                        // 0.1 % (I want this to be value not %)
+    // 0.1 % (I want this to be value not %)
     public static final ModelIdentifier DESTINATION_EG1_RELEASE
             = new ModelIdentifier("eg", "release", 0); // timecent
     public static final ModelIdentifier DESTINATION_EG1_SHUTDOWN
@@ -79,7 +79,7 @@ public final class ModelDestination {
             = new ModelIdentifier("eg", "decay", 1); // timecent
     public static final ModelIdentifier DESTINATION_EG2_SUSTAIN
             = new ModelIdentifier("eg", "sustain", 1);
-                                        // 0.1 % ( I want this to be value not %)
+    // 0.1 % ( I want this to be value not %)
     public static final ModelIdentifier DESTINATION_EG2_RELEASE
             = new ModelIdentifier("eg", "release", 1); // timecent
     public static final ModelIdentifier DESTINATION_FILTER_FREQ

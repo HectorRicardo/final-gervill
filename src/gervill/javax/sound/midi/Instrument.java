@@ -36,12 +36,13 @@ package gervill.javax.sound.midi;
  * one or more channels, via a program-change command.  MIDI notes
  * that are subsequently received on those channels will be played using
  * the sound of the selected instrument.
- *
+ * <p>
  * see Soundbank
  * see Soundbank#getInstruments
  * see Patch
  * see Synthesizer#loadInstrument(Instrument)
  * see MidiChannel#programChange(int, int)
+ *
  * @author Kara Kytle
  */
 
@@ -62,10 +63,11 @@ public abstract class Instrument {
      * instrument, the sound bank will search its contents for this instrument's <code>Patch</code>,
      * and the instrument will be loaded into the synthesizer at the
      * bank and program location indicated by the <code>Patch</code> object.
-     * @param patch the patch of this instrument
-     * @param name the name of this instrument
      *
-     * see Synthesizer#loadInstrument(Instrument)
+     * @param patch the patch of this instrument
+     * @param name  the name of this instrument
+     *              <p>
+     *              see Synthesizer#loadInstrument(Instrument)
      */
     protected Instrument(Patch patch, String name) {
         super();
@@ -81,6 +83,7 @@ public abstract class Instrument {
     /**
      * Obtains the <code>Patch</code> object that indicates the bank and program
      * numbers where this instrument is to be stored in the synthesizer.
+     *
      * @return this instrument's patch
      */
     public Patch getPatch() {

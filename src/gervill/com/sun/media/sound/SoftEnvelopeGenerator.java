@@ -41,7 +41,6 @@ public final class SoftEnvelopeGenerator implements SoftControl {
     public final static int EG_SHUTDOWN = 7;
     public final static int EG_END = 8;
     final int max_count = 10;
-    int used_count = 0;
     private final int[] stage = new int[max_count];
     private final int[] stage_ix = new int[max_count];
     private final double[] stage_v = new double[max_count];
@@ -59,6 +58,7 @@ public final class SoftEnvelopeGenerator implements SoftControl {
     private final double[][] release2 = new double[max_count][1];
     private final double[][] attack2 = new double[max_count][1];
     private final double[][] decay2 = new double[max_count][1];
+    int used_count = 0;
     private double control_time = 0;
 
     public void reset() {
@@ -127,7 +127,7 @@ public final class SoftEnvelopeGenerator implements SoftControl {
             if ((stage[i] > EG_OFF) && (stage[i] < EG_RELEASE)) {
                 if (on[i][0] < 0.5) {
                     if (on[i][0] < -0.5) {
-                        stage_count[i] = (int)(Math.pow(2,
+                        stage_count[i] = (int) (Math.pow(2,
                                 this.shutdown[i][0] / 1200.0) / control_time);
                         if (stage_count[i] < 0)
                             stage_count[i] = 0;
@@ -143,17 +143,17 @@ public final class SoftEnvelopeGenerator implements SoftControl {
                             continue;
                         }
 
-                        stage_count[i] = (int)(Math.pow(2,
+                        stage_count[i] = (int) (Math.pow(2,
                                 this.release[i][0] / 1200.0) / control_time);
                         stage_count[i]
-                                += (int)(this.release2[i][0]/(control_time * 1000));
+                                += (int) (this.release2[i][0] / (control_time * 1000));
                         if (stage_count[i] < 0)
                             stage_count[i] = 0;
                         // stage_v[i] = out[i][0];
                         stage_ix[i] = 0;
 
                         double m = 1 - out[i][0];
-                        stage_ix[i] = (int)(stage_count[i] * m);
+                        stage_ix[i] = (int) (stage_count[i] * m);
 
                         stage[i] = EG_RELEASE;
                     }
@@ -161,133 +161,133 @@ public final class SoftEnvelopeGenerator implements SoftControl {
             }
 
             switch (stage[i]) {
-            case EG_OFF:
-                active[i][0] = 1;
-                if (on[i][0] < 0.5)
-                    break;
-                stage[i] = EG_DELAY;
-                stage_ix[i] = (int)(Math.pow(2,
-                        this.delay[i][0] / 1200.0) / control_time);
-                if (stage_ix[i] < 0)
-                    stage_ix[i] = 0;
-            case EG_DELAY:
-                if (stage_ix[i] == 0) {
-                    double attack = this.attack[i][0];
-                    double attack2 = this.attack2[i][0];
+                case EG_OFF:
+                    active[i][0] = 1;
+                    if (on[i][0] < 0.5)
+                        break;
+                    stage[i] = EG_DELAY;
+                    stage_ix[i] = (int) (Math.pow(2,
+                            this.delay[i][0] / 1200.0) / control_time);
+                    if (stage_ix[i] < 0)
+                        stage_ix[i] = 0;
+                case EG_DELAY:
+                    if (stage_ix[i] == 0) {
+                        double attack = this.attack[i][0];
+                        double attack2 = this.attack2[i][0];
 
-                    if (attack2 < 0.000001
-                            && (attack < 0 && Double.isInfinite(attack))) {
+                        if (attack2 < 0.000001
+                                && (attack < 0 && Double.isInfinite(attack))) {
+                            out[i][0] = 1;
+                            stage[i] = EG_HOLD;
+                            stage_count[i] = (int) (Math.pow(2,
+                                    this.hold[i][0] / 1200.0) / control_time);
+                        } else {
+                            stage[i] = EG_ATTACK;
+                            stage_count[i] = (int) (Math.pow(2,
+                                    attack / 1200.0) / control_time);
+                            stage_count[i] += (int) (attack2 / (control_time * 1000));
+                            if (stage_count[i] < 0)
+                                stage_count[i] = 0;
+                        }
+                        stage_ix[i] = 0;
+                    } else
+                        stage_ix[i]--;
+                    break;
+                case EG_ATTACK:
+                    stage_ix[i]++;
+                    if (stage_ix[i] >= stage_count[i]) {
                         out[i][0] = 1;
                         stage[i] = EG_HOLD;
-                        stage_count[i] = (int)(Math.pow(2,
-                                this.hold[i][0] / 1200.0) / control_time);
                     } else {
-                        stage[i] = EG_ATTACK;
-                        stage_count[i] = (int)(Math.pow(2,
-                                attack / 1200.0) / control_time);
-                        stage_count[i] += (int)(attack2 / (control_time * 1000));
+                        // CONVEX attack
+                        double a = ((double) stage_ix[i]) / ((double) stage_count[i]);
+                        a = 1 + ((40.0 / 96.0) / Math.log(10)) * Math.log(a);
+                        if (a < 0)
+                            a = 0;
+                        else if (a > 1)
+                            a = 1;
+                        out[i][0] = a;
+                    }
+                    break;
+                case EG_HOLD:
+                    stage_ix[i]++;
+                    if (stage_ix[i] >= stage_count[i]) {
+                        stage[i] = EG_DECAY;
+                        stage_count[i] = (int) (Math.pow(2,
+                                this.decay[i][0] / 1200.0) / control_time);
+                        stage_count[i] += (int) (this.decay2[i][0] / (control_time * 1000));
                         if (stage_count[i] < 0)
                             stage_count[i] = 0;
+                        stage_ix[i] = 0;
                     }
-                    stage_ix[i] = 0;
-                } else
-                    stage_ix[i]--;
-                break;
-            case EG_ATTACK:
-                stage_ix[i]++;
-                if (stage_ix[i] >= stage_count[i]) {
-                    out[i][0] = 1;
-                    stage[i] = EG_HOLD;
-                } else {
-                    // CONVEX attack
-                    double a = ((double)stage_ix[i]) / ((double)stage_count[i]);
-                    a = 1 + ((40.0 / 96.0) / Math.log(10)) * Math.log(a);
-                    if (a < 0)
-                        a = 0;
-                    else if (a > 1)
-                        a = 1;
-                    out[i][0] = a;
-                }
-                break;
-            case EG_HOLD:
-                stage_ix[i]++;
-                if (stage_ix[i] >= stage_count[i]) {
-                    stage[i] = EG_DECAY;
-                    stage_count[i] = (int)(Math.pow(2,
-                            this.decay[i][0] / 1200.0) / control_time);
-                    stage_count[i] += (int)(this.decay2[i][0]/(control_time*1000));
-                    if (stage_count[i] < 0)
-                        stage_count[i] = 0;
-                    stage_ix[i] = 0;
-                }
-                break;
-            case EG_DECAY:
-                stage_ix[i]++;
-                double sustain = this.sustain[i][0] * (1.0 / 1000.0);
-                if (stage_ix[i] >= stage_count[i]) {
-                    out[i][0] = sustain;
-                    stage[i] = EG_SUSTAIN;
-                    if (sustain < 0.001) {
+                    break;
+                case EG_DECAY:
+                    stage_ix[i]++;
+                    double sustain = this.sustain[i][0] * (1.0 / 1000.0);
+                    if (stage_ix[i] >= stage_count[i]) {
+                        out[i][0] = sustain;
+                        stage[i] = EG_SUSTAIN;
+                        if (sustain < 0.001) {
+                            out[i][0] = 0;
+                            active[i][0] = 0;
+                            stage[i] = EG_END;
+                        }
+                    } else {
+                        double m = ((double) stage_ix[i]) / ((double) stage_count[i]);
+                        out[i][0] = (1 - m) + sustain * m;
+                    }
+                    break;
+                case EG_RELEASE:
+                    stage_ix[i]++;
+                    if (stage_ix[i] >= stage_count[i]) {
                         out[i][0] = 0;
                         active[i][0] = 0;
                         stage[i] = EG_END;
-                    }
-                } else {
-                    double m = ((double)stage_ix[i]) / ((double)stage_count[i]);
-                    out[i][0] = (1 - m) + sustain * m;
-                }
-                break;
-                case EG_RELEASE:
-                stage_ix[i]++;
-                if (stage_ix[i] >= stage_count[i]) {
-                    out[i][0] = 0;
-                    active[i][0] = 0;
-                    stage[i] = EG_END;
-                } else {
-                    double m = ((double)stage_ix[i]) / ((double)stage_count[i]);
-                    out[i][0] = (1 - m); // *stage_v[i];
+                    } else {
+                        double m = ((double) stage_ix[i]) / ((double) stage_count[i]);
+                        out[i][0] = (1 - m); // *stage_v[i];
 
-                    if (on[i][0] < -0.5) {
-                        stage_count[i] = (int)(Math.pow(2,
-                                this.shutdown[i][0] / 1200.0) / control_time);
-                        if (stage_count[i] < 0)
-                            stage_count[i] = 0;
-                        stage_v[i] = out[i][0];
-                        stage_ix[i] = 0;
-                        stage[i] = EG_SHUTDOWN;
-                    }
-
-                    // re-damping
-                    if (on[i][0] > 0.5) {
-                        sustain = this.sustain[i][0] * (1.0 / 1000.0);
-                        if (out[i][0] > sustain) {
-                            stage[i] = EG_DECAY;
-                            stage_count[i] = (int)(Math.pow(2,
-                                    this.decay[i][0] / 1200.0) / control_time);
-                            stage_count[i] +=
-                                    (int)(this.decay2[i][0]/(control_time*1000));
+                        if (on[i][0] < -0.5) {
+                            stage_count[i] = (int) (Math.pow(2,
+                                    this.shutdown[i][0] / 1200.0) / control_time);
                             if (stage_count[i] < 0)
                                 stage_count[i] = 0;
-                            m = (out[i][0] - 1) / (sustain - 1);
-                            stage_ix[i] = (int) (stage_count[i] * m);
+                            stage_v[i] = out[i][0];
+                            stage_ix[i] = 0;
+                            stage[i] = EG_SHUTDOWN;
                         }
-                    }
 
-                }
-                break;
-            case EG_SHUTDOWN:
-                stage_ix[i]++;
-                if (stage_ix[i] >= stage_count[i]) {
-                    out[i][0] = 0;
-                    active[i][0] = 0;
-                    stage[i] = EG_END;
-                } else {
-                    double m = ((double)stage_ix[i]) / ((double)stage_count[i]);
-                    out[i][0] = (1 - m) * stage_v[i];
-                }
-                break;
-            default:
-                break;
+                        // re-damping
+                        if (on[i][0] > 0.5) {
+                            sustain = this.sustain[i][0] * (1.0 / 1000.0);
+                            if (out[i][0] > sustain) {
+                                stage[i] = EG_DECAY;
+                                stage_count[i] = (int) (Math.pow(2,
+                                        this.decay[i][0] / 1200.0) / control_time);
+                                stage_count[i] +=
+                                        (int) (this.decay2[i][0] / (control_time * 1000));
+                                if (stage_count[i] < 0)
+                                    stage_count[i] = 0;
+                                m = (out[i][0] - 1) / (sustain - 1);
+                                stage_ix[i] = (int) (stage_count[i] * m);
+                            }
+                        }
+
+                    }
+                    break;
+                case EG_SHUTDOWN:
+                    stage_ix[i]++;
+                    if (stage_ix[i] >= stage_count[i]) {
+                        out[i][0] = 0;
+                        active[i][0] = 0;
+                        stage[i] = EG_END;
+                    } else {
+                        double m = ((double) stage_ix[i]) / ((double) stage_count[i]);
+                        out[i][0] = (1 - m) * stage_v[i];
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 

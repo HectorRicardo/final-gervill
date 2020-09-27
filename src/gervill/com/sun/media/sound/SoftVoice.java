@@ -39,96 +39,21 @@ import java.util.Map;
  */
 public final class SoftVoice {
 
-    /**
-     * Indicates whether the voice is currently processing a MIDI note.
-     * See the explanation of
-     * <A HREF="#description_of_active">active and inactive voices</A>.
-     */
-    boolean active = false;
-
-
-    /**
-     * The MIDI channel on which this voice is playing.  The value is a
-     * zero-based channel number if the voice is active, or
-     * unspecified if the voice is inactive.
-     *
-     * see MidiChannel
-     * see #active
-     */
-    int channel = 0;
-
-
-    /**
-     * The MIDI note that this voice is playing.  The range for an active voice
-     * is from 0 to 127 in semitones, with 60 referring to Middle C.
-     * The value is unspecified if the voice is inactive.
-     *
-     * see MidiChannel#noteOn
-     * see #active
-     */
-    int note = 0;
-
-    public int exclusiveClass = 0;
-    public boolean releaseTriggered = false;
-    double tunedKey = 0;
-    SoftChannel stealer_channel = null;
-    ModelConnectionBlock[] stealer_extendedConnectionBlocks = null;
-    SoftPerformer stealer_performer = null;
-    int stealer_voiceID = -1;
-    int stealer_noteNumber = 0;
-    int stealer_velocity = 0;
-    boolean stealer_releaseTriggered = false;
-    int voiceID = -1;
-    boolean sustain = false;
-    boolean sostenuto = false;
-    boolean portamento = false;
+    final Map<String, SoftControl> objects =
+            new HashMap<>();
+    final SoftSynthesizer synthesizer;
+    final double[] co_noteon_keynumber = new double[1];
+    final double[] co_noteon_velocity = new double[1];
+    final double[] co_noteon_on = new double[1];
     private final SoftFilter filter_left;
     private final SoftFilter filter_right;
     private final SoftEnvelopeGenerator eg = new SoftEnvelopeGenerator();
     private final SoftLowFrequencyOscillator lfo = new SoftLowFrequencyOscillator();
-    final Map<String, SoftControl> objects =
-            new HashMap<>();
-    final SoftSynthesizer synthesizer;
-    SoftPerformer performer;
-    SoftChannel softchannel = null;
-    boolean on = false;
-    private boolean audiostarted = false;
-    private boolean started = false;
-    private boolean stopping = false;
-    private float osc_attenuation = 0.0f;
-    private SoftResamplerStreamer osc_stream;
-    private int osc_stream_nrofchannels;
-    private float[][] osc_buff = new float[2][];
-    private boolean osc_stream_off_transmitted = false;
-    private boolean out_mixer_end = false;
-    private float out_mixer_left = 0;
-    private float out_mixer_right = 0;
-    private float out_mixer_effect1 = 0;
-    private float out_mixer_effect2 = 0;
-    private float last_out_mixer_left = 0;
-    private float last_out_mixer_right = 0;
-    private float last_out_mixer_effect1 = 0;
-    private float last_out_mixer_effect2 = 0;
-    ModelConnectionBlock[] extendedConnectionBlocks = null;
-    private ImmutableList<ModelConnectionBlock> connections;
-    // Last value added to destination
-    private double[] connections_last = new double[50];
-    // Pointer to source value
-    private double[][][] connections_src = new double[50][3][];
-    // Key-based override (if any)
-    private int[][] connections_src_kc = new int[50][3];
-    // Pointer to destination value
-    private double[][] connections_dst = new double[50][];
-    private boolean soundoff = false;
-    private float lastMuteValue = 0;
-    private float lastSoloMuteValue = 0;
-    final double[] co_noteon_keynumber = new double[1];
-    final double[] co_noteon_velocity = new double[1];
-    final double[] co_noteon_on = new double[1];
     private final SoftControl co_noteon = new SoftControl() {
         final double[] keynumber = co_noteon_keynumber;
         final double[] velocity = co_noteon_velocity;
         final double[] on = co_noteon_on;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -154,6 +79,7 @@ public final class SoftVoice {
         final double[] balance = co_mixer_balance;
         final double[] reverb = co_mixer_reverb;
         final double[] chorus = co_mixer_chorus;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -175,6 +101,7 @@ public final class SoftVoice {
     private final double[] co_osc_pitch = new double[1];
     private final SoftControl co_osc = new SoftControl() {
         final double[] pitch = co_osc_pitch;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -190,6 +117,7 @@ public final class SoftVoice {
         final double[] freq = co_filter_freq;
         final double[] ftype = co_filter_type;
         final double[] q = co_filter_q;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -202,7 +130,78 @@ public final class SoftVoice {
             return null;
         }
     };
+    public int exclusiveClass = 0;
+    public boolean releaseTriggered = false;
+    /**
+     * Indicates whether the voice is currently processing a MIDI note.
+     * See the explanation of
+     * <A HREF="#description_of_active">active and inactive voices</A>.
+     */
+    boolean active = false;
+    /**
+     * The MIDI channel on which this voice is playing.  The value is a
+     * zero-based channel number if the voice is active, or
+     * unspecified if the voice is inactive.
+     * <p>
+     * see MidiChannel
+     * see #active
+     */
+    int channel = 0;
+    /**
+     * The MIDI note that this voice is playing.  The range for an active voice
+     * is from 0 to 127 in semitones, with 60 referring to Middle C.
+     * The value is unspecified if the voice is inactive.
+     * <p>
+     * see MidiChannel#noteOn
+     * see #active
+     */
+    int note = 0;
+    double tunedKey = 0;
+    SoftChannel stealer_channel = null;
+    ModelConnectionBlock[] stealer_extendedConnectionBlocks = null;
+    SoftPerformer stealer_performer = null;
+    int stealer_voiceID = -1;
+    int stealer_noteNumber = 0;
+    int stealer_velocity = 0;
+    boolean stealer_releaseTriggered = false;
+    int voiceID = -1;
+    boolean sustain = false;
+    boolean sostenuto = false;
+    boolean portamento = false;
+    SoftPerformer performer;
+    SoftChannel softchannel = null;
+    boolean on = false;
+    ModelConnectionBlock[] extendedConnectionBlocks = null;
     SoftResamplerStreamer resampler;
+    private boolean audiostarted = false;
+    private boolean started = false;
+    private boolean stopping = false;
+    private float osc_attenuation = 0.0f;
+    private SoftResamplerStreamer osc_stream;
+    private int osc_stream_nrofchannels;
+    private float[][] osc_buff = new float[2][];
+    private boolean osc_stream_off_transmitted = false;
+    private boolean out_mixer_end = false;
+    private float out_mixer_left = 0;
+    private float out_mixer_right = 0;
+    private float out_mixer_effect1 = 0;
+    private float out_mixer_effect2 = 0;
+    private float last_out_mixer_left = 0;
+    private float last_out_mixer_right = 0;
+    private float last_out_mixer_effect1 = 0;
+    private float last_out_mixer_effect2 = 0;
+    private ImmutableList<ModelConnectionBlock> connections;
+    // Last value added to destination
+    private double[] connections_last = new double[50];
+    // Pointer to source value
+    private double[][][] connections_src = new double[50][3][];
+    // Key-based override (if any)
+    private int[][] connections_src_kc = new int[50][3];
+    // Pointer to destination value
+    private double[][] connections_dst = new double[50][];
+    private boolean soundoff = false;
+    private float lastMuteValue = 0;
+    private float lastSoloMuteValue = 0;
 
     public SoftVoice(SoftSynthesizer synth) {
         synthesizer = synth;
@@ -394,11 +393,11 @@ public final class SoftVoice {
             processConnection(i);
 
         if (extendedConnectionBlocks != null) {
-            for (ModelConnectionBlock connection: extendedConnectionBlocks) {
+            for (ModelConnectionBlock connection : extendedConnectionBlocks) {
                 double value = 0;
 
                 if (softchannel.keybasedcontroller_active == null) {
-                    for (ModelSource src: connection.getSources()) {
+                    for (ModelSource src : connection.getSources()) {
                         double x = getValue(src.getIdentifier())[0];
                         ModelTransform t = src.getTransform();
                         if (t == null)
@@ -407,7 +406,7 @@ public final class SoftVoice {
                             value += t.transform(x);
                     }
                 } else {
-                    for (ModelSource src: connection.getSources()) {
+                    for (ModelSource src : connection.getSources()) {
                         double x = getValue(src.getIdentifier())[0];
                         x = processKeyBasedController(x,
                                 getValueKC(src.getIdentifier()));
@@ -433,7 +432,7 @@ public final class SoftVoice {
     }
 
     void setPolyPressure() {
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_connections.get(2);
         if (c == null)
@@ -442,7 +441,7 @@ public final class SoftVoice {
     }
 
     void setChannelPressure() {
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_connections.get(1);
         if (c == null)
@@ -451,7 +450,7 @@ public final class SoftVoice {
     }
 
     void controlChange(int controller) {
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_ctrl_connections.get(controller);
         if (c == null)
@@ -460,7 +459,7 @@ public final class SoftVoice {
     }
 
     void nrpnChange(int controller) {
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_nrpn_connections.get(controller);
         if (c == null)
@@ -469,7 +468,7 @@ public final class SoftVoice {
     }
 
     void rpnChange(int controller) {
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_rpn_connections.get(controller);
         if (c == null)
@@ -478,7 +477,7 @@ public final class SoftVoice {
     }
 
     void setPitchBend() {
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_connections.get(0);
         if (c == null)
@@ -505,7 +504,7 @@ public final class SoftVoice {
 
         co_noteon_on[0] = -1;
 
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_connections.get(3);
         if (c == null)
@@ -532,7 +531,7 @@ public final class SoftVoice {
 
         co_noteon_on[0] = 0;
 
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_connections.get(3);
         if (c == null)
@@ -549,7 +548,7 @@ public final class SoftVoice {
         sustain = true;
         co_noteon_on[0] = 1;
 
-        if(performer == null)
+        if (performer == null)
             return;
         ImmutableList<Integer> c = performer.midi_connections.get(3);
         if (c == null)
@@ -634,9 +633,9 @@ public final class SoftVoice {
             for (int i = 0; i < performer.ctrl_connections.length; i++)
                 processConnection(performer.ctrl_connections.get(i));
 
-            osc_stream.setPitch((float)co_osc_pitch[0]);
+            osc_stream.setPitch((float) co_osc_pitch[0]);
 
-            int filter_type = (int)co_filter_type[0];
+            int filter_type = (int) co_filter_type[0];
             double filter_freq;
 
             if (co_filter_freq[0] == 13500.0)
@@ -644,7 +643,7 @@ public final class SoftVoice {
             else
                 filter_freq = 440.0 * Math.exp(
                         ((co_filter_freq[0]) - 6900.0) *
-                        (Math.log(2.0) / 1200.0));
+                                (Math.log(2.0) / 1200.0));
             /*
             filter_freq = 440.0 * Math.pow(2.0,
             ((co_filter_freq[0]) - 6900.0) / 1200.0);*/
@@ -664,8 +663,8 @@ public final class SoftVoice {
             float gain = (float) Math.pow(10,
             (-osc_attenuation + co_mixer_gain[0]) / 200.0);
              */
-            float gain = (float)Math.exp(
-                    (-osc_attenuation + co_mixer_gain[0])*(Math.log(10) / 200.0));
+            float gain = (float) Math.exp(
+                    (-osc_attenuation + co_mixer_gain[0]) * (Math.log(10) / 200.0));
 
             if (co_mixer_gain[0] <= -960)
                 gain = 0;
@@ -692,8 +691,8 @@ public final class SoftVoice {
                 out_mixer_left = gain * 0.7071067811865476f;
                 out_mixer_right = out_mixer_left;
             } else {
-                out_mixer_left = gain * (float)Math.cos(pan * Math.PI * 0.5);
-                out_mixer_right = gain * (float)Math.sin(pan * Math.PI * 0.5);
+                out_mixer_left = gain * (float) Math.cos(pan * Math.PI * 0.5);
+                out_mixer_right = gain * (float) Math.sin(pan * Math.PI * 0.5);
             }
 
             double balance = co_mixer_balance[0] * (1.0 / 1000.0);
@@ -704,9 +703,9 @@ public final class SoftVoice {
                     out_mixer_right *= balance * 2;
             }
 
-            out_mixer_effect1 = (float)(co_mixer_reverb[0] * (1.0 / 1000.0));
+            out_mixer_effect1 = (float) (co_mixer_reverb[0] * (1.0 / 1000.0));
             out_mixer_effect1 *= gain;
-            out_mixer_effect2 = (float)(co_mixer_chorus[0] * (1.0 / 1000.0));
+            out_mixer_effect2 = (float) (co_mixer_chorus[0] * (1.0 / 1000.0));
             out_mixer_effect2 *= gain;
             out_mixer_end = co_mixer_active[0] < 0.5;
 
@@ -793,21 +792,18 @@ public final class SoftVoice {
                 filter_right.processAudio(rightdry);
         }
 
-        if(rightdry == null &&
+        if (rightdry == null &&
                 last_out_mixer_left == last_out_mixer_right &&
-                out_mixer_left == out_mixer_right)
-        {
+                out_mixer_left == out_mixer_right) {
             mixAudioStream(leftdry, mono, last_out_mixer_left, out_mixer_left);
-        }
-        else
-        {
+        } else {
             mixAudioStream(leftdry, left, last_out_mixer_left, out_mixer_left);
             if (rightdry != null)
                 mixAudioStream(rightdry, right, last_out_mixer_right,
-                    out_mixer_right);
+                        out_mixer_right);
             else
                 mixAudioStream(leftdry, right, last_out_mixer_right,
-                    out_mixer_right);
+                        out_mixer_right);
         }
 
         if (rightdry == null) {

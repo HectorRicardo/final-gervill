@@ -43,6 +43,82 @@ public final class ModelByteBufferWavetable {
     static final int LOOP_TYPE_OFF = 0;
     static final int LOOP_TYPE_FORWARD = 1;
     static final int LOOP_TYPE_RELEASE = 2;
+    private final float loopStart;
+    private final float loopLength;
+    private final ModelByteBuffer buffer;
+    private final ModelByteBuffer buffer8;
+    private final AudioFormat format;
+    private final float pitchcorrection;
+    private final float attenuation;
+    private final int loopType;
+
+    ModelByteBufferWavetable(ModelByteBuffer buffer, AudioFormat format, float pitchcorrection, float attenuation, int loopStart, int loopLength, int loopType, ModelByteBuffer buffer8) {
+        this.format = format;
+        this.buffer = buffer;
+        this.pitchcorrection = pitchcorrection;
+        this.attenuation = attenuation;
+        this.loopStart = loopStart;
+        this.loopLength = loopLength;
+        this.loopType = loopType;
+        this.buffer8 = buffer8;
+    }
+
+    AudioFormat getFormat() {
+        return format;
+    }
+
+    public AudioFloatInputStream openStream() {
+        if (buffer == null || format == null)
+            return null;
+        if (buffer.array() == null) {
+            throw new NullPointerException("buffer.array() is null");
+        }
+        if (buffer8 != null) {
+            if (format.getEncoding().equals(Encoding.PCM_SIGNED)
+                    || format.getEncoding().equals(Encoding.PCM_UNSIGNED)) {
+                InputStream is = new Buffer8PlusInputStream();
+                AudioFormat format2 = new AudioFormat(
+                        format.getEncoding(),
+                        format.getSampleRate(),
+                        format.getSampleSizeInBits() + 8,
+                        format.getChannels(),
+                        format.getFrameSize() + (format.getChannels()),
+                        format.getFrameRate()
+                );
+
+                AudioInputStream ais = new AudioInputStream(is, format2,
+                        buffer.capacity() / format.getFrameSize());
+                return AudioFloatInputStream.getInputStream(ais);
+            }
+        }
+        return AudioFloatInputStream.getInputStream(format, buffer.array(),
+                (int) buffer.arrayOffset(), (int) buffer.capacity());
+    }
+
+    public int getChannels() {
+        return getFormat().getChannels();
+    }
+
+    // attenuation is in cB
+    public float getAttenuation() {
+        return attenuation;
+    }
+
+    public float getLoopLength() {
+        return loopLength;
+    }
+
+    public float getLoopStart() {
+        return loopStart;
+    }
+
+    public int getLoopType() {
+        return loopType;
+    }
+
+    public float getPitchcorrection() {
+        return pitchcorrection;
+    }
 
     private class Buffer8PlusInputStream extends InputStream {
 
@@ -107,7 +183,7 @@ public final class ModelByteBufferWavetable {
         }
 
         public int available() {
-            return (int)buffer.capacity() + (int)buffer8.capacity() - pos - pos2;
+            return (int) buffer.capacity() + (int) buffer8.capacity() - pos - pos2;
         }
 
         public synchronized void mark(int readlimit) {
@@ -120,83 +196,6 @@ public final class ModelByteBufferWavetable {
             pos2 = markpos2;
 
         }
-    }
-
-    private final float loopStart;
-    private final float loopLength;
-    private final ModelByteBuffer buffer;
-    private final ModelByteBuffer buffer8;
-    private final AudioFormat format;
-    private final float pitchcorrection;
-    private final float attenuation;
-    private final int loopType;
-
-    ModelByteBufferWavetable(ModelByteBuffer buffer, AudioFormat format, float pitchcorrection, float attenuation, int loopStart, int loopLength, int loopType, ModelByteBuffer buffer8) {
-        this.format = format;
-        this.buffer = buffer;
-        this.pitchcorrection = pitchcorrection;
-        this.attenuation = attenuation;
-        this.loopStart = loopStart;
-        this.loopLength = loopLength;
-        this.loopType = loopType;
-        this.buffer8 = buffer8;
-    }
-
-    AudioFormat getFormat() {
-        return format;
-    }
-
-    public AudioFloatInputStream openStream() {
-        if (buffer == null || format == null)
-            return null;
-        if (buffer.array() == null) {
-            throw new NullPointerException("buffer.array() is null");
-        }
-        if (buffer8 != null) {
-            if (format.getEncoding().equals(Encoding.PCM_SIGNED)
-                    || format.getEncoding().equals(Encoding.PCM_UNSIGNED)) {
-                InputStream is = new Buffer8PlusInputStream();
-                AudioFormat format2 = new AudioFormat(
-                        format.getEncoding(),
-                        format.getSampleRate(),
-                        format.getSampleSizeInBits() + 8,
-                        format.getChannels(),
-                        format.getFrameSize() + (format.getChannels()),
-                        format.getFrameRate()
-                );
-
-                AudioInputStream ais = new AudioInputStream(is, format2,
-                        buffer.capacity() / format.getFrameSize());
-                return AudioFloatInputStream.getInputStream(ais);
-            }
-        }
-        return AudioFloatInputStream.getInputStream(format, buffer.array(),
-                (int)buffer.arrayOffset(), (int)buffer.capacity());
-    }
-
-    public int getChannels() {
-        return getFormat().getChannels();
-    }
-
-    // attenuation is in cB
-    public float getAttenuation() {
-        return attenuation;
-    }
-
-    public float getLoopLength() {
-        return loopLength;
-    }
-
-    public float getLoopStart() {
-        return loopStart;
-    }
-
-    public int getLoopType() {
-        return loopType;
-    }
-
-    public float getPitchcorrection() {
-        return pitchcorrection;
     }
 
 }

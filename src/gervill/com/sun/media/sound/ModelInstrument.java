@@ -36,10 +36,10 @@ import own.main.ImmutableList;
  *
  * <p>Performers are used to define what voices which will
  * playback when using the instrument.<br>
- *
+ * <p>
  * ChannelMixer is used to add channel-wide processing
  * on voices output or to define non-voice oriented instruments.<br>
- *
+ * <p>
  * Director is used to change how the synthesizer
  * chooses what performers to play on midi events.
  *

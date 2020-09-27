@@ -55,13 +55,10 @@ public final class SoftMainMixer {
     private final SoftReverb reverb;
     private final SoftChorus chorus;
     private final SoftLimiter agc;
-    double last_volume_left = 1.0;
-    double last_volume_right = 1.0;
     private final double[] co_master_balance = new double[1];
     private final double[] co_master_volume = new double[1];
     private final double[] co_master_coarse_tuning = new double[1];
     private final double[] co_master_fine_tuning = new double[1];
-    private final AudioInputStream ais;
     final SoftControl co_master = new SoftControl() {
 
         final double[] balance = co_master_balance;
@@ -83,127 +80,9 @@ public final class SoftMainMixer {
             return null;
         }
     };
-
-    void processAudioBuffers() {
-
-        for (int i = 0; i < buffers.length; i++) {
-            if(i != CHANNEL_DELAY_LEFT &&
-                    i != CHANNEL_DELAY_RIGHT &&
-                    i != CHANNEL_DELAY_MONO &&
-                    i != CHANNEL_DELAY_EFFECT1 &&
-                    i != CHANNEL_DELAY_EFFECT2)
-                buffers.get(i).clear();
-        }
-
-        if(!buffers.get(CHANNEL_DELAY_LEFT).isSilent())
-        {
-            buffers.get(CHANNEL_LEFT).swap(buffers.get(CHANNEL_DELAY_LEFT));
-        }
-        if(!buffers.get(CHANNEL_DELAY_RIGHT).isSilent())
-        {
-            buffers.get(CHANNEL_RIGHT).swap(buffers.get(CHANNEL_DELAY_RIGHT));
-        }
-        if(!buffers.get(CHANNEL_DELAY_MONO).isSilent())
-        {
-            buffers.get(CHANNEL_MONO).swap(buffers.get(CHANNEL_DELAY_MONO));
-        }
-        if(!buffers.get(CHANNEL_DELAY_EFFECT1).isSilent())
-        {
-            buffers.get(CHANNEL_EFFECT1).swap(buffers.get(CHANNEL_DELAY_EFFECT1));
-        }
-        if(!buffers.get(CHANNEL_DELAY_EFFECT2).isSilent())
-        {
-            buffers.get(CHANNEL_EFFECT2).swap(buffers.get(CHANNEL_DELAY_EFFECT2));
-        }
-
-        double volume_left;
-        double volume_right;
-
-        // perform control logic
-        synchronized (control_mutex) {
-
-            for (SoftVoice softVoice : voicestatus)
-                if (softVoice.active)
-                    softVoice.processControlLogic();
-
-            double volume = co_master_volume[0];
-            volume_left = volume;
-            volume_right = volume;
-
-            double balance = co_master_balance[0];
-            if (balance > 0.5)
-                volume_left *= (1 - balance) * 2;
-            else
-                volume_right *= balance * 2;
-
-            chorus.processControlLogic();
-            reverb.processControlLogic();
-
-        }
-
-        for (SoftVoice softVoice : voicestatus)
-            if (softVoice.active)
-                softVoice.processAudioLogic(buffers);
-
-        if(!buffers.get(CHANNEL_MONO).isSilent())
-        {
-            float[] mono = buffers.get(CHANNEL_MONO).array();
-            float[] left = buffers.get(CHANNEL_LEFT).array();
-            int bufferlen = 300;
-            float[] right = buffers.get(CHANNEL_RIGHT).array();
-            for (int i = 0; i < bufferlen; i++) {
-                float v = mono[i];
-                left[i] += v;
-                right[i] += v;
-            }
-        }
-
-        // Run effects
-        chorus.processAudio();
-        reverb.processAudio();
-
-        // Set Volume / Balance
-        if (last_volume_left != volume_left || last_volume_right != volume_right) {
-            float[] left = buffers.get(CHANNEL_LEFT).array();
-            float[] right = buffers.get(CHANNEL_RIGHT).array();
-            int bufferlen = 300;
-
-            float amp;
-            float amp_delta;
-            amp = (float)(last_volume_left * last_volume_left);
-            amp_delta = (float)((volume_left * volume_left - amp) / bufferlen);
-            for (int i = 0; i < bufferlen; i++) {
-                amp += amp_delta;
-                left[i] *= amp;
-            }
-            amp = (float)(last_volume_right * last_volume_right);
-            amp_delta = (float)((volume_right*volume_right - amp) / bufferlen);
-            for (int i = 0; i < bufferlen; i++) {
-                amp += amp_delta;
-                right[i] *= volume_right;
-            }
-            last_volume_left = volume_left;
-            last_volume_right = volume_right;
-
-        } else {
-            if (volume_left != 1.0 || volume_right != 1.0) {
-                float[] left = buffers.get(CHANNEL_LEFT).array();
-                float[] right = buffers.get(CHANNEL_RIGHT).array();
-                int bufferlen = 300;
-                float amp;
-                amp = (float) (volume_left * volume_left);
-                for (int i = 0; i < bufferlen; i++)
-                    left[i] *= amp;
-                amp = (float)(volume_right * volume_right);
-                for (int i = 0; i < bufferlen; i++)
-                    right[i] *= amp;
-
-            }
-        }
-
-        agc.processAudio();
-
-    }
+    private final AudioInputStream ais;
+    double last_volume_left = 1.0;
+    double last_volume_right = 1.0;
 
     public SoftMainMixer(SoftSynthesizer synth) {
         this.synth = synth;
@@ -254,6 +133,121 @@ public final class SoftMainMixer {
         };
 
         ais = new AudioInputStream(in, SoftSynthesizer.SYNTH_FORMAT, AudioInputStream.NOT_SPECIFIED);
+
+    }
+
+    void processAudioBuffers() {
+
+        for (int i = 0; i < buffers.length; i++) {
+            if (i != CHANNEL_DELAY_LEFT &&
+                    i != CHANNEL_DELAY_RIGHT &&
+                    i != CHANNEL_DELAY_MONO &&
+                    i != CHANNEL_DELAY_EFFECT1 &&
+                    i != CHANNEL_DELAY_EFFECT2)
+                buffers.get(i).clear();
+        }
+
+        if (!buffers.get(CHANNEL_DELAY_LEFT).isSilent()) {
+            buffers.get(CHANNEL_LEFT).swap(buffers.get(CHANNEL_DELAY_LEFT));
+        }
+        if (!buffers.get(CHANNEL_DELAY_RIGHT).isSilent()) {
+            buffers.get(CHANNEL_RIGHT).swap(buffers.get(CHANNEL_DELAY_RIGHT));
+        }
+        if (!buffers.get(CHANNEL_DELAY_MONO).isSilent()) {
+            buffers.get(CHANNEL_MONO).swap(buffers.get(CHANNEL_DELAY_MONO));
+        }
+        if (!buffers.get(CHANNEL_DELAY_EFFECT1).isSilent()) {
+            buffers.get(CHANNEL_EFFECT1).swap(buffers.get(CHANNEL_DELAY_EFFECT1));
+        }
+        if (!buffers.get(CHANNEL_DELAY_EFFECT2).isSilent()) {
+            buffers.get(CHANNEL_EFFECT2).swap(buffers.get(CHANNEL_DELAY_EFFECT2));
+        }
+
+        double volume_left;
+        double volume_right;
+
+        // perform control logic
+        synchronized (control_mutex) {
+
+            for (SoftVoice softVoice : voicestatus)
+                if (softVoice.active)
+                    softVoice.processControlLogic();
+
+            double volume = co_master_volume[0];
+            volume_left = volume;
+            volume_right = volume;
+
+            double balance = co_master_balance[0];
+            if (balance > 0.5)
+                volume_left *= (1 - balance) * 2;
+            else
+                volume_right *= balance * 2;
+
+            chorus.processControlLogic();
+            reverb.processControlLogic();
+
+        }
+
+        for (SoftVoice softVoice : voicestatus)
+            if (softVoice.active)
+                softVoice.processAudioLogic(buffers);
+
+        if (!buffers.get(CHANNEL_MONO).isSilent()) {
+            float[] mono = buffers.get(CHANNEL_MONO).array();
+            float[] left = buffers.get(CHANNEL_LEFT).array();
+            int bufferlen = 300;
+            float[] right = buffers.get(CHANNEL_RIGHT).array();
+            for (int i = 0; i < bufferlen; i++) {
+                float v = mono[i];
+                left[i] += v;
+                right[i] += v;
+            }
+        }
+
+        // Run effects
+        chorus.processAudio();
+        reverb.processAudio();
+
+        // Set Volume / Balance
+        if (last_volume_left != volume_left || last_volume_right != volume_right) {
+            float[] left = buffers.get(CHANNEL_LEFT).array();
+            float[] right = buffers.get(CHANNEL_RIGHT).array();
+            int bufferlen = 300;
+
+            float amp;
+            float amp_delta;
+            amp = (float) (last_volume_left * last_volume_left);
+            amp_delta = (float) ((volume_left * volume_left - amp) / bufferlen);
+            for (int i = 0; i < bufferlen; i++) {
+                amp += amp_delta;
+                left[i] *= amp;
+            }
+            amp = (float) (last_volume_right * last_volume_right);
+            amp_delta = (float) ((volume_right * volume_right - amp) / bufferlen);
+            for (int i = 0; i < bufferlen; i++) {
+                amp += amp_delta;
+                right[i] *= volume_right;
+            }
+            last_volume_left = volume_left;
+            last_volume_right = volume_right;
+
+        } else {
+            if (volume_left != 1.0 || volume_right != 1.0) {
+                float[] left = buffers.get(CHANNEL_LEFT).array();
+                float[] right = buffers.get(CHANNEL_RIGHT).array();
+                int bufferlen = 300;
+                float amp;
+                amp = (float) (volume_left * volume_left);
+                for (int i = 0; i < bufferlen; i++)
+                    left[i] *= amp;
+                amp = (float) (volume_right * volume_right);
+                for (int i = 0; i < bufferlen; i++)
+                    right[i] *= amp;
+
+            }
+        }
+
+        agc.processAudio();
 
     }
 

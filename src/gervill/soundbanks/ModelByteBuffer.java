@@ -39,7 +39,7 @@ final class ModelByteBuffer {
     private final long len;
 
     private ModelByteBuffer(ModelByteBuffer parent,
-            long beginIndex, long endIndex, boolean independent) {
+                            long beginIndex, long endIndex, boolean independent) {
         long parent_len = parent.len;
         if (beginIndex < 0)
             beginIndex = 0;
@@ -75,7 +75,7 @@ final class ModelByteBuffer {
     }
 
     ModelByteBuffer subbuffer(long beginIndex, long endIndex,
-            boolean independent) {
+                              boolean independent) {
         return new ModelByteBuffer(this, beginIndex, endIndex, independent);
     }
 

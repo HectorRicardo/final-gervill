@@ -40,6 +40,8 @@ import java.util.Map;
 public final class SoftChannel implements MidiChannel {
 
     private static final boolean[] dontResetControls = new boolean[128];
+    private static final int RPN_NULL_VALUE = (127 << 7) + 127;
+
     static {
         Arrays.fill(dontResetControls, false);
 
@@ -84,67 +86,33 @@ public final class SoftChannel implements MidiChannel {
 
     }
 
-    private static final int RPN_NULL_VALUE = (127 << 7) + 127;
-    private int rpn_control = RPN_NULL_VALUE;
-    private int nrpn_control = RPN_NULL_VALUE;
-    double portamento_time = 1; // keyschanges per control buffer time
     final int[] portamento_lastnote = new int[128];
-    int portamento_lastnote_ix = 0;
-    private boolean portamento = false;
-    private boolean mono = false;
-    private boolean mute = false;
-    private boolean solo = false;
-    private boolean solomute = false;
+    final Map<Integer, int[]> co_midi_rpn_rpn_i = new HashMap<>();
+    final Map<Integer, double[]> co_midi_rpn_rpn = new HashMap<>();
+    final Map<Integer, int[]> co_midi_nrpn_nrpn_i = new HashMap<>();
+    final Map<Integer, double[]> co_midi_nrpn_nrpn = new HashMap<>();
     private final Object control_mutex;
     private final int channel;
     private final SoftVoice[] voices;
     private final SoftSynthesizer synthesizer;
     private final int[] polypressure = new int[128];
-    private int channelpressure = 0;
     private final int[] controller = new int[128];
-    private int pitchbend;
     private final double[] co_midi_pitch = new double[1];
     private final double[] co_midi_channel_pressure = new double[1];
-    SoftInstrument current_instrument = null;
-    ModelStandardIndexedDirector current_director = null;
-
-    boolean sustain = false;
-    boolean[][] keybasedcontroller_active = null;
-    double[][] keybasedcontroller_value = null;
-
-    private final class MidiControlObject implements SoftControl {
-        private final double[] pitch = co_midi_pitch;
-        private final double[] channel_pressure = co_midi_channel_pressure;
-        private final double[] poly_pressure = new double[1];
-
-        public double[] get(int instance, String name) {
-            if (name == null)
-                return null;
-            if (name.equals("pitch"))
-                return pitch;
-            if (name.equals("channel_pressure"))
-                return channel_pressure;
-            if (name.equals("poly_pressure"))
-                return poly_pressure;
-            return null;
-        }
-    }
-
     private final ImmutableList<MidiControlObject> co_midi = ImmutableList.create(128, index -> new MidiControlObject());
-
     private final double[][] co_midi_cc_cc = new double[128][1];
     private final SoftControl co_midi_cc = new SoftControl() {
         final double[][] cc = co_midi_cc_cc;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
             return cc[Integer.parseInt(name)];
         }
     };
-    final Map<Integer, int[]> co_midi_rpn_rpn_i = new HashMap<>();
-    final Map<Integer, double[]> co_midi_rpn_rpn = new HashMap<>();
     private final SoftControl co_midi_rpn = new SoftControl() {
         final Map<Integer, double[]> rpn = co_midi_rpn_rpn;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -152,10 +120,9 @@ public final class SoftChannel implements MidiChannel {
             return rpn.computeIfAbsent(iname, k -> new double[1]);
         }
     };
-    final Map<Integer, int[]> co_midi_nrpn_nrpn_i = new HashMap<>();
-    final Map<Integer, double[]> co_midi_nrpn_nrpn = new HashMap<>();
     private final SoftControl co_midi_nrpn = new SoftControl() {
         final Map<Integer, double[]> nrpn = co_midi_nrpn_nrpn;
+
         public double[] get(int instance, String name) {
             if (name == null)
                 return null;
@@ -163,18 +130,29 @@ public final class SoftChannel implements MidiChannel {
             return nrpn.computeIfAbsent(iname, k -> new double[1]);
         }
     };
-
-    private static int restrict7Bit(int value)
-    {
-        if(value < 0) return 0;
-        return Math.min(value, 127);
-    }
-
-    private static int restrict14Bit(int value)
-    {
-        if(value < 0) return 0;
-        return Math.min(value, 16256);
-    }
+    private final int[] lastVelocity = new int[128];
+    double portamento_time = 1; // keyschanges per control buffer time
+    int portamento_lastnote_ix = 0;
+    SoftInstrument current_instrument = null;
+    ModelStandardIndexedDirector current_director = null;
+    boolean sustain = false;
+    boolean[][] keybasedcontroller_active = null;
+    double[][] keybasedcontroller_value = null;
+    private int rpn_control = RPN_NULL_VALUE;
+    private int nrpn_control = RPN_NULL_VALUE;
+    private boolean portamento = false;
+    private boolean mono = false;
+    private boolean mute = false;
+    private boolean solo = false;
+    private boolean solomute = false;
+    private int channelpressure = 0;
+    private int pitchbend;
+    private int prevVoiceID;
+    private boolean firstVoice = true;
+    private int voiceNo = 0;
+    private int play_noteNumber = 0;
+    private int play_velocity = 0;
+    private boolean play_releasetriggered = false;
 
     public SoftChannel(SoftSynthesizer synth, int channel) {
         this.channel = channel;
@@ -184,9 +162,18 @@ public final class SoftChannel implements MidiChannel {
         resetAllControllers(true);
     }
 
+    private static int restrict7Bit(int value) {
+        if (value < 0) return 0;
+        return Math.min(value, 127);
+    }
+
+    private static int restrict14Bit(int value) {
+        if (value < 0) return 0;
+        return Math.min(value, 16256);
+    }
+
     private int findFreeVoice(int x) {
-        if(x == -1)
-        {
+        if (x == -1) {
             // x = -1 means that there where no available voice
             // last time we called findFreeVoice
             // and it hasn't changed because no audio has been
@@ -467,13 +454,6 @@ public final class SoftChannel implements MidiChannel {
 
         }
     }
-    private final int[] lastVelocity = new int[128];
-    private int prevVoiceID;
-    private boolean firstVoice = true;
-    private int voiceNo = 0;
-    private int play_noteNumber = 0;
-    private int play_velocity = 0;
-    private boolean play_releasetriggered = false;
 
     public void play(int performerIndex, ModelConnectionBlock[] connectionBlocks) {
 
@@ -507,7 +487,7 @@ public final class SoftChannel implements MidiChannel {
     }
 
     public void noteOff(int noteNumber) {
-        if(noteNumber < 0 || noteNumber > 127) return;
+        if (noteNumber < 0 || noteNumber > 127) return;
         noteOff_internal(noteNumber);
     }
 
@@ -516,7 +496,7 @@ public final class SoftChannel implements MidiChannel {
         pressure = restrict7Bit(pressure);
 
         synchronized (control_mutex) {
-            co_midi.get(noteNumber).get(0, "poly_pressure")[0] = pressure*(1.0/128.0);
+            co_midi.get(noteNumber).get(0, "poly_pressure")[0] = pressure * (1.0 / 128.0);
             polypressure[noteNumber] = pressure;
             for (SoftVoice voice : voices) {
                 if (voice.active && voice.note == noteNumber)
@@ -531,6 +511,12 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
+    public int getChannelPressure() {
+        synchronized (control_mutex) {
+            return channelpressure;
+        }
+    }
+
     public void setChannelPressure(int pressure) {
         pressure = restrict7Bit(pressure);
         synchronized (control_mutex) {
@@ -540,12 +526,6 @@ public final class SoftChannel implements MidiChannel {
                 if (voice.active)
                     voice.setChannelPressure();
             }
-        }
-    }
-
-    public int getChannelPressure() {
-        synchronized (control_mutex) {
-            return channelpressure;
         }
     }
 
@@ -618,149 +598,149 @@ public final class SoftChannel implements MidiChannel {
             Map<String, double[]>co_midi_nrpn_nrpn = new HashMap<String, double[]>();
              */
 
-            case 5:
-                // This produce asin-like curve
-                // as described in General Midi Level 2 Specification, page 6
-                double x = -Math.asin((value / 128.0) * 2 - 1) / Math.PI + 0.5;
-                x = Math.pow(100000.0, x) / 100.0;  // x is now cent/msec
-                // Convert x from cent/msec to key/controlbuffertime
-                x = x / 100.0;                      // x is now keys/msec
-                x = x * 1000.0;                     // x is now keys/sec
-                x = x / 147f; // x is now keys/controlbuffertime
-                portamento_time = x;
-                break;
-            case 6:
-            case 38:
-            case 96:
-            case 97:
-                int val = 0;
-                if (nrpn_control != RPN_NULL_VALUE) {
-                    int[] val_i = co_midi_nrpn_nrpn_i.get(nrpn_control);
-                    if (val_i != null)
-                        val = val_i[0];
-                }
-                if (rpn_control != RPN_NULL_VALUE) {
-                    int[] val_i = co_midi_rpn_rpn_i.get(rpn_control);
-                    if (val_i != null)
-                        val = val_i[0];
-                }
+                case 5:
+                    // This produce asin-like curve
+                    // as described in General Midi Level 2 Specification, page 6
+                    double x = -Math.asin((value / 128.0) * 2 - 1) / Math.PI + 0.5;
+                    x = Math.pow(100000.0, x) / 100.0;  // x is now cent/msec
+                    // Convert x from cent/msec to key/controlbuffertime
+                    x = x / 100.0;                      // x is now keys/msec
+                    x = x * 1000.0;                     // x is now keys/sec
+                    x = x / 147f; // x is now keys/controlbuffertime
+                    portamento_time = x;
+                    break;
+                case 6:
+                case 38:
+                case 96:
+                case 97:
+                    int val = 0;
+                    if (nrpn_control != RPN_NULL_VALUE) {
+                        int[] val_i = co_midi_nrpn_nrpn_i.get(nrpn_control);
+                        if (val_i != null)
+                            val = val_i[0];
+                    }
+                    if (rpn_control != RPN_NULL_VALUE) {
+                        int[] val_i = co_midi_rpn_rpn_i.get(rpn_control);
+                        if (val_i != null)
+                            val = val_i[0];
+                    }
 
-                if (controller == 6)
-                    val = (val & 127) + (value << 7);
-                else if (controller == 38)
-                    val = (val & (127 << 7)) + value;
-                else {
-                    int step = 1;
-                    if (rpn_control == 2 || rpn_control == 3 || rpn_control == 4)
-                        step = 128;
-                    if (controller == 96)
-                        val += step;
-                    if (controller == 97)
-                        val -= step;
-                }
+                    if (controller == 6)
+                        val = (val & 127) + (value << 7);
+                    else if (controller == 38)
+                        val = (val & (127 << 7)) + value;
+                    else {
+                        int step = 1;
+                        if (rpn_control == 2 || rpn_control == 3 || rpn_control == 4)
+                            step = 128;
+                        if (controller == 96)
+                            val += step;
+                        if (controller == 97)
+                            val -= step;
+                    }
 
-                if (nrpn_control != RPN_NULL_VALUE)
-                    nrpnChange(nrpn_control, val);
-                if (rpn_control != RPN_NULL_VALUE)
-                    rpnChange(rpn_control, val);
+                    if (nrpn_control != RPN_NULL_VALUE)
+                        nrpnChange(nrpn_control, val);
+                    if (rpn_control != RPN_NULL_VALUE)
+                        rpnChange(rpn_control, val);
 
-                break;
-            case 64: // Hold1 (Damper) (cc#64)
-                boolean on = value >= 64;
-                if (sustain != on) {
-                    sustain = on;
+                    break;
+                case 64: // Hold1 (Damper) (cc#64)
+                    boolean on = value >= 64;
+                    if (sustain != on) {
+                        sustain = on;
+                        if (!on) {
+                            for (SoftVoice voice : voices) {
+                                if (voice.active && voice.sustain &&
+                                        voice.channel == channel) {
+                                    voice.sustain = false;
+                                    if (!voice.on) {
+                                        voice.on = true;
+                                        voice.noteOff();
+                                    }
+                                }
+                            }
+                        } else {
+                            for (SoftVoice voice : voices)
+                                if (voice.active && voice.channel == channel)
+                                    voice.redamp();
+                        }
+                    }
+                    break;
+                case 65:
+                    //allNotesOff();
+                    portamento = value >= 64;
+                    portamento_lastnote[0] = -1;
+                /*
+                for (int i = 0; i < portamento_lastnote.length; i++)
+                    portamento_lastnote[i] = -1;
+                 */
+                    portamento_lastnote_ix = 0;
+                    break;
+                case 66: // Sostenuto (cc#66)
+                    on = value >= 64;
+                    if (on) {
+                        for (SoftVoice voice : voices) {
+                            if (voice.active && voice.on &&
+                                    voice.channel == channel) {
+                                voice.sostenuto = true;
+                            }
+                        }
+                    }
                     if (!on) {
                         for (SoftVoice voice : voices) {
-                            if (voice.active && voice.sustain &&
+                            if (voice.active && voice.sostenuto &&
                                     voice.channel == channel) {
-                                voice.sustain = false;
+                                voice.sostenuto = false;
                                 if (!voice.on) {
                                     voice.on = true;
                                     voice.noteOff();
                                 }
                             }
                         }
-                    } else {
-                        for (SoftVoice voice : voices)
-                            if (voice.active && voice.channel == channel)
-                                voice.redamp();
                     }
-                }
-                break;
-            case 65:
-                //allNotesOff();
-                portamento = value >= 64;
-                portamento_lastnote[0] = -1;
-                /*
-                for (int i = 0; i < portamento_lastnote.length; i++)
-                    portamento_lastnote[i] = -1;
-                 */
-                portamento_lastnote_ix = 0;
-                break;
-            case 66: // Sostenuto (cc#66)
-                on = value >= 64;
-                if (on) {
-                    for (SoftVoice voice : voices) {
-                        if (voice.active && voice.on &&
-                                voice.channel == channel) {
-                            voice.sostenuto = true;
-                        }
-                    }
-                }
-                if (!on) {
-                    for (SoftVoice voice : voices) {
-                        if (voice.active && voice.sostenuto &&
-                                voice.channel == channel) {
-                            voice.sostenuto = false;
-                            if (!voice.on) {
-                                voice.on = true;
-                                voice.noteOff();
-                            }
-                        }
-                    }
-                }
-                break;
-            case 98:
-                nrpn_control = (nrpn_control & (127 << 7)) + value;
-                rpn_control = RPN_NULL_VALUE;
-                break;
-            case 99:
-                nrpn_control = (nrpn_control & 127) + (value << 7);
-                rpn_control = RPN_NULL_VALUE;
-                break;
-            case 100:
-                rpn_control = (rpn_control & (127 << 7)) + value;
-                nrpn_control = RPN_NULL_VALUE;
-                break;
-            case 101:
-                rpn_control = (rpn_control & 127) + (value << 7);
-                nrpn_control = RPN_NULL_VALUE;
-                break;
-            case 120:
-                allSoundOff();
-                break;
-            case 121:
-                resetAllControllers(value == 127);
-                break;
-            case 123:
-                allNotesOff();
-                break;
-            case 124:
-                setOmni(false);
-                break;
-            case 125:
-                setOmni(true);
-                break;
-            case 126:
-                if (value == 1)
-                    setMono(true);
-                break;
-            case 127:
-                setMono(false);
-                break;
+                    break;
+                case 98:
+                    nrpn_control = (nrpn_control & (127 << 7)) + value;
+                    rpn_control = RPN_NULL_VALUE;
+                    break;
+                case 99:
+                    nrpn_control = (nrpn_control & 127) + (value << 7);
+                    rpn_control = RPN_NULL_VALUE;
+                    break;
+                case 100:
+                    rpn_control = (rpn_control & (127 << 7)) + value;
+                    nrpn_control = RPN_NULL_VALUE;
+                    break;
+                case 101:
+                    rpn_control = (rpn_control & 127) + (value << 7);
+                    nrpn_control = RPN_NULL_VALUE;
+                    break;
+                case 120:
+                    allSoundOff();
+                    break;
+                case 121:
+                    resetAllControllers(value == 127);
+                    break;
+                case 123:
+                    allNotesOff();
+                    break;
+                case 124:
+                    setOmni(false);
+                    break;
+                case 125:
+                    setOmni(true);
+                    break;
+                case 126:
+                    if (value == 1)
+                        setMono(true);
+                    break;
+                case 127:
+                    setMono(false);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
             }
 
             co_midi_cc_cc[controller][0] = value * (1.0 / 128.0);
@@ -770,7 +750,7 @@ public final class SoftChannel implements MidiChannel {
             }
 
             this.controller[controller] = value;
-            if(controller < 0x20)
+            if (controller < 0x20)
                 this.controller[controller + 0x20] = 0;
 
             for (SoftVoice voice : voices)
@@ -789,8 +769,14 @@ public final class SoftChannel implements MidiChannel {
     }
 
     public void instrumentChange(Instrument instrument) {
-        current_instrument = synthesizer.findInstrument((ModelInstrument)instrument);
+        current_instrument = synthesizer.findInstrument((ModelInstrument) instrument);
         current_director = current_instrument.getDirector(this);
+    }
+
+    public int getPitchBend() {
+        synchronized (control_mutex) {
+            return pitchbend;
+        }
     }
 
     public void setPitchBend(int bend) {
@@ -801,12 +787,6 @@ public final class SoftChannel implements MidiChannel {
             for (SoftVoice voice : voices)
                 if (voice.active)
                     voice.setPitchBend();
-        }
-    }
-
-    public int getPitchBend() {
-        synchronized (control_mutex) {
-            return pitchbend;
         }
     }
 
@@ -973,6 +953,12 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
+    public boolean getMono() {
+        synchronized (control_mutex) {
+            return mono;
+        }
+    }
+
     public void setMono(boolean on) {
         synchronized (control_mutex) {
             allNotesOff();
@@ -980,19 +966,19 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
-    public boolean getMono() {
-        synchronized (control_mutex) {
-            return mono;
-        }
+    public boolean getOmni() {
+        return false;
     }
 
     public void setOmni(boolean on) {
         allNotesOff();
-    // Omni is not supported by GM2
+        // Omni is not supported by GM2
     }
 
-    public boolean getOmni() {
-        return false;
+    public boolean getMute() {
+        synchronized (control_mutex) {
+            return mute;
+        }
     }
 
     public void setMute(boolean mute) {
@@ -1004,9 +990,20 @@ public final class SoftChannel implements MidiChannel {
         }
     }
 
-    public boolean getMute() {
+    private void setSoloMute(boolean mute) {
         synchronized (control_mutex) {
-            return mute;
+            if (solomute == mute)
+                return;
+            this.solomute = mute;
+            for (SoftVoice voice : voices)
+                if (voice.active && voice.channel == channel)
+                    voice.setSoloMute(solomute);
+        }
+    }
+
+    public boolean getSolo() {
+        synchronized (control_mutex) {
+            return solo;
         }
     }
 
@@ -1036,20 +1033,21 @@ public final class SoftChannel implements MidiChannel {
 
     }
 
-    private void setSoloMute(boolean mute) {
-        synchronized (control_mutex) {
-            if (solomute == mute)
-                return;
-            this.solomute = mute;
-            for (SoftVoice voice : voices)
-                if (voice.active && voice.channel == channel)
-                    voice.setSoloMute(solomute);
-        }
-    }
+    private final class MidiControlObject implements SoftControl {
+        private final double[] pitch = co_midi_pitch;
+        private final double[] channel_pressure = co_midi_channel_pressure;
+        private final double[] poly_pressure = new double[1];
 
-    public boolean getSolo() {
-        synchronized (control_mutex) {
-            return solo;
+        public double[] get(int instance, String name) {
+            if (name == null)
+                return null;
+            if (name.equals("pitch"))
+                return pitch;
+            if (name.equals("channel_pressure"))
+                return channel_pressure;
+            if (name.equals("poly_pressure"))
+                return poly_pressure;
+            return null;
         }
     }
 }

@@ -26,7 +26,7 @@ package gervill.com.sun.media.sound;
 
 /**
  * Infinite impulse response (IIR) filter class.
- *
+ * <p>
  * The filters where implemented and adapted using algorithms from musicdsp.org
  * archive: 1-RC and C filter, Simple 2-pole LP LP and HP filter, biquad,
  * tweaked butterworth RBJ Audio-EQ-Cookbook, EQ filter kookbook
@@ -42,7 +42,7 @@ public final class SoftFilter {
     public final static int FILTERTYPE_NP12 = 0x31;
     public final static int FILTERTYPE_LP24 = 0x03;
     public final static int FILTERTYPE_HP24 = 0x13;
-
+    private final float samplerate;
     //
     // 0x0 = 1st-order, 6 dB/oct
     // 0x1 = 2nd-order, 12 dB/oct
@@ -55,7 +55,6 @@ public final class SoftFilter {
     // 0x30 = NP, Notch or Band Elimination Filter
     //
     private int filtertype = FILTERTYPE_LP6;
-    private final float samplerate;
     private float x1;
     private float x2;
     private float y1;
@@ -199,13 +198,13 @@ public final class SoftFilter {
                     gain += gain_delta;
                     wet += wet_delta;
                     float x = buffer[i];
-                    float y = (a0*x + a1*x1 + a2*x2 - b1*y1 - b2*y2);
+                    float y = (a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2);
                     float xx = (y * gain) * wet + (x) * (1 - wet);
                     x2 = x1;
                     x1 = x;
                     y2 = y1;
                     y1 = y;
-                    float yy = (a0*xx + a1*xx1 + a2*xx2 - b1*yy1 - b2*yy2);
+                    float yy = (a0 * xx + a1 * xx1 + a2 * xx2 - b1 * yy1 - b2 * yy2);
                     buffer[i] = (yy * gain) * wet + (xx) * (1 - wet);
                     xx2 = xx1;
                     xx1 = xx;
@@ -216,13 +215,13 @@ public final class SoftFilter {
                     && b1_delta == 0 && b2_delta == 0) {
                 for (int i = 0; i < len; i++) {
                     float x = buffer[i];
-                    float y = (a0*x + a1*x1 + a2*x2 - b1*y1 - b2*y2);
+                    float y = (a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2);
                     float xx = (y * gain) * wet + (x) * (1 - wet);
                     x2 = x1;
                     x1 = x;
                     y2 = y1;
                     y1 = y;
-                    float yy = (a0*xx + a1*xx1 + a2*xx2 - b1*yy1 - b2*yy2);
+                    float yy = (a0 * xx + a1 * xx1 + a2 * xx2 - b1 * yy1 - b2 * yy2);
                     buffer[i] = (yy * gain) * wet + (xx) * (1 - wet);
                     xx2 = xx1;
                     xx1 = xx;
@@ -238,13 +237,13 @@ public final class SoftFilter {
                     b2 += b2_delta;
                     gain += gain_delta;
                     float x = buffer[i];
-                    float y = (a0*x + a1*x1 + a2*x2 - b1*y1 - b2*y2);
+                    float y = (a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2);
                     float xx = (y * gain) * wet + (x) * (1 - wet);
                     x2 = x1;
                     x1 = x;
                     y2 = y1;
                     y1 = y;
-                    float yy = (a0*xx + a1*xx1 + a2*xx2 - b1*yy1 - b2*yy2);
+                    float yy = (a0 * xx + a1 * xx1 + a2 * xx2 - b1 * yy1 - b2 * yy2);
                     buffer[i] = (yy * gain) * wet + (xx) * (1 - wet);
                     xx2 = xx1;
                     xx1 = xx;
@@ -306,7 +305,7 @@ public final class SoftFilter {
             double omega = 2 * Math.PI * r;
             double cs = Math.cos(omega);
             double sn = Math.sin(omega);
-            double alpha = sn * sinh((Math.log(2)*bandwidth*omega) / (sn * 2));
+            double alpha = sn * sinh((Math.log(2) * bandwidth * omega) / (sn * 2));
 
             double b1 = 0;
             double b2 = -alpha;
@@ -333,7 +332,7 @@ public final class SoftFilter {
             double omega = 2 * Math.PI * r;
             double cs = Math.cos(omega);
             double sn = Math.sin(omega);
-            double alpha = sn * sinh((Math.log(2)*bandwidth*omega) / (sn*2));
+            double alpha = sn * sinh((Math.log(2) * bandwidth * omega) / (sn * 2));
 
             double b0 = 1;
             double b1 = -2 * cs;
@@ -343,11 +342,11 @@ public final class SoftFilter {
             double a2 = 1 - alpha;
 
             double cf = 1.0 / a0;
-            this.b1 = (float)(a1 * cf);
-            this.b2 = (float)(a2 * cf);
-            this.a0 = (float)(b0 * cf);
-            this.a1 = (float)(b1 * cf);
-            this.a2 = (float)(b2 * cf);
+            this.b1 = (float) (a1 * cf);
+            this.b2 = (float) (a2 * cf);
+            this.a0 = (float) (b0 * cf);
+            this.a1 = (float) (b1 * cf);
+            this.a2 = (float) (b2 * cf);
         }
 
         if (filtertype == FILTERTYPE_LP12 || filtertype == FILTERTYPE_LP24) {
@@ -372,11 +371,11 @@ public final class SoftFilter {
             double b1 = (2.0 * a0) * (1.0 - csq);
             double b2 = a0 * (1.0 - (q * c) + csq);
 
-            this.a0 = (float)a0;
-            this.a1 = (float)a1;
+            this.a0 = (float) a0;
+            this.a1 = (float) a1;
             this.a2 = (float) a0;
-            this.b1 = (float)b1;
-            this.b2 = (float)b2;
+            this.b1 = (float) b1;
+            this.b2 = (float) b2;
 
         }
 
@@ -396,11 +395,11 @@ public final class SoftFilter {
             double b1 = (2.0 * a0) * (csq - 1.0);
             double b2 = a0 * (1.0 - (q * c) + csq);
 
-            this.a0 = (float)a0;
-            this.a1 = (float)a1;
+            this.a0 = (float) a0;
+            this.a1 = (float) a1;
             this.a2 = (float) a0;
-            this.b1 = (float)b1;
-            this.b2 = (float)b2;
+            this.b1 = (float) b1;
+            this.b2 = (float) b2;
 
         }
 
@@ -458,7 +457,7 @@ public final class SoftFilter {
                     gain += gain_delta;
                     wet += wet_delta;
                     float x = buffer[i];
-                    float y = (a0*x + a1*x1 + a2*x2 - b1*y1 - b2*y2);
+                    float y = (a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2);
                     buffer[i] = (y * gain) * wet + (x) * (1 - wet);
                     x2 = x1;
                     x1 = x;
@@ -469,7 +468,7 @@ public final class SoftFilter {
                     && b1_delta == 0 && b2_delta == 0) {
                 for (int i = 0; i < len; i++) {
                     float x = buffer[i];
-                    float y = (a0*x + a1*x1 + a2*x2 - b1*y1 - b2*y2);
+                    float y = (a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2);
                     buffer[i] = y * gain;
                     x2 = x1;
                     x1 = x;
@@ -485,7 +484,7 @@ public final class SoftFilter {
                     b2 += b2_delta;
                     gain += gain_delta;
                     float x = buffer[i];
-                    float y = (a0*x + a1*x1 + a2*x2 - b1*y1 - b2*y2);
+                    float y = (a0 * x + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2);
                     buffer[i] = y * gain;
                     x2 = x1;
                     x1 = x;
@@ -525,13 +524,13 @@ public final class SoftFilter {
         double c = (7.0 / 6.0) * Math.PI * 2 * cutoff / samplerate;
         if (c > 1)
             c = 1;
-        a0 = (float)(Math.sqrt(1 - Math.cos(c)) * Math.sqrt(0.5 * Math.PI));
+        a0 = (float) (Math.sqrt(1 - Math.cos(c)) * Math.sqrt(0.5 * Math.PI));
         if (resonancedB < 0)
             resonancedB = 0;
         if (resonancedB > 20)
             resonancedB = 20;
-        q = (float)(Math.sqrt(0.5) * Math.pow(10.0, -(resonancedB / 20)));
-        gain = (float)Math.pow(10, -((resonancedB)) / 40.0);
+        q = (float) (Math.sqrt(0.5) * Math.pow(10.0, -(resonancedB / 20)));
+        gain = (float) Math.pow(10, -((resonancedB)) / 40.0);
         if (wet == 0.0f)
             if (resonancedB > 0.00001 || c < 0.9999999)
                 wet = 1.0f;

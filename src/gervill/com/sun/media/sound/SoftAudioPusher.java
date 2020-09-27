@@ -36,11 +36,11 @@ import java.io.IOException;
  */
 public final class SoftAudioPusher implements Runnable {
 
-    private volatile boolean active = false;
     private final SourceDataLine sourceDataLine;
-    private Thread audiothread;
     private final AudioInputStream ais;
     private final byte[] buffer;
+    private volatile boolean active = false;
+    private Thread audiothread;
 
     public SoftAudioPusher(SourceDataLine sourceDataLine, AudioInputStream ais) {
         this.ais = ais;
@@ -74,7 +74,7 @@ public final class SoftAudioPusher implements Runnable {
             while (active) {
                 // Read from audio source
                 int count = ais.read(buffer);
-                if(count < 0) break;
+                if (count < 0) break;
                 // Write byte buffer to source output
                 sourceDataLine.write(buffer, 0, count);
             }

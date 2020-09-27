@@ -21,8 +21,8 @@ public class SynthesizerPlayer {
     private static final int PORTAMENTO_LEVEL = 80;
 
     private final SoftSynthesizer synthesizer = new SoftSynthesizer();
-    private ImmutableList<Instrument> soundbankInstruments;
     private final MidiChannel channel = synthesizer.getChannels()[0];
+    private ImmutableList<Instrument> soundbankInstruments;
     private Instrument instrument;
 
     private boolean ready = false;
@@ -76,7 +76,7 @@ public class SynthesizerPlayer {
 
         playing = false;
 
-        return new String[] { toString(instrument1, index1), toString(instrument2, index2) };
+        return new String[]{toString(instrument1, index1), toString(instrument2, index2)};
     }
 
     public void sample2() {

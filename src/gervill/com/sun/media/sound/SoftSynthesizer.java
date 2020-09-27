@@ -43,36 +43,27 @@ import java.util.*;
  */
 public final class SoftSynthesizer implements AutoCloseable {
 
-    private static ImmutableList<Instrument> defaultInstruments = null;
-
-    final Object control_mutex = this;
-
-    int voiceIDCounter = 0;
-
     public static final int NUMBER_OF_CHANNELS = 16;
-    SoftChannel[] channels;
+    public static final AudioFormat SYNTH_FORMAT = new AudioFormat(44100, 16, 2, true);
+    public static final AudioFloatConverter SYNTH_CONVERTER = AudioFloatConverter.getConverter(SYNTH_FORMAT);
+    private final static int MAX_POLY = 64;
+    private static ImmutableList<Instrument> defaultInstruments = null;
+    final Object control_mutex = this;
     final SoftChannelProxy[] external_channels = new SoftChannelProxy[NUMBER_OF_CHANNELS];
+    private final SourceDataLine sourceDataLine = new SourceDataLine();
+    private final SoftVoice[] voices = new SoftVoice[MAX_POLY];
+    private final Map<ModelInstrument, SoftInstrument> inslist = new HashMap<>();
+    int voiceIDCounter = 0;
+    SoftChannel[] channels;
+    private SoftAudioPusher pusher = null;
+    private boolean open = false;
+    private SoftMainMixer mainmixer;
+
     {
         for (int i = 0; i < NUMBER_OF_CHANNELS; i++) {
             external_channels[i] = new SoftChannelProxy();
         }
     }
-
-    public static final AudioFormat SYNTH_FORMAT = new AudioFormat(44100, 16, 2, true);
-    public static final AudioFloatConverter SYNTH_CONVERTER = AudioFloatConverter.getConverter(SYNTH_FORMAT);
-
-    private final SourceDataLine sourceDataLine = new SourceDataLine();
-
-    private SoftAudioPusher pusher = null;
-
-    private boolean open = false;
-
-    private final static int MAX_POLY = 64;
-
-    private SoftMainMixer mainmixer;
-    private final SoftVoice[] voices = new SoftVoice[MAX_POLY];
-
-    private final Map<ModelInstrument, SoftInstrument> inslist = new HashMap<>();
 
     private boolean loadInstruments(List<ModelInstrument> instruments) {
         if (!isOpen())
@@ -80,8 +71,7 @@ public final class SoftSynthesizer implements AutoCloseable {
 
         synchronized (control_mutex) {
             if (channels != null)
-                for (SoftChannel c : channels)
-                {
+                for (SoftChannel c : channels) {
                     c.current_instrument = null;
                     c.current_director = null;
                 }
@@ -121,7 +111,7 @@ public final class SoftSynthesizer implements AutoCloseable {
                     instrument);
         }
         List<ModelInstrument> instruments = new ArrayList<>();
-        instruments.add((ModelInstrument)instrument);
+        instruments.add((ModelInstrument) instrument);
         return loadInstruments(instruments);
     }
 
@@ -134,7 +124,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             return;
 
         synchronized (control_mutex) {
-            for (SoftChannel c: channels)
+            for (SoftChannel c : channels)
                 c.current_instrument = null;
             inslist.remove(instrument);
             for (SoftChannel channel : channels) {
@@ -187,7 +177,7 @@ public final class SoftSynthesizer implements AutoCloseable {
             external_channels[i].setChannel(channels[i]);
         }
 
-        for (SoftVoice voice: getVoices())
+        for (SoftVoice voice : getVoices())
             voice.resampler = new SoftResamplerStreamer();
 
         return mainmixer.getInputStream();

@@ -40,20 +40,52 @@ import java.io.InputStream;
  */
 public abstract class AudioFloatInputStream {
 
+    public static AudioFloatInputStream getInputStream(
+            AudioInputStream stream) {
+        return new DirectAudioFloatInputStream(stream);
+    }
+
+    public static AudioFloatInputStream getInputStream(AudioFormat format, ImmutableList<Byte> buffer, int offset, int len) {
+        AudioFloatConverter converter = AudioFloatConverter
+                .getConverter(format);
+
+        byte[] realBuffer = ImmutableList.toArray(buffer);
+        if (converter != null)
+            return new BytaArrayAudioFloatInputStream(converter, realBuffer, offset, len);
+
+        InputStream stream = new ByteArrayInputStream(realBuffer, offset, len);
+        long aLen = format.getFrameSize() == AudioInputStream.NOT_SPECIFIED
+                ? AudioInputStream.NOT_SPECIFIED : len / format.getFrameSize();
+        AudioInputStream astream = new AudioInputStream(stream, format, aLen);
+        return new DirectAudioFloatInputStream(astream);
+    }
+
+    public abstract AudioFormat getFormat();
+
+    public abstract int read(float[] b, int off, int len) throws IOException;
+
+    public abstract void skip(long len) throws IOException;
+
+    public abstract void close() throws IOException;
+
+    public abstract void mark(int readlimit);
+
+    public abstract void reset() throws IOException;
+
     private static class BytaArrayAudioFloatInputStream
             extends AudioFloatInputStream {
 
-        private int pos = 0;
-        private int markpos = 0;
         private final AudioFloatConverter converter;
         private final AudioFormat format;
         private final byte[] buffer;
         private final int buffer_offset;
         private final int buffer_len;
         private final int framesize_pc;
+        private int pos = 0;
+        private int markpos = 0;
 
         BytaArrayAudioFloatInputStream(AudioFloatConverter converter,
-                byte[] buffer, int offset, int len) {
+                                       byte[] buffer, int offset, int len) {
             this.converter = converter;
             this.format = converter.getFormat();
             this.buffer = buffer;
@@ -150,36 +182,4 @@ public abstract class AudioFloatInputStream {
             stream.reset();
         }
     }
-
-    public static AudioFloatInputStream getInputStream(
-            AudioInputStream stream) {
-        return new DirectAudioFloatInputStream(stream);
-    }
-
-    public static AudioFloatInputStream getInputStream(AudioFormat format, ImmutableList<Byte> buffer, int offset, int len) {
-        AudioFloatConverter converter = AudioFloatConverter
-                .getConverter(format);
-
-        byte[] realBuffer = ImmutableList.toArray(buffer);
-        if (converter != null)
-            return new BytaArrayAudioFloatInputStream(converter, realBuffer, offset, len);
-
-        InputStream stream = new ByteArrayInputStream(realBuffer, offset, len);
-        long aLen = format.getFrameSize() == AudioInputStream.NOT_SPECIFIED
-                ? AudioInputStream.NOT_SPECIFIED : len / format.getFrameSize();
-        AudioInputStream astream = new AudioInputStream(stream, format, aLen);
-        return new DirectAudioFloatInputStream(astream);
-    }
-
-    public abstract AudioFormat getFormat();
-
-    public abstract int read(float[] b, int off, int len) throws IOException;
-
-    public abstract void skip(long len) throws IOException;
-
-    public abstract void close() throws IOException;
-
-    public abstract void mark(int readlimit);
-
-    public abstract void reset() throws IOException;
 }

@@ -44,202 +44,202 @@ public final class SoftPerformer {
     static {
         int o = 0;
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("noteon", "on", 0),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1, new ModelDestination(new ModelIdentifier("eg", "on", 0)));
+                new ModelSource(
+                        new ModelIdentifier("noteon", "on", 0),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1, new ModelDestination(new ModelIdentifier("eg", "on", 0)));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("noteon", "on", 0),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1, new ModelDestination(new ModelIdentifier("eg", "on", 1)));
+                new ModelSource(
+                        new ModelIdentifier("noteon", "on", 0),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1, new ModelDestination(new ModelIdentifier("eg", "on", 1)));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("eg", "active", 0),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1, new ModelDestination(new ModelIdentifier("mixer", "active", 0)));
+                new ModelSource(
+                        new ModelIdentifier("eg", "active", 0),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1, new ModelDestination(new ModelIdentifier("mixer", "active", 0)));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("eg", 0),
-                ModelStandardTransform.DIRECTION_MAX2MIN,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
+                new ModelSource(
+                        new ModelIdentifier("eg", 0),
+                        ModelStandardTransform.DIRECTION_MAX2MIN,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("noteon", "velocity"),
-                ModelStandardTransform.DIRECTION_MAX2MIN,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_CONCAVE),
-            -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
+                new ModelSource(
+                        new ModelIdentifier("noteon", "velocity"),
+                        ModelStandardTransform.DIRECTION_MAX2MIN,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_CONCAVE),
+                -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi", "pitch"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            new ModelSource(new ModelIdentifier("midi_rpn", "0"),
-                    value -> {
-                        int v = (int) (value * 16384.0);
-                        int msb = v >> 7;
-                        int lsb = v & 127;
-                        return msb * 100 + lsb;
-                    }),
-            new ModelDestination(new ModelIdentifier("osc", "pitch")));
+                new ModelSource(
+                        new ModelIdentifier("midi", "pitch"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                new ModelSource(new ModelIdentifier("midi_rpn", "0"),
+                        value -> {
+                            int v = (int) (value * 16384.0);
+                            int msb = v >> 7;
+                            int lsb = v & 127;
+                            return msb * 100 + lsb;
+                        }),
+                new ModelDestination(new ModelIdentifier("osc", "pitch")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("noteon", "keynumber"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            12800, new ModelDestination(new ModelIdentifier("osc", "pitch")));
+                new ModelSource(
+                        new ModelIdentifier("noteon", "keynumber"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                12800, new ModelDestination(new ModelIdentifier("osc", "pitch")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "7"),
-                ModelStandardTransform.DIRECTION_MAX2MIN,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_CONCAVE),
-            -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "7"),
+                        ModelStandardTransform.DIRECTION_MAX2MIN,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_CONCAVE),
+                -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "8"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1000, new ModelDestination(new ModelIdentifier("mixer", "balance")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "8"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1000, new ModelDestination(new ModelIdentifier("mixer", "balance")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "10"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1000, new ModelDestination(new ModelIdentifier("mixer", "pan")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "10"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1000, new ModelDestination(new ModelIdentifier("mixer", "pan")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "11"),
-                ModelStandardTransform.DIRECTION_MAX2MIN,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_CONCAVE),
-            -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "11"),
+                        ModelStandardTransform.DIRECTION_MAX2MIN,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_CONCAVE),
+                -960, new ModelDestination(new ModelIdentifier("mixer", "gain")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "91"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1000, new ModelDestination(new ModelIdentifier("mixer", "reverb")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "91"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1000, new ModelDestination(new ModelIdentifier("mixer", "reverb")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "93"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            1000, new ModelDestination(new ModelIdentifier("mixer", "chorus")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "93"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                1000, new ModelDestination(new ModelIdentifier("mixer", "chorus")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "71"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            200, new ModelDestination(new ModelIdentifier("filter", "q")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "71"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                200, new ModelDestination(new ModelIdentifier("filter", "q")));
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "74"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            9600, new ModelDestination(new ModelIdentifier("filter", "freq")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "74"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                9600, new ModelDestination(new ModelIdentifier("filter", "freq")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "72"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            6000, new ModelDestination(new ModelIdentifier("eg", "release2")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "72"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                6000, new ModelDestination(new ModelIdentifier("eg", "release2")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "73"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            2000, new ModelDestination(new ModelIdentifier("eg", "attack2")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "73"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                2000, new ModelDestination(new ModelIdentifier("eg", "attack2")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "75"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            6000, new ModelDestination(new ModelIdentifier("eg", "decay2")));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "75"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                6000, new ModelDestination(new ModelIdentifier("eg", "decay2")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "67"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_SWITCH),
-            -50, new ModelDestination(ModelDestination.DESTINATION_GAIN));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "67"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_SWITCH),
+                -50, new ModelDestination(ModelDestination.DESTINATION_GAIN));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_cc", "67"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_UNIPOLAR,
-                ModelStandardTransform.TRANSFORM_SWITCH),
-            -2400, new ModelDestination(ModelDestination.DESTINATION_FILTER_FREQ));
+                new ModelSource(
+                        new ModelIdentifier("midi_cc", "67"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_UNIPOLAR,
+                        ModelStandardTransform.TRANSFORM_SWITCH),
+                -2400, new ModelDestination(ModelDestination.DESTINATION_FILTER_FREQ));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_rpn", "1"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            100, new ModelDestination(new ModelIdentifier("osc", "pitch")));
+                new ModelSource(
+                        new ModelIdentifier("midi_rpn", "1"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                100, new ModelDestination(new ModelIdentifier("osc", "pitch")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("midi_rpn", "2"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            12800, new ModelDestination(new ModelIdentifier("osc", "pitch")));
+                new ModelSource(
+                        new ModelIdentifier("midi_rpn", "2"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                12800, new ModelDestination(new ModelIdentifier("osc", "pitch")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("master", "fine_tuning"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            100, new ModelDestination(new ModelIdentifier("osc", "pitch")));
+                new ModelSource(
+                        new ModelIdentifier("master", "fine_tuning"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                100, new ModelDestination(new ModelIdentifier("osc", "pitch")));
 
         defaultconnections[o++] = new ModelConnectionBlock(
-            new ModelSource(
-                new ModelIdentifier("master", "coarse_tuning"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            12800, new ModelDestination(new ModelIdentifier("osc", "pitch")));
+                new ModelSource(
+                        new ModelIdentifier("master", "coarse_tuning"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                12800, new ModelDestination(new ModelIdentifier("osc", "pitch")));
 
         defaultconnections[o++] = new ModelConnectionBlock(13500,
                 new ModelDestination(new ModelIdentifier("filter", "freq", 0)));
@@ -307,130 +307,6 @@ public final class SoftPerformer {
     public final ImmutableList<ImmutableList<Integer>> midi_ctrl_connections;
     public final ImmutableList<ImmutableList<Integer>> midi_connections;
     public final ImmutableList<Integer> ctrl_connections;
-
-    private String extractKeys(ModelConnectionBlock conn) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (ModelSource src : conn.getSources()) {
-            sb.append(src.getIdentifier());
-            sb.append(";");
-        }
-        sb.append("]");
-        sb.append(";");
-        if (conn.getDestination() != null) {
-            sb.append(conn.getDestination().getIdentifier());
-        }
-        sb.append(";");
-        return sb.toString();
-    }
-
-    private static void processSource(ModelSource src, int ix, List<Integer> ctrl_connections_list, Map<Integer, ImmutableList<Integer>> midi_nrpn_connections,  Map<Integer, ImmutableList<Integer>> midi_rpn_connections, List<ImmutableList<Integer>> midi_ctrl_connections, List<ImmutableList<Integer>> midi_connections) {
-        ModelIdentifier id = src.getIdentifier();
-        String o = id.getObject();
-        switch (o) {
-            case "midi_cc":
-                processMidiControlSource(src, ix, midi_ctrl_connections);
-                break;
-            case "midi_rpn":
-                processMidiRpnSource(src, ix, midi_rpn_connections);
-                break;
-            case "midi_nrpn":
-                processMidiNrpnSource(src, ix, midi_nrpn_connections);
-                break;
-            case "midi":
-                processMidiSource(src, ix, midi_connections);
-                break;
-            case "noteon":
-                processNoteOnSource(src, ix, midi_connections);
-                break;
-            case "osc":
-            case "mixer":
-                return;
-            default:
-                ctrl_connections_list.add(ix);
-                break;
-        }
-    }
-
-    private static void processMidiControlSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_ctrl_connections) {
-        String v = src.getIdentifier().getVariable();
-        if (v == null)
-            return;
-        int c = Integer.parseInt(v);
-        if (midi_ctrl_connections.get(c) == null)
-            midi_ctrl_connections.set(c, ImmutableList.create(ix));
-        else {
-            ImmutableList<Integer> olda = midi_ctrl_connections.get(c);
-            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, i -> ix);
-            midi_ctrl_connections.set(c, newa);
-        }
-    }
-
-    private static void processNoteOnSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_connections) {
-        String v = src.getIdentifier().getVariable();
-        int c = -1;
-        if (v.equals("on"))
-            c = 3;
-        if (v.equals("keynumber"))
-            c = 4;
-        if (c == -1)
-            return;
-        if (midi_connections.get(c) == null)
-            midi_connections.set(c, ImmutableList.create(ix));
-        else {
-            ImmutableList<Integer> olda = midi_connections.get(c);
-            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
-            midi_connections.set(c, newa);
-        }
-    }
-
-    private static void processMidiSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_connections) {
-        String v = src.getIdentifier().getVariable();
-        int c = -1;
-        if (v.equals("pitch"))
-            c = 0;
-        if (v.equals("channel_pressure"))
-            c = 1;
-        if (v.equals("poly_pressure"))
-            c = 2;
-        if (c == -1)
-            return;
-        if (midi_connections.get(c) == null)
-            midi_connections.set(c, ImmutableList.create(ix));
-        else {
-            ImmutableList<Integer> olda = midi_connections.get(c);
-            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
-            midi_connections.set(c, newa);
-        }
-    }
-
-    private static void processMidiRpnSource(ModelSource src, int ix,  Map<Integer, ImmutableList<Integer>> midi_rpn_connections) {
-        String v = src.getIdentifier().getVariable();
-        if (v == null)
-            return;
-        int c = Integer.parseInt(v);
-        if (midi_rpn_connections.get(c) == null)
-            midi_rpn_connections.put(c, ImmutableList.create(ix));
-        else {
-            ImmutableList<Integer> olda = midi_rpn_connections.get(c);
-            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
-            midi_rpn_connections.put(c, newa);
-        }
-    }
-
-    private static void processMidiNrpnSource(ModelSource src, int ix, Map<Integer, ImmutableList<Integer>> midi_nrpn_connections) {
-        String v = src.getIdentifier().getVariable();
-        if (v == null)
-            return;
-        int c = Integer.parseInt(v);
-        if (midi_nrpn_connections.get(c) == null)
-            midi_nrpn_connections.put(c, ImmutableList.create(ix));
-        else {
-            ImmutableList<Integer> olda = midi_nrpn_connections.get(c);
-            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
-            midi_nrpn_connections.put(c, newa);
-        }
-    }
 
     public SoftPerformer(ModelPerformer performer) {
         exclusiveClass = performer.getExclusiveClass();
@@ -568,45 +444,46 @@ public final class SoftPerformer {
         ModelConnectionBlock connection;
 
         connection = new ModelConnectionBlock(
-            new ModelSource(new ModelIdentifier("midi_cc", "78"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            2000, new ModelDestination(
+                new ModelSource(new ModelIdentifier("midi_cc", "78"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                2000, new ModelDestination(
                 new ModelIdentifier("lfo", "delay2", instance)));
         connmap.put(extractKeys(connection), connection);
 
         final double scale = found_vib_connection == null ? 0
                 : found_vib_connection.getScale();
         connection = new ModelConnectionBlock(
-            new ModelSource(new ModelIdentifier("lfo", instance)),
-            new ModelSource(new ModelIdentifier("midi_cc", "77"),
-                new ModelTransform() {
-                    final double s = scale;
-                    public double transform(double value) {
-                        value = value * 2 - 1;
-                        value *= 600;
-                        if (s == 0) {
-                            return value;
-                        } else if (s > 0) {
-                            if (value < -s)
-                                value = -s;
-                            return value;
-                        } else {
-                            if (value < s)
-                                value = -s;
-                            return -value;
-                        }
-                    }
-                }), new ModelDestination(ModelDestination.DESTINATION_PITCH));
+                new ModelSource(new ModelIdentifier("lfo", instance)),
+                new ModelSource(new ModelIdentifier("midi_cc", "77"),
+                        new ModelTransform() {
+                            final double s = scale;
+
+                            public double transform(double value) {
+                                value = value * 2 - 1;
+                                value *= 600;
+                                if (s == 0) {
+                                    return value;
+                                } else if (s > 0) {
+                                    if (value < -s)
+                                        value = -s;
+                                    return value;
+                                } else {
+                                    if (value < s)
+                                        value = -s;
+                                    return -value;
+                                }
+                            }
+                        }), new ModelDestination(ModelDestination.DESTINATION_PITCH));
         connmap.put(extractKeys(connection), connection);
 
         connection = new ModelConnectionBlock(
-            new ModelSource(new ModelIdentifier("midi_cc", "76"),
-                ModelStandardTransform.DIRECTION_MIN2MAX,
-                ModelStandardTransform.POLARITY_BIPOLAR,
-                ModelStandardTransform.TRANSFORM_LINEAR),
-            2400, new ModelDestination(
+                new ModelSource(new ModelIdentifier("midi_cc", "76"),
+                        ModelStandardTransform.DIRECTION_MIN2MAX,
+                        ModelStandardTransform.POLARITY_BIPOLAR,
+                        ModelStandardTransform.TRANSFORM_LINEAR),
+                2400, new ModelDestination(
                 new ModelIdentifier("lfo", "freq", instance)));
         connmap.put(extractKeys(connection), connection);
 
@@ -669,6 +546,130 @@ public final class SoftPerformer {
         ctrl_connections = ImmutableList.create(ctrl_connections_list.size(), ctrl_connections_list::get);
         this.connections = ImmutableList.create(connections);
         oscillators = performer.getOscillators();
+    }
+
+    private static void processSource(ModelSource src, int ix, List<Integer> ctrl_connections_list, Map<Integer, ImmutableList<Integer>> midi_nrpn_connections, Map<Integer, ImmutableList<Integer>> midi_rpn_connections, List<ImmutableList<Integer>> midi_ctrl_connections, List<ImmutableList<Integer>> midi_connections) {
+        ModelIdentifier id = src.getIdentifier();
+        String o = id.getObject();
+        switch (o) {
+            case "midi_cc":
+                processMidiControlSource(src, ix, midi_ctrl_connections);
+                break;
+            case "midi_rpn":
+                processMidiRpnSource(src, ix, midi_rpn_connections);
+                break;
+            case "midi_nrpn":
+                processMidiNrpnSource(src, ix, midi_nrpn_connections);
+                break;
+            case "midi":
+                processMidiSource(src, ix, midi_connections);
+                break;
+            case "noteon":
+                processNoteOnSource(src, ix, midi_connections);
+                break;
+            case "osc":
+            case "mixer":
+                return;
+            default:
+                ctrl_connections_list.add(ix);
+                break;
+        }
+    }
+
+    private static void processMidiControlSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_ctrl_connections) {
+        String v = src.getIdentifier().getVariable();
+        if (v == null)
+            return;
+        int c = Integer.parseInt(v);
+        if (midi_ctrl_connections.get(c) == null)
+            midi_ctrl_connections.set(c, ImmutableList.create(ix));
+        else {
+            ImmutableList<Integer> olda = midi_ctrl_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, i -> ix);
+            midi_ctrl_connections.set(c, newa);
+        }
+    }
+
+    private static void processNoteOnSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_connections) {
+        String v = src.getIdentifier().getVariable();
+        int c = -1;
+        if (v.equals("on"))
+            c = 3;
+        if (v.equals("keynumber"))
+            c = 4;
+        if (c == -1)
+            return;
+        if (midi_connections.get(c) == null)
+            midi_connections.set(c, ImmutableList.create(ix));
+        else {
+            ImmutableList<Integer> olda = midi_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
+            midi_connections.set(c, newa);
+        }
+    }
+
+    private static void processMidiSource(ModelSource src, int ix, List<ImmutableList<Integer>> midi_connections) {
+        String v = src.getIdentifier().getVariable();
+        int c = -1;
+        if (v.equals("pitch"))
+            c = 0;
+        if (v.equals("channel_pressure"))
+            c = 1;
+        if (v.equals("poly_pressure"))
+            c = 2;
+        if (c == -1)
+            return;
+        if (midi_connections.get(c) == null)
+            midi_connections.set(c, ImmutableList.create(ix));
+        else {
+            ImmutableList<Integer> olda = midi_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
+            midi_connections.set(c, newa);
+        }
+    }
+
+    private static void processMidiRpnSource(ModelSource src, int ix, Map<Integer, ImmutableList<Integer>> midi_rpn_connections) {
+        String v = src.getIdentifier().getVariable();
+        if (v == null)
+            return;
+        int c = Integer.parseInt(v);
+        if (midi_rpn_connections.get(c) == null)
+            midi_rpn_connections.put(c, ImmutableList.create(ix));
+        else {
+            ImmutableList<Integer> olda = midi_rpn_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
+            midi_rpn_connections.put(c, newa);
+        }
+    }
+
+    private static void processMidiNrpnSource(ModelSource src, int ix, Map<Integer, ImmutableList<Integer>> midi_nrpn_connections) {
+        String v = src.getIdentifier().getVariable();
+        if (v == null)
+            return;
+        int c = Integer.parseInt(v);
+        if (midi_nrpn_connections.get(c) == null)
+            midi_nrpn_connections.put(c, ImmutableList.create(ix));
+        else {
+            ImmutableList<Integer> olda = midi_nrpn_connections.get(c);
+            ImmutableList<Integer> newa = ImmutableList.create(olda, 1, index -> ix);
+            midi_nrpn_connections.put(c, newa);
+        }
+    }
+
+    private String extractKeys(ModelConnectionBlock conn) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (ModelSource src : conn.getSources()) {
+            sb.append(src.getIdentifier());
+            sb.append(";");
+        }
+        sb.append("]");
+        sb.append(";");
+        if (conn.getDestination() != null) {
+            sb.append(conn.getDestination().getIdentifier());
+        }
+        sb.append(";");
+        return sb.toString();
     }
 
 }

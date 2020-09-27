@@ -105,35 +105,35 @@ class SF2Region {
         this(generators, new ArrayList<>());
     }
 
+    static short getDefaultValue(int generator) {
+        if (generator == 8) return (short) 13500;
+        if (generator == 21) return (short) -12000;
+        if (generator == 23) return (short) -12000;
+        if (generator == 25) return (short) -12000;
+        if (generator == 26) return (short) -12000;
+        if (generator == 27) return (short) -12000;
+        if (generator == 28) return (short) -12000;
+        if (generator == 30) return (short) -12000;
+        if (generator == 33) return (short) -12000;
+        if (generator == 34) return (short) -12000;
+        if (generator == 35) return (short) -12000;
+        if (generator == 36) return (short) -12000;
+        if (generator == 38) return (short) -12000;
+        if (generator == 43) return (short) 0x7F00;
+        if (generator == 44) return (short) 0x7F00;
+        if (generator == 46) return (short) -1;
+        if (generator == 47) return (short) -1;
+        if (generator == 56) return (short) 100;
+        if (generator == 58) return (short) -1;
+        return 0;
+    }
+
     Map<Integer, Short> getGenerators() {
         return generators;
     }
 
     boolean contains(int generator) {
         return generators.containsKey(generator);
-    }
-
-    static short getDefaultValue(int generator) {
-        if (generator == 8) return (short)13500;
-        if (generator == 21) return (short)-12000;
-        if (generator == 23) return (short)-12000;
-        if (generator == 25) return (short)-12000;
-        if (generator == 26) return (short)-12000;
-        if (generator == 27) return (short)-12000;
-        if (generator == 28) return (short)-12000;
-        if (generator == 30) return (short)-12000;
-        if (generator == 33) return (short)-12000;
-        if (generator == 34) return (short)-12000;
-        if (generator == 35) return (short)-12000;
-        if (generator == 36) return (short)-12000;
-        if (generator == 38) return (short)-12000;
-        if (generator == 43) return (short)0x7F00;
-        if (generator == 44) return (short)0x7F00;
-        if (generator == 46) return (short)-1;
-        if (generator == 47) return (short)-1;
-        if (generator == 56) return (short)100;
-        if (generator == 58) return (short)-1;
-        return 0;
     }
 
     short getShort(int generator) {

@@ -119,7 +119,7 @@ public final class ModelIdentifier {
         if (!(obj instanceof ModelIdentifier))
             return false;
 
-        ModelIdentifier mobj = (ModelIdentifier)obj;
+        ModelIdentifier mobj = (ModelIdentifier) obj;
         if ((object == null) != (mobj.object == null))
             return false;
         if ((variable == null) != (mobj.variable == null))

@@ -35,7 +35,8 @@ final class SF2LayerRegion extends SF2Region {
 
     private SF2Sample sample;
 
-    SF2LayerRegion() {}
+    SF2LayerRegion() {
+    }
 
     SF2LayerRegion(SF2Sample sample, Map<Integer, Short> generators) {
         super(generators);

@@ -52,7 +52,7 @@ import java.io.InputStream;
  * @author David Rivas
  * @author Kara Kytle
  * @author Florian Bomers
- *
+ * <p>
  * see AudioSystem
  * see Clip#open(AudioInputStream) Clip.open(AudioInputStream)
  * @since 1.3
@@ -118,8 +118,9 @@ public class AudioInputStream {
     /**
      * Constructs an audio input stream that has the requested format and length in sample frames,
      * using audio data from the specified input stream.
+     *
      * @param stream the stream on which this <code>AudioInputStream</code>
-     * object is based
+     *               object is based
      * @param format the format of this stream's audio data
      * @param length the length in sample frames of the data in this stream
      */
@@ -142,6 +143,7 @@ public class AudioInputStream {
 
     /**
      * Obtains the audio format of the sound data in this audio input stream.
+     *
      * @return an audio format object describing this stream's format
      */
     public AudioFormat getFormat() {
@@ -180,7 +182,7 @@ public class AudioInputStream {
      * of frames, a maximum of <code>len - (len % frameSize)
      * </code> bytes will be read.
      *
-     * @param b the buffer into which the data is read
+     * @param b   the buffer into which the data is read
      * @param len the maximum number of bytes to read
      * @return the total number of bytes read into the buffer, or -1 if there
      * is no more data because the end of the stream has been reached
@@ -193,21 +195,21 @@ public class AudioInputStream {
     public int read(byte[] b, int len) throws IOException {
 
         // make sure we don't read fractions of a frame.
-        if( (len%frameSize) != 0 ) {
-            len -= (len%frameSize);
+        if ((len % frameSize) != 0) {
+            len -= (len % frameSize);
             if (len == 0) {
                 return 0;
             }
         }
 
-        if( frameLength != NOT_SPECIFIED ) {
-            if( framePos >= frameLength ) {
+        if (frameLength != NOT_SPECIFIED) {
+            if (framePos >= frameLength) {
                 return -1;
             } else {
 
                 // don't try to read beyond our own set length in frames
-                if( (len/frameSize) > (frameLength-framePos) ) {
-                    len = (int) (frameLength-framePos) * frameSize;
+                if ((len / frameSize) > (frameLength - framePos)) {
+                    len = (int) (frameLength - framePos) * frameSize;
                 }
             }
         }
@@ -219,7 +221,7 @@ public class AudioInputStream {
         // use them first
         if (pushBackLen > 0 && len >= pushBackLen) {
             System.arraycopy(pushBackBuffer, 0,
-                             b, 0, pushBackLen);
+                    b, 0, pushBackLen);
             thisOff += pushBackLen;
             len -= pushBackLen;
             bytesRead += pushBackLen;
@@ -242,11 +244,11 @@ public class AudioInputStream {
                     pushBackBuffer = new byte[frameSize];
                 }
                 System.arraycopy(b, bytesRead - pushBackLen,
-                                 pushBackBuffer, 0, pushBackLen);
+                        pushBackBuffer, 0, pushBackLen);
                 bytesRead -= pushBackLen;
             }
             // make sure to update our framePos
-            framePos += bytesRead/frameSize;
+            framePos += bytesRead / frameSize;
         }
         return bytesRead;
     }
@@ -255,6 +257,7 @@ public class AudioInputStream {
     /**
      * Skips over and discards a specified number of bytes from this
      * audio input stream.
+     *
      * @param n the requested number of bytes to be skipped
      * @return the actual number of bytes skipped
      * throws IOException if an input or output error occurs
@@ -264,25 +267,25 @@ public class AudioInputStream {
     public long skip(long n) throws IOException {
 
         // make sure not to skip fractional frames
-        if( (n%frameSize) != 0 ) {
-            n -= (n%frameSize);
+        if ((n % frameSize) != 0) {
+            n -= (n % frameSize);
         }
 
-        if( frameLength != NOT_SPECIFIED ) {
+        if (frameLength != NOT_SPECIFIED) {
             // don't skip more than our set length in frames.
-            if( (n/frameSize) > (frameLength-framePos) ) {
-                n = (frameLength-framePos) * frameSize;
+            if ((n / frameSize) > (frameLength - framePos)) {
+                n = (frameLength - framePos) * frameSize;
             }
         }
         long temp = stream.skip(n);
 
         // if no error, update our position.
-        if( temp%frameSize != 0 ) {
+        if (temp % frameSize != 0) {
 
             // Throw an IOException if we've skipped a fractional number of frames
             throw new IOException("Could not skip an integer number of frames.");
         }
-        framePos += temp/frameSize;
+        framePos += temp / frameSize;
         return temp;
 
     }
@@ -300,10 +303,11 @@ public class AudioInputStream {
 
     /**
      * Marks the current position in this audio input stream.
+     *
      * @param readlimit the maximum number of bytes that can be read before
-     * the mark position becomes invalid.
-     * see #reset
-     * see #markSupported
+     *                  the mark position becomes invalid.
+     *                  see #reset
+     *                  see #markSupported
      */
 
     public void mark(int readlimit) {
@@ -348,6 +352,7 @@ public class AudioInputStream {
     /**
      * Tests whether this audio input stream supports the <code>mark</code> and
      * <code>reset</code> methods.
+     *
      * @return <code>true</code> if this stream supports the <code>mark</code>
      * and <code>reset</code> methods; <code>false</code> otherwise
      * see #mark

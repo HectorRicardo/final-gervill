@@ -5,11 +5,6 @@ import java.util.*;
 public class ImmutableList<T> implements Iterable<T> {
 
     public final int length;
-
-    public interface ElementGenerator<T> {
-        T generate(int index);
-    }
-
     private final List<T> myList;
 
     private ImmutableList(List<T> myList) {
@@ -76,6 +71,20 @@ public class ImmutableList<T> implements Iterable<T> {
         return new ImmutableList<>(myList);
     }
 
+    public static byte[] toArray(ImmutableList<Byte> bytes) {
+        byte[] arr = new byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            arr[i] = bytes.get(i);
+        }
+        return arr;
+    }
+
+    public static void copy(ImmutableList<Byte> src, int srcPos, byte[] dest, int destPos, int length) {
+        for (int i = 0; i < length; i++) {
+            dest[destPos + i] = src.get(srcPos + i);
+        }
+    }
+
     public ImmutableList<T> append(T elem) {
         List<T> copy = new ArrayList<>(myList);
         copy.add(elem);
@@ -100,20 +109,6 @@ public class ImmutableList<T> implements Iterable<T> {
         return new ArrayList<>(myList);
     }
 
-    public static byte[] toArray(ImmutableList<Byte> bytes) {
-        byte[] arr = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            arr[i] = bytes.get(i);
-        }
-        return arr;
-    }
-
-    public static void copy(ImmutableList<Byte> src, int srcPos, byte[] dest, int destPos, int length) {
-        for (int i = 0; i < length; i++) {
-            dest[destPos + i] = src.get(srcPos + i);
-        }
-    }
-
     public T[] toArray(T[] arr) {
         return myList.toArray(arr);
     }
@@ -121,5 +116,9 @@ public class ImmutableList<T> implements Iterable<T> {
     @Override
     public Iterator<T> iterator() {
         return myList.iterator();
+    }
+
+    public interface ElementGenerator<T> {
+        T generate(int index);
     }
 }

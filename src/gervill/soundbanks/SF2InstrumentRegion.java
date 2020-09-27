@@ -35,7 +35,8 @@ final class SF2InstrumentRegion extends SF2Region {
 
     private SF2Layer layer;
 
-    SF2InstrumentRegion() {}
+    SF2InstrumentRegion() {
+    }
 
     SF2InstrumentRegion(SF2Layer layer) {
         super();

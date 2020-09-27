@@ -43,8 +43,8 @@ final class DLSRegion {
     private final int velto;
     private final int exclusiveClass;
     private final int fusoptions;
-    private DLSSample sample;
     private final DLSSampleOptions sampleoptions;
+    private DLSSample sample;
 
     DLSRegion(int keyfrom, int keyto, int velfrom, int velto, int exclusiveClass, int fusoptions, DLSSampleOptions sampleoptions) {
         this.keyfrom = keyfrom;
@@ -54,10 +54,6 @@ final class DLSRegion {
         this.exclusiveClass = exclusiveClass;
         this.fusoptions = fusoptions;
         this.sampleoptions = sampleoptions;
-    }
-
-    void setSample(DLSSample sample) {
-        this.sample = sample;
     }
 
     int getExclusiveClass() {
@@ -78,6 +74,10 @@ final class DLSRegion {
 
     DLSSample getSample() {
         return sample;
+    }
+
+    void setSample(DLSSample sample) {
+        this.sample = sample;
     }
 
     int getVelfrom() {
